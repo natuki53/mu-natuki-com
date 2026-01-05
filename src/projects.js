@@ -16,7 +16,7 @@ export const projects = [
         tags: ["Tool", "Unity"],
         media: {
             type: 'video',
-            src: '/gallery/【VRChat向けツール】FaceMixer 紹介動画.mp4'
+            src: '/gallery/FaceMixer紹介動画.mp4'
         },
         links: [
             { type: "booth", url: "https://booth.pm/ja/items/6819792", label: "BOOTH Page" }
