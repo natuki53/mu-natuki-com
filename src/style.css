@@ -512,7 +512,7 @@ footer {
 .modal-content {
   background: #fff;
   width: 90%;
-  max-width: 500px;
+  max-width: 800px;
   padding: 2.5rem;
   border-radius: 20px;
   position: relative;
@@ -562,4 +562,35 @@ footer {
 
 .mt-4 {
   margin-top: 1.5rem;
+}
+
+/* Modal Media */
+/* Modal Media */
+.modal-media-container {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: #f0f0f0;
+  /* Enforce 16:9 */
+  aspect-ratio: 16 / 9;
+  position: relative;
+}
+
+.modal-media-container.hidden {
+  display: none;
+}
+
+.modal-media-container video,
+.modal-media-container iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  background: #000;
+}
+
+.modal-media-container iframe {
+  border: none;
 }

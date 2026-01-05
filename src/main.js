@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalDesc = document.getElementById('modal-desc');
   const modalTags = document.getElementById('modal-tags');
   const modalLinks = document.getElementById('modal-links');
+  const modalMedia = document.getElementById('modal-media');
 
   // Helper to open modal
   const openModal = (projectId) => {
@@ -20,6 +21,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modalTitle.textContent = project.title;
     modalDesc.textContent = project.description;
+
+    // Media Handling
+    modalMedia.innerHTML = ''; // Clear previous
+    modalMedia.className = 'modal-media-container hidden'; // Reset classes
+
+    if (project.media) {
+      modalMedia.classList.remove('hidden');
+      if (project.media.type === 'video') {
+        const video = document.createElement('video');
+        video.src = project.media.src;
+        video.controls = true;
+        video.playsInline = true;
+        // video.autoplay = true; // Optional
+        modalMedia.appendChild(video);
+      } else if (project.media.type === 'iframe') {
+        const iframe = document.createElement('iframe');
+        iframe.src = project.media.src;
+        // Allow fullscreen permissions
+        iframe.allow = "fullscreen; web-share; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.setAttribute('allowfullscreen', ''); // Standard HTML5
+        iframe.setAttribute('webkitallowfullscreen', ''); // WebKit
+        iframe.setAttribute('mozallowfullscreen', ''); // Mozilla
+        modalMedia.appendChild(iframe);
+      }
+    }
 
     // Clear and add tags
     modalTags.innerHTML = '';
@@ -58,16 +84,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeModal = () => {
     modalOverlay.classList.add('hidden');
     document.body.style.overflow = ''; // Restore scrolling
+    // Clear media content to stop video/iframe playback
+    setTimeout(() => {
+      modalMedia.innerHTML = '';
+    }, 300); // Wait for fade out
   };
 
   // Helper for icons
   const getIconForType = (type) => {
-    switch (type) {
+    const lowerType = type.toLowerCase();
+    switch (lowerType) {
       case 'twitter': return 'X';
+      case 'x': return 'X';
       case 'github': return '💻';
       case 'booth': return '🛍️';
       case 'twitch': return '📺';
       case 'website': return '🔗';
+      case 'extension': return '🧩';
       default: return '🔗';
     }
   };
