@@ -5,6 +5,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Portfolio of natuki - Developer, vrnabi operator, & VRChat Photographer" />
+
+  <!-- OGP & Twitter Card Settings -->
+  <meta property="og:title" content="雨苺なつき" />
+  <meta property="og:description" content="Portfolio of natuki - Developer, vrnabi operator, & VRChat Photographer" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mu-natuki.com/" />
+  <meta property="og:image" content="https://mu-natuki.com/gallery/icon.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mu_natuki" />
+  <meta name="twitter:image" content="https://mu-natuki.com/gallery/icon.png" />
+
   <title>雨苺なつき</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,8 +53,8 @@
             ぶいなびで記事を書いたり、便利なツールを作ったりしています！
           </p>
           <div class="role-badges">
-            <span class="badge pink">ぶいなび Operator</span>
-            <span class="badge blue">MofuMagic Owner</span>
+            <span class="badge blue">ぶいなび Operator</span>
+            <span class="badge purple">MofuMagic Owner</span>
             <span class="badge yellow">VRChat Photographer</span>
           </div>
         </div>
@@ -53,31 +64,37 @@
       <section id="projects" class="pop-in">
         <h2>Projects</h2>
         <div class="projects-grid">
-          <a href="https://vrnavi.jp" target="_blank" class="project-card">
+          <!-- Rendered dynamically or via data-attributes, but keeping static structure for JS to hook into -->
+          <div class="project-card" data-id="vrnavi">
             <h3>ぶいなび</h3>
             <p>VRChatの情報をまとめたサイト</p>
             <div class="tags"><span class="tag">Site</span><span class="tag">Unity</span></div>
-          </a>
-          <a href="https://booth.pm/ja/items/6819792" target="_blank" class="project-card highlight">
+          </div>
+          <div class="project-card highlight" data-id="facemixer">
             <h3>FaceMixer</h3>
             <p>VRChatのアバター表情改変を簡単に！</p>
-            <div class="tags"><span class="tag">Unity</span><span class="tag">Tool</span></div>
-          </a>
-          <a href="https://github.com/natuki53/BOOTH_Import_Assistant" target="_blank" class="project-card gray">
+            <div class="tags"><span class="tag">Tool</span><span class="tag">Unity</span></div>
+          </div>
+          <div class="project-card gray" data-id="timecard">
+            <h3>TimeCard Web</h3>
+            <p>学校課題で作成した勤怠管理サイト</p>
+            <div class="tags"><span class="tag">Java</span><span class="tag">Web</span></div>
+          </div>
+          <div class="project-card gray" data-id="booth-import">
             <h3>BOOTH Import Assistant</h3>
             <p>BOOTHからのインポートを楽にするやつ</p>
             <div class="tags"><span class="tag">C#</span><span class="tag">Efficiency</span></div>
-          </a>
-          <a href="https://github.com/natuki53/BoothLibrarySearch" target="_blank" class="project-card gray">
+          </div>
+          <div class="project-card gray" data-id="booth-library">
             <h3>BOOTH Library Search</h3>
             <p>BOOTHライブラリをさくさく検索できるやつ</p>
             <div class="tags"><span class="tag">Chrome</span><span class="tag">Extension</span></div>
-          </a>
-          <a href="https://github.com/natuki53/360-viewer" target="_blank" class="project-card gray">
+          </div>
+          <div class="project-card gray" data-id="360-viewer">
             <h3>360-viewer</h3>
             <p>Webブラウザで360度画像が見れるビューワー</p>
             <div class="tags"><span class="tag">Web</span><span class="tag">360°</span></div>
-          </a>
+          </div>
         </div>
       </section>
 
@@ -137,11 +154,11 @@
         <a href="https://twitter.com/mu_natuki" target="_blank" rel="noopener noreferrer" class="link-btn twitter">
           <span class="icon">X</span> X(Twitter)
         </a>
-        <a href="https://mofumagic.booth.pm/" target="_blank" rel="noopener noreferrer" class="link-btn booth">
-          <span class="icon">🛍️</span> BOOTH
-        </a>
         <a href="https://www.twitch.tv/" target="_blank" rel="noopener noreferrer" class="link-btn twitch">
           <span class="icon">📺</span> Twitch
+        </a>
+        <a href="https://mofumagic.booth.pm/" target="_blank" rel="noopener noreferrer" class="link-btn booth">
+          <span class="icon">🛍️</span> BOOTH
         </a>
         <a href="https://github.com/natuki53" target="_blank" rel="noopener noreferrer" class="link-btn github">
           <span class="icon">💻</span> GitHub
@@ -153,6 +170,20 @@
     <footer>
       <p>Made with by 雨苺なつき</p>
     </footer>
+
+    <!-- Project Modal -->
+    <div id="project-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <button id="modal-close" class="modal-close-btn">×</button>
+        <h3 id="modal-title">Project Title</h3>
+        <p id="modal-desc">Project description goes here.</p>
+        <div id="modal-tags" class="tags justify-center"></div>
+        <div id="modal-links" class="links-row mt-4">
+          <!-- Links will be injected here -->
+        </div>
+      </div>
+    </div>
+
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>
