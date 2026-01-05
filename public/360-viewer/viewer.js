@@ -521,7 +521,7 @@ class PanoramaViewer {
                 // 古いバージョン用
                 renderer.outputEncoding = THREE.sRGBEncoding;
                 renderer.gammaFactor = 2.2;
-                renderer.gammaOutput = true;
+                // renderer.gammaOutput = true; // Removed for r128+ compatibility
             }
 
             return renderer;
