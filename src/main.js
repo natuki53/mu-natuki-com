@@ -14,13 +14,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalLinks = document.getElementById('modal-links');
   const modalMedia = document.getElementById('modal-media');
 
+  const escapeHtml = (str) =>
+    String(str)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+
+  // Allow only line breaks (<br>) in descriptions (also supports newline \n).
+  const formatDescriptionHtml = (description) => {
+    const escaped = escapeHtml(description ?? '');
+    return escaped
+      .replace(/\r?\n/g, '<br>')
+      .replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+  };
+
   // Helper to open modal
   const openModal = (projectId) => {
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
 
     modalTitle.textContent = project.title;
-    modalDesc.textContent = project.description;
+    modalDesc.innerHTML = formatDescriptionHtml(project.description);
 
     // Media Handling
     modalMedia.innerHTML = ''; // Clear previous
@@ -35,6 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
         video.playsInline = true;
         // video.autoplay = true; // Optional
         modalMedia.appendChild(video);
+      } else if (project.media.type === 'image') {
+        const img = document.createElement('img');
+        img.src = project.media.src;
+        img.alt = project.media.alt || `${project.title} image`;
+        img.loading = 'lazy';
+        modalMedia.appendChild(img);
       } else if (project.media.type === 'iframe') {
         const iframe = document.createElement('iframe');
         iframe.src = project.media.src;
@@ -98,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'x': return 'X';
       case 'github': return '💻';
       case 'booth': return '🛍️';
+      case 'youtube': return '🎥';
       case 'twitch': return '📺';
       case 'website': return '🔗';
       case 'extension': return '🧩';
