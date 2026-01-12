@@ -575,7 +575,12 @@ footer {
 /* Modal Media */
 .modal-media-container {
   /* Keep a true 16:9 box even on short viewports */
-  width: auto;
+  /* NOTE:
+     `aspect-ratio` only works when at least one of width/height can be resolved from the other.
+     Previously we set a definite height AND the flex layout could resolve a definite width,
+     so the box stopped being 16:9.
+     Keep a height cap by deriving the width from that cap instead. */
+  width: min(100%, calc(clamp(180px, 45dvh, 460px) * 16 / 9));
   max-width: 100%;
   margin-bottom: 0;
   border-radius: 12px;
@@ -585,8 +590,8 @@ footer {
   /* Enforce 16:9 */
   aspect-ratio: 16 / 9;
   position: relative;
-  /* Height-driven sizing keeps aspect-ratio intact */
-  height: clamp(180px, 45dvh, 460px);
+  /* Let height be computed from width via aspect-ratio */
+  height: auto;
   margin-left: auto;
   margin-right: auto;
 }
