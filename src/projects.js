@@ -35,9 +35,9 @@ export const projects = [
         tags: ["Java", "Web"],
         links: [
             { type: "website", url: "https://mu-natuki.com/timecard-web-school", label: "Visit Site" },
+            { type: "github", url: "https://github.com/natuki53/Timecard-Web-School", label: "GitHub" },
             { type: "website", url: "https://mu-natuki.com/timecard-web-school/manual/", label: "User Manual" },
-            { type: "website", url: "https://mu-natuki.com/timecard-web-school/manual-admin/", label: "Admin Manual" },
-            { type: "github", url: "https://github.com/natuki53/Timecard-Web-School", label: "GitHub" }
+            { type: "website", url: "https://mu-natuki.com/timecard-web-school/manual-admin/", label: "Admin Manual" }
         ]
     },
     {

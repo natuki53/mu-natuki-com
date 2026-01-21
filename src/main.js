@@ -80,6 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Clear and add links
     modalLinks.innerHTML = '';
+    // Remove previous layout classes and links-row class (which conflicts with grid layout)
+    modalLinks.classList.remove('single-link', 'three-links', 'links-row');
+    
     project.links.forEach(link => {
       const a = document.createElement('a');
       a.href = link.url;
@@ -97,6 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
       a.innerHTML = `<span class="icon">${getIconForType(link.type)}</span> ${link.label}`;
       modalLinks.appendChild(a);
     });
+
+    // Apply layout class based on link count
+    const linkCount = project.links.length;
+    if (linkCount === 1) {
+      modalLinks.classList.add('single-link');
+    } else if (linkCount === 3) {
+      modalLinks.classList.add('three-links');
+    }
 
     modalOverlay.classList.remove('hidden');
     document.body.style.overflow = 'hidden'; // Prevent scrolling
@@ -157,4 +168,81 @@ document.addEventListener('DOMContentLoaded', () => {
       closeModal();
     }
   });
+
+  // Scroll reveal (IntersectionObserver)
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
+  const markVisible = (el) => {
+    el.classList.add('is-visible');
+  };
+
+  const observeReveal = () => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          markVisible(entry.target);
+          observer.unobserve(entry.target);
+        });
+      },
+      {
+        root: null,
+        threshold: 0.15,
+        // Trigger a little before the element fully enters
+        rootMargin: '0px 0px -10% 0px',
+      }
+    );
+
+    const watch = (el, delayMs = 0) => {
+      if (!el) return;
+      el.style.setProperty('--reveal-delay', `${delayMs}ms`);
+      observer.observe(el);
+    };
+
+    // Sections already have .pop-in in HTML
+    document.querySelectorAll('.pop-in').forEach((el, idx) => {
+      watch(el, Math.min(idx * 80, 240));
+    });
+
+    // Project cards: stagger
+    const projectCards = Array.from(document.querySelectorAll('.project-card'));
+    projectCards.forEach((el, idx) => {
+      el.classList.add('reveal');
+      watch(el, (idx % 3) * 90);
+    });
+
+    // Polaroids: keep existing rotation (no transform override)
+    const polaroids = Array.from(document.querySelectorAll('.polaroid'));
+    polaroids.forEach((polaroid, idx) => {
+      polaroid.classList.add('reveal-fade');
+      watch(polaroid, (idx % 2) * 100);
+
+      const inner = polaroid.querySelector('.polaroid-inner');
+      if (inner) {
+        inner.classList.add('reveal');
+        watch(inner, (idx % 2) * 100 + 80);
+      }
+    });
+
+    // Link buttons: stagger
+    const linkButtons = Array.from(document.querySelectorAll('.link-btn'));
+    linkButtons.forEach((el, idx) => {
+      el.classList.add('reveal');
+      watch(el, Math.min(idx * 80, 320));
+    });
+
+    // Small texts that look nicer when they fade in
+    const galleryDesc = document.querySelector('.gallery-desc');
+    if (galleryDesc) {
+      galleryDesc.classList.add('reveal');
+      watch(galleryDesc, 0);
+    }
+  };
+
+  if (prefersReducedMotion) {
+    // Ensure nothing stays hidden for users who prefer reduced motion
+    document.querySelectorAll('.pop-in, .reveal, .reveal-fade').forEach(markVisible);
+  } else {
+    observeReveal();
+  }
 });
