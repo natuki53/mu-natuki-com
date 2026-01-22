@@ -70,7 +70,7 @@ export const projects = [
         tags: ["JavaScript", "PHP", "Web"],
         media: {
             type: 'iframe',
-            src: '/360-viewer/index.html?img=/gallery/VRChat_2025-12-03_19-31-18.277_3840x2160.png'
+            src: '/360-viewer/index.html?img=/gallery/png/VRChat_2025-12-03_19-31-18.277_3840x2160.png'
         },
         links: [
             { type: "website", url: "https://vrnavi.jp/photo_world_introduction", label: "Using Site" },
