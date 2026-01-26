@@ -281,6 +281,20 @@ h2::after {
   border: 3px solid var(--accent-sub);
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 0;
+  --hover-shadow-color: var(--accent-main);
+}
+
+.project-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  box-shadow: 8px 8px 0px var(--hover-shadow-color);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
 }
 
 [data-theme="dark"] .project-card {
@@ -296,22 +310,26 @@ h2::after {
 
 .project-card:hover {
   transform: translateY(-8px);
-  box-shadow: 8px 8px 0px var(--accent-main);
   border-color: var(--accent-main);
+}
+
+.project-card:hover::after {
+  opacity: 1;
 }
 
 .project-card.highlight {
   border-color: var(--accent-pop);
+  --hover-shadow-color: var(--accent-pop);
 }
 
 .project-card.highlight:hover {
-  box-shadow: 8px 8px 0px var(--accent-pop);
   border-color: var(--accent-pop);
 }
 
 .project-card.gray {
   background-color: #fff;
   border-color: #d1d1d1;
+  --hover-shadow-color: #d1d1d1;
 }
 
 [data-theme="dark"] .project-card.gray {
@@ -324,8 +342,20 @@ h2::after {
 }
 
 .project-card.gray:hover {
-  box-shadow: 8px 8px 0px #d1d1d1;
   border-color: #b0b0b0;
+}
+
+.project-card.blue-dark {
+  border-color: #1e3a8a;
+  --hover-shadow-color: #1e3a8a;
+}
+
+.project-card.blue-dark h3 {
+  color: #1e3a8a;
+}
+
+.project-card.blue-dark:hover {
+  border-color: #1e40af;
 }
 
 .tags {

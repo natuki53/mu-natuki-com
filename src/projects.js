@@ -29,15 +29,14 @@ export const projects = [
         ]
     },
     {
-        id: "timecard",
-        title: "TimeCard Web",
-        description: "学校課題で作成した勤怠管理サイト。Javaサーブレットを使用してApache Tomcatで構築しました。自宅サーバーで稼働しています。",
-        tags: ["Java", "Web"],
+        id: "cliprack",
+        title: "ClipRack",
+        description: "クリップボードに履歴管理機能を追加してコピーペーストを便利にするアプリです。",
+        tags: ["Swift", "macOS", "App"],
         links: [
-            { type: "website", url: "https://mu-natuki.com/timecard-web-school", label: "Visit Site" },
-            { type: "github", url: "https://github.com/natuki53/Timecard-Web-School", label: "GitHub" },
-            { type: "website", url: "https://mu-natuki.com/timecard-web-school/manual/", label: "User Manual" },
-            { type: "website", url: "https://mu-natuki.com/timecard-web-school/manual-admin/", label: "Admin Manual" }
+            { type: "website", url: "https://natuki53.github.io/ClipRack-docs/", label: "Visit Site" },
+            { type: "TestFlight", url: "https://testflight.apple.com/join/YEPq8pt7", label: "TestFlight" },
+            { type: "github", url: "https://github.com/natuki53/ClipRack-docs", label: "GitHub" }
         ]
     },
     {
@@ -71,11 +70,32 @@ export const projects = [
         tags: ["JavaScript", "PHP", "Web"],
         media: {
             type: 'iframe',
-            src: '/360-viewer/index.html?img=/gallery/VRChat_2025-12-03_19-31-18.277_3840x2160.png'
+            src: '/360-viewer/index.html?img=/gallery/png/VRChat_2025-12-03_19-31-18.277_3840x2160.png'
         },
         links: [
             { type: "website", url: "https://vrnavi.jp/photo_world_introduction", label: "Using Site" },
             { type: "github", url: "https://github.com/natuki53/360-viewer", label: "GitHub" }
+        ]
+    },
+    {
+        id: "timecard",
+        title: "TimeCard Web",
+        description: "学校課題で作成した勤怠管理サイト。Javaサーブレットを使用してApache Tomcatで構築しました。自宅サーバーで稼働しています。",
+        tags: ["Java", "Web"],
+        links: [
+            { type: "website", url: "https://mu-natuki.com/timecard-web-school", label: "Visit Site" },
+            { type: "github", url: "https://github.com/natuki53/Timecard-Web-School", label: "GitHub" },
+            { type: "website", url: "https://mu-natuki.com/timecard-web-school/manual/", label: "User Manual" },
+            { type: "website", url: "https://mu-natuki.com/timecard-web-school/manual-admin/", label: "Admin Manual" }
+        ]
+    },
+    {
+        id: "toc-ad",
+        title: "TOC AD",
+        description: "WordPressの目次下に広告の画像を自動で追加するプラグイン",
+        tags: ["PHP", "WordPress"],
+        links: [
+            { type: "github", url: "https://github.com/natuki53/TOC-AD", label: "GitHub" }
         ]
     }
 ];
