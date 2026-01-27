@@ -224,15 +224,42 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     );
 
+    // Check if element is already in viewport on page load
+    const isInViewport = (el) => {
+      const rect = el.getBoundingClientRect();
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+      return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= windowHeight &&
+        rect.right <= windowWidth
+      );
+    };
+
     const watch = (el, delayMs = 0) => {
       if (!el) return;
       el.style.setProperty('--reveal-delay', `${delayMs}ms`);
-      observer.observe(el);
+      
+      // If element is already in viewport, mark it visible immediately
+      if (isInViewport(el)) {
+        markVisible(el);
+      } else {
+        observer.observe(el);
+      }
     };
 
     // Sections already have .pop-in in HTML
     document.querySelectorAll('.pop-in').forEach((el, idx) => {
       watch(el, Math.min(idx * 80, 240));
+    });
+
+    // Sections with .reveal-fade (like card-panel)
+    document.querySelectorAll('.reveal-fade').forEach((el, idx) => {
+      // Skip if already watched (e.g., polaroids)
+      if (!el.classList.contains('polaroid')) {
+        watch(el, Math.min(idx * 80, 240));
+      }
     });
 
     // Project cards: stagger
