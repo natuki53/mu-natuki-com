@@ -1,0 +1,342 @@
+.psv-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-top: 56.25%;
+    /* 16:9アスペクト比 */
+    background-color: #f0f0f0;
+    user-select: none;
+    touch-action: pan-x pan-y;
+    /* ボタン操作を妨げないタッチ設定 */
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.psv-container.psv-no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    height: auto;
+    min-height: 200px;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+}
+
+.psv-container.psv-no-image p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.psv-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ボタン共通スタイル */
+.psv-btn {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: none;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    z-index: 20;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px !important;
+    /* 角丸の四角形 - 優先度を上げる */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    touch-action: manipulation;
+    /* タッチ操作を有効にする */
+    -webkit-tap-highlight-color: transparent;
+    /* タップハイライトを無効にする */
+    user-select: none;
+    /* テキスト選択を防ぐ */
+}
+
+.psv-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+}
+
+.psv-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.psv-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+    .psv-btn {
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+    }
+
+    .psv-btn:hover {
+        background: rgba(0, 0, 0, 0.9);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .psv-btn:focus {
+        box-shadow: 0 0 0 3px rgba(144, 205, 244, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* ズームインボタン（+）を左下に配置 */
+.psv-zoom-in-btn {
+    bottom: 70px;
+    /* 下から70px（サイズ調整に合わせて） */
+    left: 20px;
+    /* 左側 */
+}
+
+/* ズームアウトボタン（−）を左下に配置 */
+.psv-zoom-out-btn {
+    bottom: 20px;
+    /* 下から20px */
+    left: 20px;
+    /* 左側 */
+}
+
+/* フルスクリーンボタン */
+.psv-fullscreen-btn {
+    bottom: 20px;
+    /* 下部 */
+    right: 20px;
+    /* 右側 */
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    /* スマホでのタッチ操作を確実にする */
+    pointer-events: auto !important;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.3);
+    font-family: Arial, sans-serif;
+    /* アイコンフォントを確実に表示 */
+    line-height: 1;
+    /* アイコンの垂直位置調整 */
+}
+
+/* ローディングインジケータのスタイル */
+.psv-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 15;
+}
+
+.psv-loading-text {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.psv-loading-bar {
+    width: 200px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.psv-loading-bar-progress {
+    height: 100%;
+    background-color: #4caf50;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+/* フルスクリーン時のスタイル */
+.psv-container:fullscreen {
+    padding-top: 0;
+    height: 100%;
+}
+
+/* ブラウザごとのフルスクリーンプレフィックス対応 */
+.psv-container:-webkit-full-screen {
+    padding-top: 0;
+    height: 100%;
+}
+
+.psv-container:-moz-full-screen {
+    padding-top: 0;
+    height: 100%;
+}
+
+.psv-container:-ms-fullscreen {
+    padding-top: 0;
+    height: 100%;
+}
+
+/* モバイル対応（スマホも同じUI） */
+@media (max-width: 768px) {
+    .psv-btn {
+        width: 36px;
+        /* 少し小さく */
+        height: 36px;
+        font-size: 16px;
+        border-radius: 8px !important;
+        /* モバイルでは少し小さめの角丸 - 優先度を上げる */
+    }
+
+    /* スマホでもフルスクリーンボタンを表示（iframe内のため） */
+    .psv-fullscreen-btn {
+        display: flex !important;
+    }
+
+    .psv-zoom-in-btn {
+        bottom: 60px;
+        /* 調整 */
+        left: 15px;
+        /* 少し内側に */
+    }
+
+    .psv-zoom-out-btn {
+        bottom: 15px;
+        /* 調整 */
+        left: 15px;
+        /* 少し内側に */
+    }
+
+    .psv-loading-text {
+        font-size: 14px;
+    }
+
+    .psv-loading-bar {
+        width: 150px;
+    }
+}
+
+/* 高DPIデバイス対応 */
+@media (min-resolution: 2dppx) {
+    .psv-container {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* 画像スタイル */
+.psv-container img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* コントロールコンテナ */
+.psv-controls-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+}
+
+/* フルスクリーンオーバーレイ */
+.psv-fullscreen-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: #000 !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.psv-fullscreen-overlay .psv-container {
+    position: relative !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding-top: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    background-color: #000 !important;
+}
+
+.psv-fullscreen-overlay .psv-container canvas {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+/* フルスクリーン時のボタン位置調整 */
+.psv-fullscreen-overlay .psv-btn {
+    position: fixed !important;
+}
+
+.psv-fullscreen-overlay .psv-zoom-in-btn {
+    bottom: 70px !important;
+    left: 20px !important;
+}
+
+.psv-fullscreen-overlay .psv-zoom-out-btn {
+    bottom: 20px !important;
+    left: 20px !important;
+}
+
+.psv-fullscreen-overlay .psv-fullscreen-btn {
+    bottom: 20px !important;
+    right: 20px !important;
+}
+
+/* 真のフルスクリーン時のスタイル */
+:fullscreen .psv-fullscreen-overlay,
+:-webkit-full-screen .psv-fullscreen-overlay,
+:-moz-full-screen .psv-fullscreen-overlay,
+:-ms-fullscreen .psv-fullscreen-overlay {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+/* モバイルフルスクリーン対応 */
+@media (max-width: 768px) {
+    .psv-fullscreen-overlay .psv-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    .psv-fullscreen-overlay .psv-zoom-in-btn {
+        bottom: 80px !important;
+        left: 15px !important;
+    }
+
+    .psv-fullscreen-overlay .psv-zoom-out-btn {
+        bottom: 25px !important;
+        left: 15px !important;
+    }
+
+    .psv-fullscreen-overlay .psv-fullscreen-btn {
+        bottom: 25px !important;
+        right: 15px !important;
+    }
+}
