@@ -1,6 +1,7 @@
 // Main JavaScript entry point
 import './style.css';
 import { projects } from './projects.js';
+import { en } from './english.js';
 
 console.log('Hello from mu-natuki.com!');
 
@@ -36,6 +37,59 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- Language (i18n) ---
+  const defaultTexts = {};
+  const defaultAria = {};
+
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    defaultTexts[el.dataset.i18n] = el.textContent;
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+    defaultTexts[el.dataset.i18nHtml] = el.innerHTML;
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    defaultAria[el.dataset.i18nAria] = el.getAttribute('aria-label') ?? '';
+  });
+
+  const applyTranslations = (lang) => {
+    const t = lang === 'en' ? en : defaultTexts;
+    const a = lang === 'en' ? en : defaultAria;
+
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.dataset.i18n;
+      const value = t[key];
+      if (value !== undefined) el.textContent = value;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+      const key = el.dataset.i18nHtml;
+      const value = t[key];
+      if (value !== undefined) el.innerHTML = value;
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+      const key = el.dataset.i18nAria;
+      const value = a[key];
+      if (value !== undefined) el.setAttribute('aria-label', value);
+    });
+  };
+
+  const langToggle = document.getElementById('lang-toggle');
+  const langLabel = document.querySelector('.lang-label');
+  const savedLang = localStorage.getItem('lang') || 'ja';
+  html.setAttribute('lang', savedLang);
+  applyTranslations(savedLang);
+  if (langLabel) langLabel.textContent = savedLang === 'en' ? en['lang.label'] : '日本語';
+
+  if (langToggle) {
+    langToggle.addEventListener('click', () => {
+      const current = localStorage.getItem('lang') || 'ja';
+      const next = current === 'ja' ? 'en' : 'ja';
+      localStorage.setItem('lang', next);
+      html.setAttribute('lang', next);
+      applyTranslations(next);
+      if (langLabel) langLabel.textContent = next === 'en' ? en['lang.label'] : '日本語';
+    });
+  }
+
   // Modal Elements
   const modalOverlay = document.getElementById('project-modal');
   const modalCloseBtn = document.getElementById('modal-close');
@@ -66,8 +120,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
 
-    modalTitle.textContent = project.title;
-    modalDesc.innerHTML = formatDescriptionHtml(project.description);
+    const lang = localStorage.getItem('lang') || 'ja';
+    const titleKey = `project.${projectId}.title`;
+    const descKey = `project.${projectId}.description`;
+    const title = lang === 'en' && en[titleKey] ? en[titleKey] : project.title;
+    const description = lang === 'en' && en[descKey] ? en[descKey] : project.description;
+
+    modalTitle.textContent = title;
+    modalDesc.innerHTML = lang === 'en' && en[descKey]
+      ? en[descKey]
+      : formatDescriptionHtml(description);
 
     // Media Handling
     modalMedia.innerHTML = ''; // Clear previous
