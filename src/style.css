@@ -612,6 +612,52 @@ h2::after {
   border-color: var(--accent-sub);
 }
 
+/* Language Toggle (below theme toggle) - same size as theme toggle */
+.lang-toggle {
+  position: fixed;
+  top: 5rem;
+  right: 1.5rem;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--card-bg);
+  border: 3px solid var(--accent-sub);
+  box-shadow: 4px 4px 0px var(--shadow-color);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.lang-toggle:hover {
+  transform: translateY(-3px);
+  box-shadow: 6px 6px 0px var(--accent-main);
+  border-color: var(--accent-main);
+}
+
+.lang-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.lang-toggle .lang-label {
+  font-size: 0.5rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .lang-toggle {
+  background: var(--card-bg);
+  border-color: var(--accent-sub);
+}
+
 /* Footer */
 footer {
   padding: 3rem;
@@ -735,6 +781,22 @@ footer {
     width: 45px;
     height: 45px;
     font-size: 1.3rem;
+  }
+
+  .lang-toggle {
+    top: 4.2rem;
+    right: 1rem;
+    width: 45px;
+    height: 45px;
+    padding: 0;
+  }
+
+  .lang-toggle .lang-icon {
+    font-size: 0.9rem;
+  }
+
+  .lang-toggle .lang-label {
+    font-size: 0.45rem;
   }
 }
 
