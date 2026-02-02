@@ -24,14 +24,18 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Zen+Maru+Gothic:wght@400;500;700&display=swap"
     rel="stylesheet">
-  <script type="module" crossorigin src="/assets/index-DgCJ-Kqs.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-_A0gUkw8.css">
+  <script type="module" crossorigin src="/assets/index-DEG9Qfnj.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B7HPnumB.css">
 </head>
 
 <body>
   <div id="app">
-    <button id="theme-toggle" class="theme-toggle" aria-label="テーマを切り替え">
+    <button id="theme-toggle" class="theme-toggle" aria-label="テーマを切り替え" data-i18n-aria="aria.themeToggle">
       <span class="theme-icon">🌙</span>
+    </button>
+    <button id="lang-toggle" class="lang-toggle" aria-label="日本語 / English" data-i18n-aria="aria.langToggle" title="日本語 / English">
+      <span class="lang-icon">🌐</span>
+      <span class="lang-label" data-i18n="lang.label">日本語</span>
     </button>
     <header class="hero">
       <div class="hero-bg-pattern"></div>
@@ -41,9 +45,9 @@
             <source srcset="/gallery/webp/icon.webp" type="image/webp">
             <img src="/gallery/png/icon.png" alt="icon" class="hero-icon">
           </picture>
-          <h1 class="bounce">雨苺なつき</h1>
+          <h1 class="bounce" data-i18n="hero.name">雨苺なつき</h1>
         </div>
-        <p class="subtitle">✨ Student / Developer / Writer / Photographer ✨</p>
+        <p class="subtitle" data-i18n="hero.subtitle">✨ Student / Developer / Writer / Photographer ✨</p>
       </div>
       <div class="scroll-bubble">
         ⬇
@@ -54,9 +58,9 @@
       <!-- Profile Section -->
       <section id="profile" class="card-panel reveal-fade">
         <div class="deco-tape"></div>
-        <h2>About Me</h2>
+        <h2 data-i18n="profile.sectionTitle">About Me</h2>
         <div class="profile-content">
-          <p>
+          <p data-i18n-html="profile.intro">
             こんにちは！<strong>雨苺なつき</strong>です。<br>
             プログラミングとVRChatが大好きな学生です✨<br>
             ぶいなびで記事を書いたり、便利なツールを作ったりしています！<br>
@@ -64,56 +68,55 @@
             私の活動方針は「<strong>楽しく個人開発する</strong>」「<strong>困ったことを技術で解決する</strong>」ことです。
           </p>
           <div class="role-badges">
-            <span class="badge blue">ぶいなび Operator</span>
-            <span class="badge purple">MofuMagic Owner</span>
-            <span class="badge yellow">VRChat Photographer</span>
+            <span class="badge blue" data-i18n="profile.badgeVrnabi">ぶいなび Operator</span>
+            <span class="badge purple" data-i18n="profile.badgeMofu">MofuMagic Owner</span>
+            <span class="badge yellow" data-i18n="profile.badgePhoto">VRChat Photographer</span>
           </div>
         </div>
       </section>
 
       <!-- Projects Section -->
       <section id="projects" class="pop-in">
-        <h2>Projects</h2>
+        <h2 data-i18n="projects.sectionTitle">Projects</h2>
         <div class="projects-grid">
-          <!-- Rendered dynamically or via data-attributes, but keeping static structure for JS to hook into -->
           <div class="project-card" data-id="vrnavi">
-            <h3>ぶいなび</h3>
-            <p>VRChatの情報をまとめたサイト</p>
+            <h3 data-i18n="project.vrnavi.title">ぶいなび</h3>
+            <p data-i18n="project.vrnavi.desc">VRChatの情報をまとめたサイト</p>
             <div class="tags"><span class="tag">Site</span><span class="tag">WordPress</span></div>
           </div>
           <div class="project-card highlight" data-id="facemixer">
-            <h3>FaceMixer</h3>
-            <p>VRChatのアバター表情改変を簡単に！</p>
+            <h3 data-i18n="project.facemixer.title">FaceMixer</h3>
+            <p data-i18n="project.facemixer.desc">VRChatのアバター表情改変を簡単に！</p>
             <div class="tags"><span class="tag">C#</span><span class="tag">Unity</span><span class="tag">Tool</span></div>
           </div>
           <div class="project-card blue-dark" data-id="cliprack">
-            <h3>ClipRack</h3>
-            <p>macOSで使えるクリップボード管理アプリ</p>
+            <h3 data-i18n="project.cliprack.title">ClipRack</h3>
+            <p data-i18n="project.cliprack.desc">macOSで使えるクリップボード管理アプリ</p>
             <div class="tags"><span class="tag">Swift</span><span class="tag">macOS</span><span class="tag">App</span></div>
           </div>
           <div class="project-card gray" data-id="booth-import">
-            <h3>BOOTH Import Assistant</h3>
-            <p>BOOTHからのインポートを楽にするやつ</p>
+            <h3 data-i18n="project.booth-import.title">BOOTH Import Assistant</h3>
+            <p data-i18n="project.booth-import.desc">BOOTHからのインポートを楽にするやつ</p>
             <div class="tags"><span class="tag">C#</span><span class="tag">JavaScript</span><span class="tag">Efficiency</span></div>
           </div>
           <div class="project-card gray" data-id="booth-library">
-            <h3>BOOTH Library Search</h3>
-            <p>BOOTHライブラリをさくさく検索できるやつ</p>
+            <h3 data-i18n="project.booth-library.title">BOOTH Library Search</h3>
+            <p data-i18n="project.booth-library.desc">BOOTHライブラリをさくさく検索できるやつ</p>
             <div class="tags"><span class="tag">JavaScript</span><span class="tag">Extension</span></div>
           </div>
           <div class="project-card gray" data-id="360-viewer">
-            <h3>360-viewer</h3>
-            <p>Webブラウザで360度画像が見れるビューワー</p>
+            <h3 data-i18n="project.360-viewer.title">360-viewer</h3>
+            <p data-i18n="project.360-viewer.desc">Webブラウザで360度画像が見れるビューワー</p>
             <div class="tags"><span class="tag">JavaScript</span><span class="tag">PHP</span><span class="tag">Web</span></div>
           </div>
           <div class="project-card gray" data-id="timecard">
-            <h3>TimeCard Web</h3>
-            <p>学校課題で作成した勤怠管理サイト</p>
+            <h3 data-i18n="project.timecard.title">TimeCard Web</h3>
+            <p data-i18n="project.timecard.desc">学校課題で作成した勤怠管理サイト</p>
             <div class="tags"><span class="tag">Java</span><span class="tag">Web</span></div>
           </div>
           <div class="project-card gray" data-id="toc-ad">
-            <h3>TOC-AD</h3>
-            <p>WordPressの目次下に広告の画像を自動で追加するプラグイン</p>
+            <h3 data-i18n="project.toc-ad.title">TOC-AD</h3>
+            <p data-i18n="project.toc-ad.desc">WordPressの目次下に広告の画像を自動で追加するプラグイン</p>
             <div class="tags"><span class="tag">PHP</span><span class="tag">WordPress</span></div>
           </div>
         </div>
@@ -121,8 +124,8 @@
 
       <!-- VRChat Gallery Section -->
       <section id="gallery" class="pop-in">
-        <h2>Gallery</h2>
-        <p class="gallery-desc">VRChatでの思い出たち！</p>
+        <h2 data-i18n="gallery.sectionTitle">Gallery</h2>
+        <p class="gallery-desc" data-i18n="gallery.desc">VRChatでの思い出たち！</p>
         <div class="gallery-polaroids">
 
           <div class="polaroid rotate-left">
@@ -132,7 +135,7 @@
                 <img src="/gallery/png/VRChat_2025-07-07_00-27-50.155_2160x3840.png" loading="lazy" alt="VRChat Memory">
               </picture>
             </div>
-            <span class="caption">Summer ☀️</span>
+            <span class="caption" data-i18n="gallery.caption1">Summer ☀️</span>
           </div>
 
           <div class="polaroid rotate-right">
@@ -142,7 +145,7 @@
                 <img src="/gallery/png/VRChat_2025-01-16_02-06-35.432_3840x2160.png" loading="lazy" alt="VRChat Memory">
               </picture>
             </div>
-            <span class="caption">JPT Party 🎉</span>
+            <span class="caption" data-i18n="gallery.caption2">JPT Party 🎉</span>
           </div>
 
           <div class="polaroid rotate-left">
@@ -152,7 +155,7 @@
                 <img src="/gallery/png/VRChat_2025-07-13_05-48-10.021_3840x2160.png" loading="lazy" alt="VRChat Memory">
               </picture>
             </div>
-            <span class="caption">Beautiful View ✨</span>
+            <span class="caption" data-i18n="gallery.caption3">Beautiful View ✨</span>
           </div>
 
           <div class="polaroid rotate-right">
@@ -162,7 +165,7 @@
                 <img src="/gallery/png/VRChat_2025-08-19_03-37-48.990_2160x3840.png" loading="lazy" alt="VRChat Memory">
               </picture>
             </div>
-            <span class="caption">Street Snap 📸</span>
+            <span class="caption" data-i18n="gallery.caption4">Street Snap 📸</span>
           </div>
 
           <div class="polaroid rotate-left">
@@ -172,7 +175,7 @@
                 <img src="/gallery/png/VRChat_2025-10-03_00-39-24.629_3840x2160.png" loading="lazy" alt="VRChat Memory">
               </picture>
             </div>
-            <span class="caption">Memories...</span>
+            <span class="caption" data-i18n="gallery.caption5">Memories...</span>
           </div>
 
           <div class="polaroid rotate-right">
@@ -182,7 +185,7 @@
                 <img src="/gallery/png/VRChat_2025-10-20_03-24-11.849_3840x2160.png" loading="lazy" alt="VRChat Memory">
               </picture>
             </div>
-            <span class="caption">Cute!</span>
+            <span class="caption" data-i18n="gallery.caption6">Cute!</span>
           </div>
 
         </div>
@@ -191,23 +194,23 @@
       <!-- Links Section -->
       <section id="links" class="links-row pop-in">
         <a href="https://twitter.com/mu_natuki" target="_blank" rel="noopener noreferrer" class="link-btn twitter">
-          <span class="icon">X</span> X(Twitter)
+          <span class="icon">X</span> <span data-i18n="links.twitter">X(Twitter)</span>
         </a>
         <a href="https://www.twitch.tv/" target="_blank" rel="noopener noreferrer" class="link-btn twitch">
-          <span class="icon">📺</span> Twitch
+          <span class="icon">📺</span> <span data-i18n="links.twitch">Twitch</span>
         </a>
         <a href="https://mofumagic.booth.pm/" target="_blank" rel="noopener noreferrer" class="link-btn booth">
-          <span class="icon">🛍️</span> BOOTH
+          <span class="icon">🛍️</span> <span data-i18n="links.booth">BOOTH</span>
         </a>
         <a href="https://github.com/natuki53" target="_blank" rel="noopener noreferrer" class="link-btn github">
-          <span class="icon">💻</span> GitHub
+          <span class="icon">💻</span> <span data-i18n="links.github">GitHub</span>
         </a>
       </section>
 
     </main>
 
     <footer>
-      <p>Made with by 雨苺なつき</p>
+      <p data-i18n="footer.text">Made with by 雨苺なつき</p>
     </footer>
 
     <!-- Project Modal -->
