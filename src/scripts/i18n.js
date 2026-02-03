@@ -44,6 +44,19 @@ export const initI18n = () => {
   applyTranslations(savedLang);
   if (langLabel) langLabel.textContent = savedLang === 'en' ? en['lang.label'] : '日本語';
 
+  const toastEl = document.getElementById('toast');
+  const toastMessages = { en: en['toast.switchedToEn'], ja: '日本語に変更しました' };
+
+  const showToast = (message) => {
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.classList.remove('hidden');
+    clearTimeout(showToast._tid);
+    showToast._tid = setTimeout(() => {
+      toastEl.classList.add('hidden');
+    }, 2500);
+  };
+
   if (langToggle) {
     langToggle.addEventListener('click', () => {
       const current = localStorage.getItem('lang') || 'ja';
@@ -52,6 +65,7 @@ export const initI18n = () => {
       html.setAttribute('lang', next);
       applyTranslations(next);
       if (langLabel) langLabel.textContent = next === 'en' ? en['lang.label'] : '日本語';
+      showToast(toastMessages[next]);
     });
   }
 };

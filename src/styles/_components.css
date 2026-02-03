@@ -227,3 +227,27 @@
   color: #333;
   border-color: #333;
 }
+
+/* Toast (language switch notification) */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  background: var(--card-bg);
+  border: 2px solid var(--accent-sub);
+  border-radius: 50px;
+  box-shadow: 6px 6px 0px var(--shadow-color);
+  font-weight: 500;
+  color: var(--text-primary);
+  z-index: 1000;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(1rem);
+  pointer-events: none;
+}
