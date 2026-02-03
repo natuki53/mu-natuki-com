@@ -10,6 +10,12 @@ export const en = {
   // Language button label (shows current language name)
   'lang.label': 'English',
 
+  // Global menu
+  'nav.top': 'Top',
+  'nav.works': 'Works',
+  'nav.worksProject': 'Projects',
+  'nav.profile': 'Profile',
+
   // Hero
   'hero.name': 'Amai Natuki',
   'hero.subtitle': '✨ Student / Developer / Writer / Photographer ✨',

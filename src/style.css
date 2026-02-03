@@ -41,6 +41,12 @@
   box-sizing: border-box;
 }
 
+/* Smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 96px; /* メニュー下に余白を取ってスクロール先がメニューと離れた位置に */
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-color);
@@ -69,6 +75,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* Reserve space for fixed global menu */
+  padding-top: 64px;
 }
 
 h1,
@@ -109,6 +117,9 @@ a {
   justify-content: center;
   text-align: center;
   position: relative;
+  /* グローバルメニュー・下セクションとの隙間 */
+  padding-top: 4rem;
+  padding-bottom: 4rem;
   /* Soft blue radial gradient */
   background: radial-gradient(circle at center, rgba(255, 255, 255, 0.8) 0%, rgba(240, 248, 255, 0) 70%);
   transition: background 0.3s ease;
@@ -573,13 +584,148 @@ h2::after {
   border-color: #333;
 }
 
-/* Theme Toggle Button */
-.theme-toggle {
+/* ========== Global Menu ========== */
+.global-menu {
   position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  width: 50px;
-  height: 50px;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: var(--card-bg);
+  border-bottom: 3px solid var(--accent-sub);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .global-menu {
+  background: var(--card-bg);
+  border-bottom-color: var(--accent-sub);
+}
+
+.menu-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.menu-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu-link:hover {
+  background: var(--accent-sub);
+  color: var(--accent-main);
+  transform: translateY(-1px);
+}
+
+.menu-dropdown {
+  position: relative;
+}
+
+.menu-dropdown-trigger {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdown-arrow {
+  display: inline-block;
+  margin-left: 0.2rem;
+  transition: transform 0.25s ease;
+  font-size: 0.75rem;
+}
+
+.menu-dropdown[aria-expanded="true"] .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.25rem;
+  min-width: 160px;
+  padding: 0.5rem 0;
+  list-style: none;
+  background: var(--card-bg);
+  border: 3px solid var(--accent-sub);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px var(--shadow-color);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  z-index: 1001;
+}
+
+.menu-dropdown[aria-expanded="true"] .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.6rem 1.25rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border-radius: 0;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background: var(--accent-sub);
+  color: var(--accent-main);
+}
+
+.menu-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Theme/Lang buttons inside global menu */
+.global-menu .theme-toggle,
+.global-menu .lang-toggle {
+  position: static;
+  top: auto;
+  right: auto;
+  width: 44px;
+  height: 44px;
+  font-size: 1.25rem;
+}
+
+.global-menu .lang-toggle {
+  flex-direction: column;
+  padding: 0.25rem;
+}
+
+.global-menu .lang-toggle .lang-label {
+  font-size: 0.5rem;
+}
+
+/* Theme Toggle Button (standalone appearance - used inside menu) */
+.theme-toggle {
   border-radius: 50%;
   background: var(--card-bg);
   border: 3px solid var(--accent-sub);
@@ -588,8 +734,6 @@ h2::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  z-index: 1000;
   transition: all 0.3s ease;
 }
 
@@ -612,13 +756,8 @@ h2::after {
   border-color: var(--accent-sub);
 }
 
-/* Language Toggle (below theme toggle) - same size as theme toggle */
+/* Language Toggle - in global menu */
 .lang-toggle {
-  position: fixed;
-  top: 5rem;
-  right: 1.5rem;
-  width: 50px;
-  height: 50px;
   padding: 0;
   border-radius: 50%;
   background: var(--card-bg);
@@ -632,7 +771,6 @@ h2::after {
   gap: 0;
   font-family: var(--font-body);
   color: var(--text-primary);
-  z-index: 1000;
   transition: all 0.3s ease;
 }
 
@@ -742,6 +880,9 @@ footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   .pop-in,
   .reveal,
   .reveal-fade {
@@ -775,20 +916,26 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  .theme-toggle {
-    top: 1rem;
-    right: 1rem;
-    width: 45px;
-    height: 45px;
-    font-size: 1.3rem;
+  .global-menu {
+    padding: 0.5rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
-  .lang-toggle {
-    top: 4.2rem;
-    right: 1rem;
-    width: 45px;
-    height: 45px;
-    padding: 0;
+  .menu-nav {
+    gap: 0.35rem;
+  }
+
+  .menu-link {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .global-menu .theme-toggle,
+  .global-menu .lang-toggle {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
   }
 
   .lang-toggle .lang-icon {
