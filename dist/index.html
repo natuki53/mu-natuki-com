@@ -24,20 +24,42 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Zen+Maru+Gothic:wght@400;500;700&display=swap"
     rel="stylesheet">
-  <script type="module" crossorigin src="/assets/index-DEG9Qfnj.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-B7HPnumB.css">
+  <script type="module" crossorigin src="/assets/index-BsUVnXsG.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DfcP61Lr.css">
 </head>
 
 <body>
   <div id="app">
-    <button id="theme-toggle" class="theme-toggle" aria-label="テーマを切り替え" data-i18n-aria="aria.themeToggle">
-      <span class="theme-icon">🌙</span>
-    </button>
-    <button id="lang-toggle" class="lang-toggle" aria-label="日本語 / English" data-i18n-aria="aria.langToggle" title="日本語 / English">
-      <span class="lang-icon">🌐</span>
-      <span class="lang-label" data-i18n="lang.label">日本語</span>
-    </button>
-    <header class="hero">
+    <!-- Global Menu -->
+    <header class="global-menu">
+      <nav class="menu-nav">
+        <a href="#top" class="menu-link" data-scroll="top" data-i18n="nav.top">トップ</a>
+        <div class="menu-dropdown" id="works-dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="menu-link menu-dropdown-trigger" data-i18n="nav.works">
+            制作実績
+            <span class="dropdown-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li role="none">
+              <a href="#projects" class="dropdown-item" role="menuitem" data-scroll="projects" data-i18n="nav.worksProject">プロジェクト</a>
+            </li>
+            <!-- 今後: プログラミング / ブログ運営 などを追加 -->
+          </ul>
+        </div>
+        <a href="#profile" class="menu-link" data-scroll="profile" data-i18n="nav.profile">プロフィール</a>
+      </nav>
+      <div class="menu-right">
+        <button id="theme-toggle" class="theme-toggle" aria-label="テーマを切り替え" data-i18n-aria="aria.themeToggle">
+          <span class="theme-icon">🌙</span>
+        </button>
+        <button id="lang-toggle" class="lang-toggle" aria-label="日本語 / English" data-i18n-aria="aria.langToggle" title="日本語 / English">
+          <span class="lang-icon">🌐</span>
+          <span class="lang-label" data-i18n="lang.label">日本語</span>
+        </button>
+      </div>
+    </header>
+
+    <header class="hero" id="top">
       <div class="hero-bg-pattern"></div>
       <div class="hero-content">
         <div class="title-container">
@@ -227,7 +249,7 @@
       </div>
     </div>
 
-  </div>
+  </div>
 </body>
 
 </html>
