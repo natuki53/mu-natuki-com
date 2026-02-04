@@ -10,6 +10,16 @@ export const en = {
   // Language button label (shows current language name)
   'lang.label': 'English',
 
+  // Toast messages (language switch)
+  'toast.switchedToEn': 'Switched to English',
+  'toast.switchedToJa': 'Switched to Japanese',
+
+  // Global menu
+  'nav.top': 'Top',
+  'nav.works': 'Works',
+  'nav.worksProject': 'Projects',
+  'nav.profile': 'Profile',
+
   // Hero
   'hero.name': 'Amai Natuki',
   'hero.subtitle': '✨ Student / Developer / Writer / Photographer ✨',

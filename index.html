@@ -28,14 +28,36 @@
 
 <body>
   <div id="app">
-    <button id="theme-toggle" class="theme-toggle" aria-label="テーマを切り替え" data-i18n-aria="aria.themeToggle">
-      <span class="theme-icon">🌙</span>
-    </button>
-    <button id="lang-toggle" class="lang-toggle" aria-label="日本語 / English" data-i18n-aria="aria.langToggle" title="日本語 / English">
-      <span class="lang-icon">🌐</span>
-      <span class="lang-label" data-i18n="lang.label">日本語</span>
-    </button>
-    <header class="hero">
+    <!-- Global Menu -->
+    <header class="global-menu">
+      <nav class="menu-nav">
+        <a href="#top" class="menu-link" data-scroll="top" data-i18n="nav.top">トップ</a>
+        <div class="menu-dropdown" id="works-dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="menu-link menu-dropdown-trigger" data-i18n="nav.works">
+            制作実績
+            <span class="dropdown-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li role="none">
+              <a href="#projects" class="dropdown-item" role="menuitem" data-scroll="projects" data-i18n="nav.worksProject">プロジェクト</a>
+            </li>
+            <!-- 今後: プログラミング / ブログ運営 などを追加 -->
+          </ul>
+        </div>
+        <a href="#profile" class="menu-link" data-scroll="profile" data-i18n="nav.profile">プロフィール</a>
+      </nav>
+      <div class="menu-right">
+        <button id="theme-toggle" class="theme-toggle" aria-label="テーマを切り替え" data-i18n-aria="aria.themeToggle">
+          <span class="theme-icon">🌙</span>
+        </button>
+        <button id="lang-toggle" class="lang-toggle" aria-label="日本語 / English" data-i18n-aria="aria.langToggle" title="日本語 / English">
+          <span class="lang-icon">🌐</span>
+          <span class="lang-label" data-i18n="lang.label">日本語</span>
+        </button>
+      </div>
+    </header>
+
+    <header class="hero" id="top">
       <div class="hero-bg-pattern"></div>
       <div class="hero-content">
         <div class="title-container">
@@ -211,6 +233,9 @@
       <p data-i18n="footer.text">Made with by 雨苺なつき</p>
     </footer>
 
+    <!-- Toast (language switch notification) -->
+    <div id="toast" class="toast hidden" aria-live="polite" role="status"></div>
+
     <!-- Project Modal -->
     <div id="project-modal" class="modal-overlay hidden">
       <div class="modal-content">
@@ -226,7 +251,7 @@
     </div>
 
   </div>
-  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/scripts/main.js"></script>
 </body>
 
 </html>
