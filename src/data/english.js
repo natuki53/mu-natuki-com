@@ -50,6 +50,11 @@ export const en = {
   'project.facemixer.description':
     'Make VRChat avatar expression editing easy! An intuitive tool to create and edit expressions in Unity.',
 
+  'project.vrcosme.title': 'VRCosme',
+  'project.vrcosme.desc': 'Easy retouch tool for VRChat photos',
+  'project.vrcosme.description':
+    'A Windows tool that makes retouching VRChat photos easy.',
+
   'project.cliprack.title': 'ClipRack',
   'project.cliprack.desc': 'Clipboard manager app for macOS',
   'project.cliprack.description':
