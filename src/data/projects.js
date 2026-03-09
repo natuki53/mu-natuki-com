@@ -29,6 +29,21 @@ export const projects = [
         ]
     },
     {
+        id: "vrcosme",
+        title: "VRCosme",
+        description: "VRChatの写真を簡単にレタッチできるWindows向けツールです。",
+        tags: ["C#", "Windows", "App"],
+        media: {
+            type: 'video',
+            src: '/gallery/VRCosme紹介動画.mp4'
+        },
+        links: [
+            { type: "website", url: "https://natuki53.github.io/VRCosme/", label: "Visit Site" },
+            { type: "booth", url: "https://mofumagic.booth.pm/items/8035872", label: "BOOTH Page" },
+            { type: "github", url: "https://github.com/natuki53/VRCosme", label: "GitHub" }
+        ]
+    },
+    {
         id: "cliprack",
         title: "ClipRack",
         description: "クリップボードに履歴管理機能を追加してコピーペーストを便利にするアプリです。",
