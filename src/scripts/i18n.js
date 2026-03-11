@@ -37,12 +37,19 @@ export const initI18n = () => {
     });
   };
 
-  const langToggle = document.getElementById('lang-toggle');
-  const langLabel = document.querySelector('.lang-label');
+  const langGroup = document.getElementById('lang-toggle');
+  const langOptions = langGroup?.querySelectorAll('.segment-option[data-lang]');
   const savedLang = localStorage.getItem('lang') || 'ja';
   html.setAttribute('lang', savedLang);
   applyTranslations(savedLang);
-  if (langLabel) langLabel.textContent = savedLang === 'en' ? en['lang.label'] : '日本語';
+
+  const setLangUi = (lang) => {
+    langOptions?.forEach((btn) => {
+      const value = btn.getAttribute('data-lang');
+      btn.setAttribute('aria-pressed', value === lang ? 'true' : 'false');
+    });
+  };
+  setLangUi(savedLang);
 
   const toastEl = document.getElementById('toast');
   const toastMessages = { en: en['toast.switchedToEn'], ja: '日本語に変更しました' };
@@ -57,17 +64,17 @@ export const initI18n = () => {
     }, 2500);
   };
 
-  if (langToggle) {
-    langToggle.addEventListener('click', () => {
-      const current = localStorage.getItem('lang') || 'ja';
-      const next = current === 'ja' ? 'en' : 'ja';
-      localStorage.setItem('lang', next);
-      html.setAttribute('lang', next);
-      applyTranslations(next);
-      if (langLabel) langLabel.textContent = next === 'en' ? en['lang.label'] : '日本語';
-      showToast(toastMessages[next]);
+  langOptions?.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const lang = btn.getAttribute('data-lang');
+      if (btn.getAttribute('aria-pressed') === 'true') return;
+      localStorage.setItem('lang', lang);
+      html.setAttribute('lang', lang);
+      applyTranslations(lang);
+      setLangUi(lang);
+      showToast(toastMessages[lang]);
     });
-  }
+  });
 };
 
 // Export for use by modal

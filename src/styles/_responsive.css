@@ -39,19 +39,13 @@
     font-size: 0.9rem;
   }
 
-  .global-menu .theme-toggle,
-  .global-menu .lang-toggle {
-    width: 40px;
-    height: 40px;
-    font-size: 1.1rem;
+  .segment-group {
+    padding: 3px;
   }
 
-  .lang-toggle .lang-icon {
-    font-size: 0.9rem;
-  }
-
-  .lang-toggle .lang-label {
-    font-size: 0.45rem;
+  .segment-option {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
   }
 }
 
