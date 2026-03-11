@@ -47,13 +47,14 @@
         <a href="#profile" class="menu-link" data-scroll="profile" data-i18n="nav.profile">プロフィール</a>
       </nav>
       <div class="menu-right">
-        <button id="theme-toggle" class="theme-toggle" aria-label="テーマを切り替え" data-i18n-aria="aria.themeToggle">
-          <span class="theme-icon">🌙</span>
-        </button>
-        <button id="lang-toggle" class="lang-toggle" aria-label="日本語 / English" data-i18n-aria="aria.langToggle" title="日本語 / English">
-          <span class="lang-icon">🌐</span>
-          <span class="lang-label" data-i18n="lang.label">日本語</span>
-        </button>
+        <div id="theme-toggle" class="segment-group" role="group" aria-label="テーマを切り替え" data-i18n-aria="aria.themeToggle">
+          <button type="button" class="segment-option" data-theme="light" aria-pressed="false">ライト</button>
+          <button type="button" class="segment-option" data-theme="dark" aria-pressed="false">ダーク</button>
+        </div>
+        <div id="lang-toggle" class="segment-group" role="group" aria-label="言語を切り替え" data-i18n-aria="aria.langToggle">
+          <button type="button" class="segment-option" data-lang="ja" aria-pressed="false">日本語</button>
+          <button type="button" class="segment-option" data-lang="en" aria-pressed="false">English</button>
+        </div>
       </div>
     </header>
 
@@ -83,7 +84,7 @@
           <p data-i18n-html="profile.intro">
             こんにちは！<strong>雨苺なつき</strong>です。<br>
             プログラミングとVRChatが大好きな学生です✨<br>
-            ぶいなびで記事を書いたり、便利なツールを作ったりしています！<br>
+            ぶいなびで記事を書いたり、個人開発で便利なツールを作ったりしています！<br>
             <br>
             私の活動方針は「<strong>楽しく個人開発する</strong>」「<strong>困ったことを技術で解決する</strong>」ことです。
           </p>
