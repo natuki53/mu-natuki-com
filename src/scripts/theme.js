@@ -4,9 +4,10 @@ export const initTheme = () => {
   const themeToggle = document.getElementById('theme-toggle');
   const themeIcon = themeToggle?.querySelector('.theme-icon');
 
-  // Load saved theme or default to light
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  if (savedTheme === 'dark') {
+  // 保存済みテーマがあればそれを使用、なければ端末の prefers-color-scheme に合わせる
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const initialTheme = localStorage.getItem('theme') ?? (prefersDark ? 'dark' : 'light');
+  if (initialTheme === 'dark') {
     html.setAttribute('data-theme', 'dark');
     if (themeIcon) themeIcon.textContent = '☀️';
   } else {
