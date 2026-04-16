@@ -45,6 +45,7 @@
           </ul>
         </div>
         <a href="#profile" class="menu-link" data-scroll="profile" data-i18n="nav.profile">プロフィール</a>
+        <a href="#server-monitor" class="menu-link" data-scroll="server-monitor" data-i18n="nav.server">自宅サーバー</a>
       </nav>
       <div class="menu-right">
         <div id="theme-toggle" class="segment-group" role="group" aria-label="テーマを切り替え" data-i18n-aria="aria.themeToggle">
@@ -215,6 +216,40 @@
           </div>
 
         </div>
+      </section>
+
+      <!-- Home server (Netdata API → on-brand metrics) -->
+      <section id="server-monitor" class="card-panel reveal-fade server-monitor-section" aria-labelledby="server-monitor-heading">
+        <div class="deco-tape"></div>
+        <h2 id="server-monitor-heading" data-i18n="server.sectionTitle">自宅サーバーの稼働</h2>
+        <p class="server-monitor-desc" data-i18n-html="server.desc">
+          Netdata の API から主要指標だけを取得して表示しています（約10秒ごとに更新）。<br><br>
+          詳細なチャートや履歴は
+          <a href="https://monitor.mu-natuki.com/spaces/natuki-ubuntu-server/rooms/local/overview" target="_blank" rel="noopener noreferrer">Netdata ダッシュボード</a>
+          から確認できます。取得元 URL はビルド時に <code>VITE_NETDATA_BASE_URL</code> で変更できます。
+        </p>
+        <div id="server-metrics-root" class="server-metrics-grid" aria-busy="true">
+          <article class="server-metric-card" aria-labelledby="metric-cpu-title">
+            <div class="server-metric-head">
+              <h3 id="metric-cpu-title" class="server-metric-title" data-i18n="server.metricCpu">CPU 使用率</h3>
+              <span class="server-metric-pct" id="metric-cpu-val">—</span>
+            </div>
+            <div id="metric-cpu-track" class="server-metric-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="metric-cpu-title">
+              <div class="server-metric-fill server-metric-fill--cpu"></div>
+            </div>
+          </article>
+          <article class="server-metric-card" aria-labelledby="metric-ram-title">
+            <div class="server-metric-head">
+              <h3 id="metric-ram-title" class="server-metric-title" data-i18n="server.metricRam">メモリ使用率</h3>
+              <span class="server-metric-pct" id="metric-ram-val">—</span>
+            </div>
+            <div id="metric-ram-track" class="server-metric-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="metric-ram-title">
+              <div class="server-metric-fill server-metric-fill--ram"></div>
+            </div>
+          </article>
+        </div>
+        <p id="server-metrics-status" class="server-monitor-status" aria-live="polite"></p>
+        <p id="server-metrics-partial" class="server-monitor-partial" hidden role="status"></p>
       </section>
 
       <!-- Links Section -->

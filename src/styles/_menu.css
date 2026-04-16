@@ -121,7 +121,7 @@
   gap: 0.75rem;
 }
 
-/* Segment control (theme / language) - 画像参考のインセット風 */
+/* Segment control (theme / language) */
 .segment-group {
   display: inline-flex;
   border-radius: 9999px;
