@@ -223,10 +223,11 @@
         <div class="deco-tape"></div>
         <h2 id="server-monitor-heading" data-i18n="server.sectionTitle">自宅サーバーの稼働</h2>
         <p class="server-monitor-desc" data-i18n-html="server.desc">
-          Netdata の API から主要指標だけを取得して表示しています（約10秒ごとに更新）。<br><br>
+          Netdata の API から主要指標だけを取得して表示しています（約10秒ごとに更新）。<br>
+          このウェブサイトも自宅サーバーで公開しています。<br><br>
           詳細なチャートや履歴は
           <a href="https://monitor.mu-natuki.com/spaces/natuki-ubuntu-server/rooms/local/overview" target="_blank" rel="noopener noreferrer">Netdata ダッシュボード</a>
-          から確認できます。取得元 URL はビルド時に <code>VITE_NETDATA_BASE_URL</code> で変更できます。
+          から確認できます。
         </p>
         <div id="server-metrics-root" class="server-metrics-grid" aria-busy="true">
           <article class="server-metric-card" aria-labelledby="metric-cpu-title">
