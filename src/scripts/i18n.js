@@ -15,7 +15,6 @@ export const initI18n = () => {
   document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
     defaultAria[el.dataset.i18nAria] = el.getAttribute('aria-label') ?? '';
   });
-
   const applyTranslations = (lang) => {
     const t = lang === 'en' ? en : defaultTexts;
     const a = lang === 'en' ? en : defaultAria;
@@ -72,6 +71,7 @@ export const initI18n = () => {
       html.setAttribute('lang', lang);
       applyTranslations(lang);
       setLangUi(lang);
+      window.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
       showToast(toastMessages[lang]);
     });
   });

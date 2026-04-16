@@ -19,6 +19,7 @@ export const en = {
   'nav.works': 'Works',
   'nav.worksProject': 'Projects',
   'nav.profile': 'Profile',
+  'nav.server': 'Home server',
 
   // Hero
   'hero.name': 'Amai Natuki',
@@ -94,6 +95,20 @@ export const en = {
   'gallery.caption4': 'Street Snap 📸',
   'gallery.caption5': 'Memories...',
   'gallery.caption6': 'Cute!',
+
+  // Home server (Netdata API)
+  'server.sectionTitle': 'Home server status',
+  'server.desc':
+    'Key metrics from Netdata are fetched over its HTTP API and shown here in the site style (refreshed about every 10 seconds).<br><br>' +
+    'For full charts and history, open the ' +
+    '<a href="https://monitor.mu-natuki.com/spaces/natuki-ubuntu-server/rooms/local/overview" target="_blank" rel="noopener noreferrer">Netdata dashboard</a>. ' +
+    'You can change the API base URL at build time with <code>VITE_NETDATA_BASE_URL</code>.',
+  'server.metricCpu': 'CPU usage',
+  'server.metricRam': 'Memory usage',
+  'server.statusLoading': 'Loading metrics…',
+  'server.statusError': 'Could not load metrics. Please try again later.',
+  'server.statusPartial': 'Some metrics could not be loaded.',
+  'server.statusUpdatedPrefix': 'Updated',
 
   // Links (labels are often kept as-is; add if you want different wording)
   'links.twitter': 'X(Twitter)',
