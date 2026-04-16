@@ -36,6 +36,9 @@ function dataUrl(chart, extra = {}) {
   u.searchParams.set('format', 'json');
   u.searchParams.set('points', '1');
   u.searchParams.set('group', 'average');
+  // Request a fresh window near "now" to avoid stale aggregated points.
+  u.searchParams.set('after', `-${Math.max(1, Math.round(NETDATA_POLL_MS / 1000))}`);
+  u.searchParams.set('before', '0');
   Object.entries(extra).forEach(([k, v]) => u.searchParams.set(k, String(v)));
   return u.toString();
 }
