@@ -223,7 +223,7 @@ export const en = {
 
   'server.heading': 'What keeps this place running',
   'server.desc':
-    'Current readings from the home server hosting this site. A small public snapshot is refreshed about once a second.',
+    'Current status from the home server hosting this site. Public data refreshes about once a second.',
   'server.stateChecking': 'Checking',
   'server.stateOnline': 'Online',
   'server.stateError': 'Unavailable',
@@ -232,11 +232,11 @@ export const en = {
   'server.metricDisk': 'Disk',
   'server.metricUptime': 'Uptime',
   'server.uptimeNote': 'Time since the last restart',
-  'server.statusLoading': 'Loading current measurements…',
-  'server.statusError': 'Current measurements could not be loaded.',
-  'server.statusPartial': 'Some measurements are unavailable.',
-  'server.statusMeasuredPrefix': 'Measured',
-  'server.statusStale': 'The latest measurement appears to be old.',
+  'server.statusLoading': 'Loading current data…',
+  'server.statusError': 'Current data could not be loaded.',
+  'server.statusPartial': 'Some data is unavailable.',
+  'server.statusUpdatedPrefix': 'Updated',
+  'server.statusStale': 'The latest update appears to be old.',
   'server.days': 'days',
 
   'links.heading': 'Other links',

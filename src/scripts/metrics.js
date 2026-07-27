@@ -5,11 +5,11 @@ const JA = {
   'server.stateChecking': '確認中',
   'server.stateOnline': '稼働中',
   'server.stateError': '取得不可',
-  'server.statusLoading': '現在の計測値を読み込み中…',
-  'server.statusError': '現在の計測値を取得できませんでした。',
-  'server.statusPartial': '一部の計測値を取得できませんでした。',
-  'server.statusMeasuredPrefix': '計測',
-  'server.statusStale': '最新の計測値が古い可能性があります。',
+  'server.statusLoading': '現在の情報を読み込み中…',
+  'server.statusError': '現在の情報を取得できませんでした。',
+  'server.statusPartial': '一部の情報を取得できませんでした。',
+  'server.statusUpdatedPrefix': '更新',
+  'server.statusStale': '最新の更新情報が古い可能性があります。',
   'server.days': '日',
 };
 
@@ -182,7 +182,7 @@ export const initServerMetrics = () => {
       minute: '2-digit',
       second: '2-digit',
     });
-    elements.status.textContent = `${t('server.statusMeasuredPrefix')} ${measuredTime}`;
+    elements.status.textContent = `${t('server.statusUpdatedPrefix')} ${measuredTime}`;
   };
 
   const showPartial = (show) => {
