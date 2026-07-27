@@ -43,6 +43,15 @@ export default defineConfig({
       },
     },
   ],
+  server: {
+    proxy: {
+      '/api/server-status.json': {
+        target: 'https://mu-natuki.com',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
   build: {
     rollupOptions: {
       input: {
