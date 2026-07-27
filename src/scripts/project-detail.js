@@ -234,20 +234,20 @@ function renderProject(language) {
           : ''
       }
 
-      <div class="detail-layout">
-        <div>
-          <section class="detail-card">
-            <h2>${escapeHtml(labels.overview)}</h2>
-            <p class="detail-description">${escapeHtml(item.description)}</p>
-          </section>
-          <div id="project-media-slot"></div>
-        </div>
+      <div class="detail-layout${item.media ? ' detail-layout-has-media' : ''}">
+        <section class="detail-card detail-overview-card">
+          <h2>${escapeHtml(labels.overview)}</h2>
+          <p class="detail-description">${escapeHtml(item.description)}</p>
+        </section>
 
-        <aside class="detail-side">
-          <section class="detail-card">
-            <h2>${escapeHtml(labels.highlights)}</h2>
-            <ul class="detail-highlights">${highlightItems}</ul>
-          </section>
+        <section class="detail-card detail-highlights-card">
+          <h2>${escapeHtml(labels.highlights)}</h2>
+          <ul class="detail-highlights">${highlightItems}</ul>
+        </section>
+
+        ${item.media ? '<div id="project-media-slot"></div>' : ''}
+
+        <div class="detail-meta">
           <section class="detail-card">
             <h2>${escapeHtml(labels.technology)}</h2>
             <div class="tags">${tagItems}</div>
@@ -256,7 +256,7 @@ function renderProject(language) {
             <h2>${escapeHtml(labels.links)}</h2>
             <div class="detail-links">${linkItems}</div>
           </section>
-        </aside>
+        </div>
       </div>
 
       ${
