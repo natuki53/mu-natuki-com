@@ -84,30 +84,39 @@ function renderShell() {
 }
 
 function createMedia(item) {
-  if (!item.media) return null;
   const container = document.createElement('div');
   container.className = 'detail-media';
+  const media = item.media || (item.cover
+    ? { type: 'image', src: item.cover.src, title: item.cover.alt }
+    : null);
 
-  if (item.media.type === 'video') {
+  if (!media) {
+    container.classList.add('detail-media-placeholder');
+    const category = document.createElement('span');
+    category.textContent = item.category;
+    const title = document.createElement('strong');
+    title.textContent = item.title;
+    container.append(category, title);
+  } else if (media.type === 'video') {
     const video = document.createElement('video');
-    video.src = item.media.src;
+    video.src = media.src;
     video.controls = true;
     video.playsInline = true;
     video.preload = 'metadata';
-    video.setAttribute('aria-label', item.media.title || `${item.title} video`);
+    video.setAttribute('aria-label', media.title || `${item.title} video`);
     container.appendChild(video);
-  } else if (item.media.type === 'iframe') {
+  } else if (media.type === 'iframe') {
     const iframe = document.createElement('iframe');
-    iframe.src = item.media.src;
-    iframe.title = item.media.title || `${item.title} preview`;
+    iframe.src = media.src;
+    iframe.title = media.title || `${item.title} preview`;
     iframe.loading = 'lazy';
     iframe.allow = 'fullscreen; web-share; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     iframe.setAttribute('allowfullscreen', '');
     container.appendChild(iframe);
-  } else if (item.media.type === 'image') {
+  } else if (media.type === 'image') {
     const image = document.createElement('img');
-    image.src = item.media.src;
-    image.alt = item.media.title || `${item.title} image`;
+    image.src = media.src;
+    image.alt = media.title || `${item.title} image`;
     image.loading = 'lazy';
     container.appendChild(image);
   }
@@ -234,29 +243,29 @@ function renderProject(language) {
           : ''
       }
 
-      <div class="detail-layout${item.media ? ' detail-layout-has-media' : ''}">
-        <section class="detail-card detail-overview-card">
-          <h2>${escapeHtml(labels.overview)}</h2>
-          <p class="detail-description">${escapeHtml(item.description)}</p>
-        </section>
+      <div class="detail-layout">
+        <div class="detail-primary">
+          <section class="detail-card detail-overview-card">
+            <h2>${escapeHtml(labels.overview)}</h2>
+            <p class="detail-description">${escapeHtml(item.description)}</p>
+          </section>
+          <div id="project-media-slot"></div>
+        </div>
 
-        <section class="detail-card detail-highlights-card">
-          <h2>${escapeHtml(labels.highlights)}</h2>
-          <ul class="detail-highlights">${highlightItems}</ul>
-        </section>
-
-        ${item.media ? '<div id="project-media-slot"></div>' : ''}
-
-        <div class="detail-meta">
-          <section class="detail-card">
+        <aside class="detail-side">
+          <section class="detail-card detail-highlights-card">
+            <h2>${escapeHtml(labels.highlights)}</h2>
+            <ul class="detail-highlights">${highlightItems}</ul>
+          </section>
+          <section class="detail-card detail-technology-card">
             <h2>${escapeHtml(labels.technology)}</h2>
             <div class="tags">${tagItems}</div>
           </section>
-          <section class="detail-card">
+          <section class="detail-card detail-links-card">
             <h2>${escapeHtml(labels.links)}</h2>
             <div class="detail-links">${linkItems}</div>
           </section>
-        </div>
+        </aside>
       </div>
 
       ${
