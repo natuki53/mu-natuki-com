@@ -1157,8 +1157,10 @@ main {
 }
 
 .state-dot {
+  position: relative;
   width: 8px;
   height: 8px;
+  flex: 0 0 auto;
   border-radius: 50%;
   background: var(--text-soft);
 }
@@ -1170,6 +1172,28 @@ main {
 .server-state[data-state='ok'] .state-dot {
   background: var(--success);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 14%, transparent);
+}
+
+.server-state[data-state='ok'] .state-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1px solid color-mix(in srgb, var(--success) 48%, transparent);
+  border-radius: inherit;
+  animation: server-state-pulse 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes server-state-pulse {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.65);
+  }
+
+  72%,
+  100% {
+    opacity: 0;
+    transform: scale(1.75);
+  }
 }
 
 .server-state[data-state='error'] {
@@ -2072,6 +2096,10 @@ main {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .server-state[data-state='ok'] .state-dot::after {
+    animation: none;
   }
 
   *,
