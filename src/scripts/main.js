@@ -5,11 +5,13 @@ import { initI18n } from './i18n.js';
 import { initScrollReveal } from './scroll-reveal.js';
 import { initServerMetrics } from './metrics.js';
 import { initGalleryLightbox } from './gallery-lightbox.js';
+import { initMobileMenu } from './mobile-menu.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   initMenu();
   initTheme();
   initI18n();
+  initMobileMenu();
   initScrollReveal();
   initServerMetrics();
   initGalleryLightbox();

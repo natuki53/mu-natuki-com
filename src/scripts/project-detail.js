@@ -2,6 +2,7 @@ import { projects } from '../data/projects.js';
 import { en } from '../data/english.js';
 import { initProjectMenu } from './project-menu.js';
 import { initTheme } from './theme.js';
+import { initMobileMenu } from './mobile-menu.js';
 
 const JA = {
   'project.detail.back': 'プロジェクト一覧へ',
@@ -25,7 +26,6 @@ const escapeHtml = (value) =>
 const projectId = document.body.dataset.projectId;
 const project = projects.find((item) => item.id === projectId);
 const app = document.getElementById('app');
-let projectMenu;
 
 function translation(key, language, fallback = '') {
   if (language === 'en' && en[key] !== undefined) return en[key];
@@ -56,17 +56,23 @@ function renderShell() {
           <span class="brand-title">雨苺なつき</span>
           <span class="brand-subtitle">PORTFOLIO</span>
         </a>
-        <nav class="menu-nav" aria-label="ページナビゲーション">
-          <div id="project-menu-host"></div>
-        </nav>
-        <div class="header-tools">
-          <div id="theme-toggle" class="segment-group" role="group" aria-label="テーマを切り替え">
-            <button type="button" class="segment-option" data-theme="light" aria-pressed="false" aria-label="ライトテーマ">☀</button>
-            <button type="button" class="segment-option" data-theme="dark" aria-pressed="false" aria-label="ダークテーマ">☾</button>
-          </div>
-          <div id="lang-toggle" class="segment-group lang-segment" role="group" aria-label="言語を切り替え">
-            <button type="button" class="segment-option" data-lang="ja" aria-pressed="false">JA</button>
-            <button type="button" class="segment-option" data-lang="en" aria-pressed="false">EN</button>
+        <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu-panel"
+          aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+        <div id="mobile-menu-panel" class="mobile-menu-panel">
+          <nav class="menu-nav" aria-label="ページナビゲーション">
+            <div id="project-menu-host"></div>
+          </nav>
+          <div class="header-tools">
+            <div id="theme-toggle" class="segment-group" role="group" aria-label="テーマを切り替え">
+              <button type="button" class="segment-option" data-theme="light" aria-pressed="false" aria-label="ライトテーマ">☀</button>
+              <button type="button" class="segment-option" data-theme="dark" aria-pressed="false" aria-label="ダークテーマ">☾</button>
+            </div>
+            <div id="lang-toggle" class="segment-group lang-segment" role="group" aria-label="言語を切り替え">
+              <button type="button" class="segment-option" data-lang="ja" aria-pressed="false">JA</button>
+              <button type="button" class="segment-option" data-lang="en" aria-pressed="false">EN</button>
+            </div>
           </div>
         </div>
       </div>
@@ -254,17 +260,18 @@ function applyLanguage(language) {
   document.documentElement.lang = language;
   localStorage.setItem('lang', language);
   renderProject(language);
-  projectMenu?.setLanguage(language);
 
   document.querySelectorAll('.segment-option[data-lang]').forEach((button) => {
     button.setAttribute('aria-pressed', button.dataset.lang === language ? 'true' : 'false');
   });
+  window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: language } }));
 }
 
 document.body.classList.add('project-detail-page');
 renderShell();
-projectMenu = initProjectMenu({ currentProjectId: projectId });
+initProjectMenu({ currentProjectId: projectId });
 initTheme();
+initMobileMenu();
 
 document.querySelectorAll('.segment-option[data-lang]').forEach((button) => {
   button.addEventListener('click', () => {
