@@ -8,7 +8,6 @@ const JA = {
   'project.detail.overview': '概要',
   'project.detail.facts': '数字と特徴',
   'project.detail.highlights': 'このプロジェクトのポイント',
-  'project.detail.gallery': '画面と仕上がり',
   'project.detail.technology': '使用技術',
   'project.detail.links': '関連リンク',
   'project.detail.notFoundTitle': 'プロジェクトが見つかりません',
@@ -45,7 +44,6 @@ function localizedProject(language) {
     description: translation(`${prefix}.description`, language, project.description),
     highlights: translation(`${prefix}.highlights`, language, project.highlights),
     facts: translation(`${prefix}.facts`, language, project.facts || []),
-    gallery: translation(`${prefix}.gallery`, language, project.gallery || []),
   };
 }
 
@@ -151,7 +149,6 @@ function renderProject(language) {
     overview: translation('project.detail.overview', language),
     facts: translation('project.detail.facts', language),
     highlights: translation('project.detail.highlights', language),
-    gallery: translation('project.detail.gallery', language),
     technology: translation('project.detail.technology', language),
     links: translation('project.detail.links', language),
   };
@@ -179,16 +176,6 @@ function renderProject(language) {
       </figure>
     `
     : '';
-  const galleryItems = (item.gallery || [])
-    .map(
-      (image) => `
-        <figure class="detail-gallery-item">
-          <img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt || '')}" loading="lazy" />
-          ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ''}
-        </figure>
-      `,
-    )
-    .join('');
   const linkItems = item.links
     .map(
       (link) => `
@@ -247,17 +234,6 @@ function renderProject(language) {
           </section>
         </aside>
       </div>
-
-      ${
-        galleryItems
-          ? `
-        <section class="detail-gallery">
-          <h2>${escapeHtml(labels.gallery)}</h2>
-          <div class="detail-gallery-grid">${galleryItems}</div>
-        </section>
-      `
-          : ''
-      }
 
     </main>
   `;

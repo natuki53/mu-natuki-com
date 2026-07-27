@@ -79,13 +79,6 @@ export const projects = [
       src: '/gallery/VRCosme紹介動画.mp4',
       title: 'VRCosme紹介動画',
     },
-    gallery: [
-      {
-        src: '/projects/vrcosme/before-after.webp',
-        alt: 'VRCosmeで補正する前後の比較',
-        caption: '補正前と補正後を見比べながら調整できます。',
-      },
-    ],
     links: [
       { type: 'website', url: 'https://natuki53.github.io/VRCosme/', label: 'Visit Site' },
       { type: 'booth', url: 'https://mofumagic.booth.pm/items/8035872', label: 'BOOTH Page' },
@@ -106,10 +99,6 @@ export const projects = [
       { value: 'Tauri', label: 'Windowsアプリ' },
     ],
     tags: ['React', 'TypeScript', 'Cloudflare', 'Tauri'],
-    cover: {
-      src: '/projects/vrcosme-web/cover.webp',
-      alt: 'VRCosme Webのトップページ',
-    },
     links: [{ type: 'website', url: 'https://vrcosme.com/', label: 'Visit Site' }],
   },
   {
@@ -126,10 +115,6 @@ export const projects = [
       { value: 'macOS 13+', label: '対応環境' },
     ],
     tags: ['Swift', 'SwiftUI', 'macOS', 'Productivity'],
-    cover: {
-      src: '/projects/cliprack/cover.webp',
-      alt: 'ClipRackの紹介ページ',
-    },
     links: [
       { type: 'website', url: 'https://natuki53.github.io/ClipRack-docs/', label: 'Visit Site' },
       { type: 'testflight', url: 'https://testflight.apple.com/join/YEPq8pt7', label: 'TestFlight' },
@@ -150,10 +135,6 @@ export const projects = [
       { value: 'Java 21', label: '実行環境' },
     ],
     tags: ['Java', 'Spring Boot', 'Thymeleaf', 'MySQL'],
-    cover: {
-      src: '/projects/campustrade/cover.webp',
-      alt: 'CampusTradeの画面プロトタイプ',
-    },
     links: [{ type: 'github', url: 'https://github.com/natuki53/CampusTrade', label: 'GitHub' }],
   },
   {
@@ -194,10 +175,6 @@ export const projects = [
       { value: '2種類', label: '操作マニュアル' },
     ],
     tags: ['Java', 'Jakarta Servlet', 'JSP', 'Tomcat', 'MySQL'],
-    cover: {
-      src: '/projects/timecard/cover.webp',
-      alt: 'TimeCard Webのロゴ',
-    },
     links: [
       { type: 'website', url: 'https://mu-natuki.com/timecard-web-school', label: 'Visit Site' },
       { type: 'github', url: 'https://github.com/natuki53/TimeCard-Web-School', label: 'GitHub' },

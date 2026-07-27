@@ -103,14 +103,6 @@ export const en = {
     { value: 'Windows', label: '10 / 11' },
     { value: '3 formats', label: 'image input' },
   ],
-  'project.vrcosme.gallery': [
-    {
-      src: '/projects/vrcosme/before-after.webp',
-      alt: 'Before and after comparison in VRCosme',
-      caption: 'Adjust a photo while comparing the original and edited versions.',
-    },
-  ],
-
   'project.vrcosme-web.title': 'VRCosme Web',
   'project.vrcosme-web.category': 'Web app / Photography',
   'project.vrcosme-web.desc': 'Retouch, share, and enjoy VRChat photos in the browser',
@@ -247,7 +239,6 @@ export const en = {
   'project.detail.overview': 'Overview',
   'project.detail.facts': 'At a glance',
   'project.detail.highlights': 'Highlights',
-  'project.detail.gallery': 'Screens',
   'project.detail.technology': 'Technology',
   'project.detail.links': 'Related links',
   'project.detail.notFoundTitle': 'Project not found',
