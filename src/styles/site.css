@@ -474,18 +474,6 @@ main {
   letter-spacing: -0.035em;
 }
 
-.section-heading-row {
-  display: grid;
-  grid-template-columns: 1fr minmax(280px, 0.62fr);
-  align-items: end;
-  gap: 3rem;
-}
-
-.projects-section .section-heading-row {
-  grid-template-columns: minmax(0, 2.3fr) minmax(260px, 0.7fr);
-  gap: clamp(2rem, 4vw, 3rem);
-}
-
 .projects-section .section-heading h2 {
   font-size: clamp(2rem, 4vw, 3.15rem);
   text-wrap: balance;
@@ -1344,11 +1332,6 @@ main {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .projects-section .section-heading-row {
-    grid-template-columns: 1fr;
-    gap: 1.3rem;
-  }
-
   .detail-hero,
   .detail-layout {
     grid-template-columns: 1fr;
@@ -1441,7 +1424,6 @@ main {
     width: min(calc(100% - 28px), var(--max-width));
   }
 
-  .section-heading-row,
   .about-grid,
   .server-heading {
     grid-template-columns: 1fr;

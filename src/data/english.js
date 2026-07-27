@@ -52,7 +52,6 @@ export const en = {
   'profile.historyNow':
     'I continue planning articles, analyzing readership, and coordinating the vrnavi team while developing VRCosme Web and other products.',
   'projects.heading': 'Things I make and run',
-  'projects.intro': 'Each page explains the problem that started the project and where the result is available.',
   'projects.view': 'View details',
 
   'project.vrnavi.title': 'vrnavi',
@@ -216,7 +215,6 @@ export const en = {
   ],
 
   'gallery.heading': 'Memories from VRChat',
-  'gallery.desc': 'A growing collection of moments that felt beautiful.',
   'gallery.caption1': 'Summer',
   'gallery.caption2': 'JPT Party',
   'gallery.caption3': 'Beautiful View',
