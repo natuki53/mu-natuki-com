@@ -14,7 +14,7 @@ const JA = {
   'project.detail.related': 'ほかのプロジェクト',
   'project.detail.notFoundTitle': 'プロジェクトが見つかりません',
   'project.detail.notFoundText': '指定されたプロジェクトページは存在しません。',
-  'footer.text': '作って、使って、また直す。',
+  'footer.text': 'VRChatとWebを中心に、制作と運営をしています。',
 };
 
 const escapeHtml = (value) =>

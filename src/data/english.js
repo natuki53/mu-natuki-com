@@ -26,7 +26,7 @@ export const en = {
   'section.projects': 'Things I make',
   'section.gallery': 'Photos from VRChat',
   'section.server': 'This site’s server',
-  'section.links': 'Links',
+  'section.links': 'Links & updates',
 
   'profile.heading': 'Notice it, then make it.',
   'profile.intro':
@@ -246,8 +246,11 @@ export const en = {
   'server.statusStale': 'The latest measurement appears to be old.',
   'server.days': 'days',
 
-  'links.heading': 'Find me elsewhere.',
-  'footer.text': 'Make it, use it, then make it better.',
+  'links.heading': 'Updates and releases',
+  'links.xDesc': 'Project updates and everyday notes',
+  'links.boothDesc': 'Published tools',
+  'links.githubDesc': 'Source code and development notes',
+  'footer.text': 'I build and run projects around VRChat and the web.',
 
   'project.detail.back': 'Back to projects',
   'project.detail.overview': 'Overview',

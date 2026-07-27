@@ -892,19 +892,43 @@ main {
 }
 
 .social-links a {
-  min-width: 110px;
-  padding: 0.65rem 0.8rem;
+  min-width: 160px;
+  padding: 0.8rem 0.85rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   border-bottom: 1px solid var(--line-strong);
   color: var(--text-soft);
   font-size: 0.8rem;
   font-weight: 700;
 }
 
+.social-link-copy {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.social-link-copy strong {
+  color: var(--text);
+  font-family: var(--font-accent);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.social-link-copy small {
+  color: var(--text-soft);
+  font-size: 0.66rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
 .social-links a:hover {
   border-color: var(--lavender);
+  color: var(--lavender-deep);
+}
+
+.social-links a:hover .social-link-copy strong {
   color: var(--lavender-deep);
 }
 
