@@ -26,7 +26,7 @@ export const en = {
   'section.projects': 'Things I make',
   'section.gallery': 'Photos from VRChat',
   'section.server': 'This site’s server',
-  'section.links': 'Links & updates',
+  'section.links': 'LINKS',
 
   'profile.heading': 'Notice it, then make it.',
   'profile.intro':
@@ -246,7 +246,7 @@ export const en = {
   'server.statusStale': 'The latest measurement appears to be old.',
   'server.days': 'days',
 
-  'links.heading': 'Updates and releases',
+  'links.heading': 'Other links',
   'links.xDesc': 'Project updates and everyday notes',
   'links.boothDesc': 'Published tools',
   'links.githubDesc': 'Source code and development notes',
