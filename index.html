@@ -258,6 +258,8 @@
               <img src="/gallery/png/VRChat_2025-07-07_00-27-50.155_2160x3840.png" loading="lazy"
                 alt="VRChatで撮影した夏の景色" />
             </picture>
+            <button type="button" class="gallery-image-button" aria-label="写真を拡大表示"
+              data-i18n-aria="gallery.open"></button>
             <figcaption data-i18n="gallery.caption1">Summer</figcaption>
           </figure>
           <figure class="gallery-item">
@@ -266,6 +268,8 @@
               <img src="/gallery/png/VRChat_2025-01-16_02-06-35.432_3840x2160.png" loading="lazy"
                 alt="VRChatのパーティーで撮影した写真" />
             </picture>
+            <button type="button" class="gallery-image-button" aria-label="写真を拡大表示"
+              data-i18n-aria="gallery.open"></button>
             <figcaption data-i18n="gallery.caption2">JPT Party</figcaption>
           </figure>
           <figure class="gallery-item">
@@ -274,6 +278,8 @@
               <img src="/gallery/png/VRChat_2025-07-13_05-48-10.021_3840x2160.png" loading="lazy"
                 alt="VRChatで撮影した美しい景色" />
             </picture>
+            <button type="button" class="gallery-image-button" aria-label="写真を拡大表示"
+              data-i18n-aria="gallery.open"></button>
             <figcaption data-i18n="gallery.caption3">Beautiful View</figcaption>
           </figure>
           <figure class="gallery-item gallery-item-tall">
@@ -282,6 +288,8 @@
               <img src="/gallery/png/VRChat_2025-08-19_03-37-48.990_2160x3840.png" loading="lazy"
                 alt="VRChatで撮影したストリートスナップ" />
             </picture>
+            <button type="button" class="gallery-image-button" aria-label="写真を拡大表示"
+              data-i18n-aria="gallery.open"></button>
             <figcaption data-i18n="gallery.caption4">Street Snap</figcaption>
           </figure>
           <figure class="gallery-item">
@@ -290,6 +298,8 @@
               <img src="/gallery/png/VRChat_2025-10-03_00-39-24.629_3840x2160.png" loading="lazy"
                 alt="VRChatで撮影した思い出の写真" />
             </picture>
+            <button type="button" class="gallery-image-button" aria-label="写真を拡大表示"
+              data-i18n-aria="gallery.open"></button>
             <figcaption data-i18n="gallery.caption5">Memories</figcaption>
           </figure>
           <figure class="gallery-item">
@@ -298,10 +308,24 @@
               <img src="/gallery/png/VRChat_2025-10-20_03-24-11.849_3840x2160.png" loading="lazy"
                 alt="VRChatで撮影したかわいい写真" />
             </picture>
+            <button type="button" class="gallery-image-button" aria-label="写真を拡大表示"
+              data-i18n-aria="gallery.open"></button>
             <figcaption data-i18n="gallery.caption6">Cute</figcaption>
           </figure>
         </div>
       </section>
+
+      <dialog id="gallery-lightbox" class="gallery-lightbox" aria-label="写真の拡大表示"
+        data-i18n-aria="gallery.dialogLabel">
+        <div class="gallery-lightbox-content">
+          <button type="button" class="gallery-lightbox-close" aria-label="拡大表示を閉じる"
+            data-i18n-aria="gallery.close">×</button>
+          <figure>
+            <img id="gallery-lightbox-image" alt="" />
+            <figcaption id="gallery-lightbox-caption"></figcaption>
+          </figure>
+        </div>
+      </dialog>
 
       <section id="server-monitor" class="section-shell server-section" aria-labelledby="server-monitor-heading">
         <div class="server-heading">

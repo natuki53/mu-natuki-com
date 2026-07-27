@@ -798,6 +798,21 @@ main {
   grid-row: span 2;
 }
 
+.gallery-image-button {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.gallery-image-button:focus-visible {
+  outline: 3px solid var(--lavender);
+  outline-offset: -4px;
+}
+
 .gallery-item picture,
 .gallery-item img {
   width: 100%;
@@ -817,13 +832,90 @@ main {
   position: absolute;
   right: 0.75rem;
   bottom: 0.75rem;
+  z-index: 2;
   padding: 0.32rem 0.65rem;
   border-radius: 999px;
   background: rgba(23, 20, 27, 0.68);
   color: #fff;
   font-family: var(--font-accent);
   font-size: 0.68rem;
+  pointer-events: none;
   backdrop-filter: blur(8px);
+}
+
+.gallery-lightbox {
+  width: min(94vw, 1500px);
+  max-width: none;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: transparent;
+  color: #fff;
+}
+
+.gallery-lightbox::backdrop {
+  background: rgba(16, 14, 19, 0.86);
+  backdrop-filter: blur(10px);
+}
+
+.gallery-lightbox-content {
+  position: relative;
+}
+
+.gallery-lightbox figure {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+}
+
+.gallery-lightbox img {
+  display: block;
+  max-width: 94vw;
+  max-height: 84vh;
+  width: auto;
+  height: auto;
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+  object-fit: contain;
+}
+
+.gallery-lightbox figcaption {
+  min-height: 1.4em;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: var(--font-accent);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.gallery-lightbox-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  background: rgba(20, 17, 23, 0.72);
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.gallery-lightbox-close:hover {
+  background: rgba(20, 17, 23, 0.9);
+  transform: scale(1.04);
+}
+
+.gallery-lightbox-close:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
 }
 
 .server-heading {

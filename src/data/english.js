@@ -212,6 +212,9 @@ export const en = {
   'gallery.caption4': 'Street Snap',
   'gallery.caption5': 'Memories',
   'gallery.caption6': 'Cute',
+  'gallery.open': 'Enlarge photo',
+  'gallery.dialogLabel': 'Enlarged photo',
+  'gallery.close': 'Close enlarged photo',
 
   'server.heading': 'What keeps this place running',
   'server.desc':
