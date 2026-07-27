@@ -175,7 +175,7 @@ function renderProject(language) {
     .join('');
   const coverMarkup = item.cover
     ? `
-      <figure class="detail-cover">
+      <figure class="detail-cover${item.cover.fit === 'header' ? ' detail-cover-header' : ''}">
         <img src="${escapeHtml(item.cover.src)}" alt="${escapeHtml(item.cover.alt || item.title)}" />
       </figure>
     `

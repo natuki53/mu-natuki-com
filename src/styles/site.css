@@ -1134,6 +1134,16 @@ main {
   object-fit: cover;
 }
 
+.detail-cover-header {
+  background: #fff;
+}
+
+.detail-cover-header img {
+  object-fit: contain;
+  object-position: center;
+  transform: scale(1.55);
+}
+
 .detail-facts {
   margin-top: 1.5rem;
   display: grid;

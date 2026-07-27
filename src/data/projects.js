@@ -14,8 +14,9 @@ export const projects = [
     ],
     tags: ['WordPress', 'SEO', 'Analytics', 'Media'],
     cover: {
-      src: '/projects/vrnavi/cover.webp',
-      alt: 'ぶいなびのトップページ',
+      src: '/projects/vrnavi/header.png',
+      alt: 'ぶいなびのヘッダーロゴ',
+      fit: 'header',
     },
     media: {
       type: 'iframe',
