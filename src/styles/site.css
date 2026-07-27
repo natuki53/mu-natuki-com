@@ -219,14 +219,18 @@ button {
 }
 
 .menu-dropdown-chevron {
+  width: 0.42rem;
+  height: 0.42rem;
+  flex: 0 0 auto;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
   color: var(--lavender-deep);
-  font-size: 0.9rem;
-  line-height: 1;
+  transform: translateY(-0.12rem) rotate(45deg);
   transition: transform 160ms ease;
 }
 
 .menu-dropdown.is-open .menu-dropdown-chevron {
-  transform: rotate(180deg);
+  transform: translateY(0.1rem) rotate(225deg);
 }
 
 .project-menu-panel {

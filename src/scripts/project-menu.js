@@ -44,7 +44,7 @@ export const initProjectMenu = ({ currentProjectId = '' } = {}) => {
         aria-controls="project-menu-panel"
       >
         <span class="project-menu-trigger-label">Projects</span>
-        <span class="menu-dropdown-chevron" aria-hidden="true">⌄</span>
+        <span class="menu-dropdown-chevron" aria-hidden="true"></span>
       </button>
       <div class="project-menu-panel" id="project-menu-panel" aria-label="プロジェクト">
         <a
