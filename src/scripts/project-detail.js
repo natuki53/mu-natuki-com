@@ -176,7 +176,7 @@ function renderProject(language) {
     ? `
       <figure class="detail-cover${item.cover.fit === 'header' ? ' detail-cover-header' : ''}${
         item.cover.fit === 'contain' ? ' detail-cover-contain' : ''
-      }">
+      }${item.cover.aspect === 'square' ? ' detail-cover-square' : ''}">
         <img src="${escapeHtml(item.cover.src)}" alt="${escapeHtml(item.cover.alt || item.title)}" />
       </figure>
     `

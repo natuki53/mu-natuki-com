@@ -1151,6 +1151,12 @@ main {
   object-position: center;
 }
 
+.detail-cover-square {
+  width: min(100%, 30rem);
+  aspect-ratio: 1;
+  justify-self: center;
+}
+
 .detail-facts {
   margin-top: 1.5rem;
   display: grid;
