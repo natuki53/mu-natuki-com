@@ -51,9 +51,6 @@ export const en = {
   'profile.historyNowPeriod': 'Now',
   'profile.historyNow':
     'I continue planning articles, analyzing readership, and coordinating the vrnavi team while developing VRCosme Web and other products.',
-  'profile.vrnaviResult':
-    'By reviewing search data and reader feedback, vrnavi grew to a peak of 250,000 monthly page views and 60,000 active users.',
-
   'projects.heading': 'Things I make and run',
   'projects.intro': 'Each page explains the problem that started the project and where the result is available.',
   'projects.view': 'View details',
