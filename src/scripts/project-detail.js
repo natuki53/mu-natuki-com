@@ -1,4 +1,3 @@
-import '../styles/main.css';
 import { projects } from '../data/projects.js';
 import { en } from '../data/english.js';
 import { initProjectMenu } from './project-menu.js';

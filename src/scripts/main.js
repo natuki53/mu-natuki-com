@@ -1,5 +1,4 @@
 // Main JavaScript entry point
-import '../styles/main.css';
 import { initMenu } from './menu.js';
 import { initTheme } from './theme.js';
 import { initI18n } from './i18n.js';
