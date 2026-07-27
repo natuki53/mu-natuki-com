@@ -232,7 +232,6 @@ export const en = {
   'server.metricDisk': 'Disk',
   'server.metricUptime': 'Uptime',
   'server.uptimeNote': 'Time since the last restart',
-  'server.privacyNote': 'This fixed public format contains no hostnames or configuration details.',
   'server.statusLoading': 'Loading current measurements…',
   'server.statusError': 'Current measurements could not be loaded.',
   'server.statusPartial': 'Some measurements are unavailable.',

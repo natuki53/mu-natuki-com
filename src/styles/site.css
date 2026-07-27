@@ -953,19 +953,13 @@ main {
 }
 
 .server-monitor-status,
-.server-monitor-partial,
-.server-data-note {
+.server-monitor-partial {
   color: var(--text-soft);
   font-size: 0.75rem;
 }
 
 .server-monitor-partial {
   color: var(--danger);
-}
-
-.server-data-note {
-  max-width: 29rem;
-  text-align: right;
 }
 
 .contact-section {
@@ -1566,10 +1560,6 @@ main {
   .site-footer {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .server-data-note {
-    text-align: left;
   }
 
   .social-links {
