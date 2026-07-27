@@ -1245,7 +1245,10 @@ main {
 }
 
 .detail-technology-card {
-  padding-top: clamp(1rem, 2.2vw, 1.5rem);
+  padding-block: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .detail-technology-card .tags {
