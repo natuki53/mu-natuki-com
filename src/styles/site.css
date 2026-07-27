@@ -1245,7 +1245,7 @@ main {
 }
 
 .detail-technology-card {
-  padding-top: clamp(1.25rem, 3vw, 2rem);
+  padding-top: clamp(1rem, 2.2vw, 1.5rem);
 }
 
 .detail-technology-card .tags {
