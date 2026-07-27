@@ -265,9 +265,11 @@ button {
 }
 
 .site-brand {
+  width: max-content;
   display: inline-grid;
   grid-template-columns: auto auto;
   align-items: center;
+  justify-self: start;
   column-gap: 0.36rem;
   font-family: var(--font-accent);
   line-height: 1;
@@ -2001,6 +2003,15 @@ main {
 
   .detail-hero {
     margin-top: 2.5rem;
+  }
+
+  .detail-side {
+    grid-template-rows: 288px 132px auto;
+  }
+
+  .detail-side .detail-links-card {
+    height: auto;
+    padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
   }
 
 }
