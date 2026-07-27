@@ -49,7 +49,7 @@ export const en = {
     'I released FaceMixer, VRCosme, 360-viewer, and other tools, and use feedback from their users in later improvements.',
   'profile.historyNowPeriod': 'Now',
   'profile.historyNow':
-    'I continue planning articles, analyzing readership, and coordinating the vrnavi team while developing VRCosme Web and other products.',
+    'I continue planning and writing articles, analyzing readership, and coordinating the vrnavi team while working on personal development projects.',
   'projects.heading': 'Things I make and run',
   'projects.view': 'View details',
 
