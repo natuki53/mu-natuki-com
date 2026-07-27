@@ -1133,7 +1133,7 @@ main {
 .detail-cover-header img {
   object-fit: contain;
   object-position: center;
-  transform: scale(1.55);
+  transform: translateX(1.5%) scale(1.55);
 }
 
 .detail-cover-contain {
