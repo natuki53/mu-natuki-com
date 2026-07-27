@@ -46,6 +46,7 @@ export const projects = [
     cover: {
       src: '/projects/facemixer/cover.webp',
       alt: 'FaceMixerの製品イメージ',
+      fit: 'contain',
     },
     media: {
       type: 'video',

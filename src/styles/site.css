@@ -1142,6 +1142,15 @@ main {
   transform: scale(1.55);
 }
 
+.detail-cover-contain {
+  background: #cacaca;
+}
+
+.detail-cover-contain img {
+  object-fit: contain;
+  object-position: center;
+}
+
 .detail-facts {
   margin-top: 1.5rem;
   display: grid;
