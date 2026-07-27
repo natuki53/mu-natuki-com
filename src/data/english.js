@@ -6,7 +6,6 @@ export const en = {
   'toast.switchedToJa': '日本語に変更しました',
 
   'nav.profile': 'About',
-  'nav.worksProject': 'Projects',
   'nav.gallery': 'Gallery',
   'nav.server': 'Server',
 
@@ -254,7 +253,6 @@ export const en = {
   'project.detail.gallery': 'Screens',
   'project.detail.technology': 'Technology',
   'project.detail.links': 'Related links',
-  'project.detail.related': 'More projects',
   'project.detail.notFoundTitle': 'Project not found',
   'project.detail.notFoundText': 'The requested project page does not exist.',
 };

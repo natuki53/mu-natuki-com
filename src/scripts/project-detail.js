@@ -1,6 +1,7 @@
 import '../styles/main.css';
 import { projects } from '../data/projects.js';
 import { en } from '../data/english.js';
+import { initProjectMenu } from './project-menu.js';
 import { initTheme } from './theme.js';
 
 const JA = {
@@ -11,7 +12,6 @@ const JA = {
   'project.detail.gallery': '画面と仕上がり',
   'project.detail.technology': '使用技術',
   'project.detail.links': '関連リンク',
-  'project.detail.related': 'ほかのプロジェクト',
   'project.detail.notFoundTitle': 'プロジェクトが見つかりません',
   'project.detail.notFoundText': '指定されたプロジェクトページは存在しません。',
   'footer.text': 'VRChatとWebを中心に、制作と運営をしています。',
@@ -27,8 +27,8 @@ const escapeHtml = (value) =>
 
 const projectId = document.body.dataset.projectId;
 const project = projects.find((item) => item.id === projectId);
-const projectIndex = projects.findIndex((item) => item.id === projectId);
 const app = document.getElementById('app');
+let projectMenu;
 
 function translation(key, language, fallback = '') {
   if (language === 'en' && en[key] !== undefined) return en[key];
@@ -61,7 +61,7 @@ function renderShell() {
           <span class="brand-subtitle">PORTFOLIO</span>
         </a>
         <nav class="menu-nav" aria-label="ページナビゲーション">
-          <a class="menu-link detail-nav-back" href="/#projects"></a>
+          <div id="project-menu-host"></div>
         </nav>
         <div class="header-tools">
           <div id="theme-toggle" class="segment-group" role="group" aria-label="テーマを切り替え">
@@ -157,15 +157,7 @@ function renderProject(language) {
     gallery: translation('project.detail.gallery', language),
     technology: translation('project.detail.technology', language),
     links: translation('project.detail.links', language),
-    related: translation('project.detail.related', language),
   };
-
-  const otherProjects = projects.filter((candidate) => candidate.id !== item.id);
-  const relatedStart = projectIndex < 0 ? 0 : projectIndex % otherProjects.length;
-  const related = Array.from(
-    { length: Math.min(3, otherProjects.length) },
-    (_, index) => otherProjects[(relatedStart + index) % otherProjects.length],
-  );
 
   const highlightItems = item.highlights
     .map((highlight) => `<li><span aria-hidden="true"></span>${escapeHtml(highlight)}</li>`)
@@ -207,17 +199,6 @@ function renderProject(language) {
       `,
     )
     .join('');
-  const relatedItems = related
-    .map((candidate) => {
-      const title = translation(`project.${candidate.id}.title`, language, candidate.title);
-      return `
-        <a class="related-card" href="/projects/${escapeHtml(candidate.id)}/">
-          <span>${escapeHtml(title)}</span><span aria-hidden="true">↗</span>
-        </a>
-      `;
-    })
-    .join('');
-
   const content = document.getElementById('project-content');
   content.innerHTML = `
     <main id="main-content" class="project-detail-main">
@@ -279,10 +260,6 @@ function renderProject(language) {
           : ''
       }
 
-      <section class="detail-related">
-        <h2>${escapeHtml(labels.related)}</h2>
-        <div class="related-grid">${relatedItems}</div>
-      </section>
     </main>
   `;
 
@@ -302,19 +279,19 @@ function applyLanguage(language) {
   document.documentElement.lang = language;
   localStorage.setItem('lang', language);
   renderProject(language);
+  projectMenu?.setLanguage(language);
 
   document.querySelectorAll('.segment-option[data-lang]').forEach((button) => {
     button.setAttribute('aria-pressed', button.dataset.lang === language ? 'true' : 'false');
   });
 
-  const back = document.querySelector('.detail-nav-back');
-  if (back) back.textContent = translation('project.detail.back', language);
   const footer = document.getElementById('detail-footer-copy');
   if (footer) footer.textContent = translation('footer.text', language);
 }
 
 document.body.classList.add('project-detail-page');
 renderShell();
+projectMenu = initProjectMenu({ currentProjectId: projectId });
 initTheme();
 
 document.querySelectorAll('.segment-option[data-lang]').forEach((button) => {
