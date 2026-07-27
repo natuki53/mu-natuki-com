@@ -481,6 +481,16 @@ main {
   gap: 3rem;
 }
 
+.projects-section .section-heading-row {
+  grid-template-columns: minmax(0, 2.3fr) minmax(260px, 0.7fr);
+  gap: clamp(2rem, 4vw, 3rem);
+}
+
+.projects-section .section-heading h2 {
+  font-size: clamp(2rem, 4vw, 3.15rem);
+  text-wrap: balance;
+}
+
 .section-intro {
   max-width: 38rem;
   color: var(--text-soft);
@@ -1276,6 +1286,11 @@ main {
 
   .server-metrics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .projects-section .section-heading-row {
+    grid-template-columns: 1fr;
+    gap: 1.3rem;
   }
 
   .detail-hero,
