@@ -726,14 +726,6 @@ main {
   transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
 }
 
-.project-card-featured {
-  border-top-color: var(--lavender);
-}
-
-.project-card-mint {
-  border-top-color: #78a390;
-}
-
 .project-card:hover {
   border-color: var(--lavender);
   box-shadow: var(--shadow-md);
