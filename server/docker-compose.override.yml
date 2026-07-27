@@ -1,0 +1,26 @@
+services:
+  apache:
+    volumes:
+      - ./server-status/data:/usr/local/apache2/htdocs/api:ro
+
+  status-collector:
+    image: python:3.13-alpine
+    container_name: server-status-collector
+    restart: unless-stopped
+    network_mode: host
+    user: "1000:1000"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      NETDATA_BASE_URL: http://127.0.0.1:19999
+      STATUS_OUTPUT_PATH: /data/server-status.json
+      STATUS_INTERVAL_SECONDS: "10"
+      STATUS_REQUEST_TIMEOUT_SECONDS: "3"
+      TZ: Asia/Tokyo
+    command: ["python", "/app/status-collector.py"]
+    volumes:
+      - ./server-status/status-collector.py:/app/status-collector.py:ro
+      - ./server-status/data:/data
