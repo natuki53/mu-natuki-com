@@ -17,7 +17,7 @@ from urllib.request import Request, urlopen
 
 NETDATA_BASE_URL = os.environ.get("NETDATA_BASE_URL", "http://127.0.0.1:19999").rstrip("/")
 OUTPUT_PATH = Path(os.environ.get("STATUS_OUTPUT_PATH", "/data/server-status.json"))
-INTERVAL_SECONDS = max(5, int(os.environ.get("STATUS_INTERVAL_SECONDS", "10")))
+INTERVAL_SECONDS = max(1, int(os.environ.get("STATUS_INTERVAL_SECONDS", "10")))
 REQUEST_TIMEOUT_SECONDS = min(5, max(1, int(os.environ.get("STATUS_REQUEST_TIMEOUT_SECONDS", "3"))))
 
 CHARTS = {
@@ -56,7 +56,7 @@ def _fetch_chart(chart: str) -> dict[str, Any]:
             "format": "json",
             "points": "1",
             "group": "average",
-            "after": f"-{max(15, INTERVAL_SECONDS * 2)}",
+            "after": f"-{max(1, INTERVAL_SECONDS)}",
             "before": "0",
         }
     )
@@ -151,7 +151,7 @@ def collect_snapshot() -> dict[str, Any]:
             timestamps.append(timestamp)
         except Exception as error:  # keep the other public metrics available
             failures += 1
-            logging.warning("Could not collect %s: %s", field, error)
+            logging.debug("Could not collect %s: %s", field, error)
 
     if timestamps:
         snapshot["measuredAt"] = datetime.fromtimestamp(max(timestamps), timezone.utc).isoformat().replace(
@@ -185,14 +185,22 @@ def write_snapshot(snapshot: dict[str, Any]) -> None:
 def main() -> None:
     _validate_configuration()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    last_logged_status: str | None = None
+    last_logged_at = 0.0
 
     while True:
         started_at = time.monotonic()
         snapshot = collect_snapshot()
         write_snapshot(snapshot)
-        logging.info("Published server status snapshot (%s)", snapshot["status"])
+        status = str(snapshot["status"])
+        if status != last_logged_status or started_at - last_logged_at >= 60:
+            log = logging.info if status == "ok" else logging.warning
+            log("Published server status snapshot (%s)", status)
+            last_logged_status = status
+            last_logged_at = started_at
         elapsed = time.monotonic() - started_at
-        time.sleep(max(0.1, INTERVAL_SECONDS - elapsed))
+        next_interval = INTERVAL_SECONDS if status != "unavailable" else max(5, INTERVAL_SECONDS)
+        time.sleep(max(0.1, next_interval - elapsed))
 
 
 if __name__ == "__main__":

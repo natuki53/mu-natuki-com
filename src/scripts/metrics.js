@@ -13,8 +13,8 @@ const JA = {
   'server.days': '日',
 };
 
-const FRESHNESS_LIMIT_MS = Math.max(60_000, SERVER_STATUS_POLL_MS * 6);
-const REQUEST_TIMEOUT_MS = Math.min(5_000, SERVER_STATUS_POLL_MS - 500);
+const FRESHNESS_LIMIT_MS = Math.max(15_000, SERVER_STATUS_POLL_MS * 6);
+const REQUEST_TIMEOUT_MS = 2_500;
 
 function currentLang() {
   return document.documentElement.getAttribute('lang') || 'ja';
@@ -130,6 +130,9 @@ export const initServerMetrics = () => {
 
   let lastSnapshot = null;
   let refreshing = false;
+  let sectionNearby = false;
+  let consecutiveFailures = 0;
+  let retryAt = 0;
 
   const applySnapshot = (snapshot) => {
     lastSnapshot = snapshot;
@@ -200,6 +203,8 @@ export const initServerMetrics = () => {
 
     try {
       const snapshot = await fetchSnapshot();
+      consecutiveFailures = 0;
+      retryAt = 0;
       applySnapshot(snapshot);
 
       const availableValues = [snapshot.cpu, snapshot.ram, snapshot.disk, snapshot.uptime].filter(
@@ -216,6 +221,9 @@ export const initServerMetrics = () => {
       showPartial(snapshot.status === 'partial' || availableValues < 4);
       setStatus(isFresh(snapshot.measuredAt) ? 'ok' : 'stale', snapshot.measuredAt);
     } catch {
+      consecutiveFailures += 1;
+      retryAt =
+        Date.now() + Math.min(30_000, SERVER_STATUS_POLL_MS * 2 ** Math.min(consecutiveFailures, 5));
       setState('error');
       setStatus('error');
     } finally {
@@ -243,9 +251,27 @@ export const initServerMetrics = () => {
 
   window.addEventListener('langchange', onLanguageChange);
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') refresh();
+    if (document.visibilityState === 'visible' && sectionNearby) refresh();
   });
 
-  refresh();
-  window.setInterval(refresh, SERVER_STATUS_POLL_MS);
+  const refreshWhileVisible = () => {
+    if (!sectionNearby || document.visibilityState !== 'visible' || Date.now() < retryAt) return;
+    refresh();
+  };
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        sectionNearby = entry.isIntersecting;
+        if (sectionNearby) refreshWhileVisible();
+      },
+      { rootMargin: '600px 0px' },
+    );
+    observer.observe(root);
+  } else {
+    sectionNearby = true;
+    refreshWhileVisible();
+  }
+
+  window.setInterval(refreshWhileVisible, SERVER_STATUS_POLL_MS);
 };

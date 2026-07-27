@@ -224,7 +224,7 @@ export const en = {
 
   'server.heading': 'What keeps this place running',
   'server.desc':
-    'Current readings from the home server hosting this site. A small public snapshot is refreshed about every 10 seconds.',
+    'Current readings from the home server hosting this site. A small public snapshot is refreshed about once a second.',
   'server.stateChecking': 'Checking',
   'server.stateOnline': 'Online',
   'server.stateError': 'Unavailable',

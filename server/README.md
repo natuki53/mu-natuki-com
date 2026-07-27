@@ -6,6 +6,7 @@ NetdataのダッシュボードやAPIをポートフォリオから直接参照�
 
 - `status-collector.py`: localhost上のNetdataから固定したチャートだけを取得
 - `test-status-collector.py`: 値の変換ロジックを検証
+- `apache-status-cache.conf`: ブラウザとCloudflareにキャッシュ禁止を明示
 - `docker-compose.override.yml`: コレクターとApacheの読み取り専用マウント
 
 公開されるキーは次の7つに固定しています。
@@ -29,16 +30,26 @@ NetdataのダッシュボードやAPIをポートフォリオから直接参照�
 - Netdata停止時もコレクターは`partial`または`unavailable`を出力する
 - JSONにホスト名、コンテナ名、IPアドレス、アラーム、ログ、チャート一覧を含めない
 - Netdataの公開URLをポートフォリオへ掲載しない
+- 公開JSONに`Cache-Control: no-store`と`Cloudflare-CDN-Cache-Control: no-store`を付ける
+- collectorは1秒ごとに更新し、画面側は表示中のサーバー欄だけを1秒ごとに取得する
 
 ## ロールアウト
 
-既存のComposeファイルと同じディレクトリへ、このoverrideとコレクターを配置します。Apacheの公開ディレクトリには`api`ディレクトリが必要です。
+既存のComposeファイルと同じディレクトリへ、このoverride、コレクター、Apache用設定を配置します。Apacheの公開ディレクトリには`api`ディレクトリが必要です。`httpd.conf`では`mod_headers`を読み込み、追加設定をIncludeします。
+
+```apache
+LoadModule headers_module modules/mod_headers.so
+Include conf/extra/server-status-cache.conf
+```
 
 ```bash
 docker compose up -d status-collector apache
 docker compose logs --tail=20 status-collector
 curl -fsS http://127.0.0.1/api/server-status.json
+curl -I http://127.0.0.1/api/server-status.json
 ```
+
+1秒更新では、collectorがlocalhostのNetdataへ毎秒4リクエストを送り、約134バイトのJSONを毎秒1回置き換えます。成功ログは最大1分に1回、Netdata停止中は5秒間隔へ落とします。ブラウザ側はタブが表示中で、サーバー欄が画面付近にある間だけ取得します。
 
 ## Netdata側の防御
 
