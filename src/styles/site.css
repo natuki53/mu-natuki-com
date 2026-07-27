@@ -916,13 +916,22 @@ main {
 }
 
 .gallery-lightbox {
-  width: min(94vw, 1500px);
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
   max-width: none;
-  padding: 0;
+  max-height: none;
+  margin: 0;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
   border: 0;
-  overflow: visible;
+  overflow: hidden;
   background: transparent;
   color: #fff;
+}
+
+.gallery-lightbox[open] {
+  display: grid;
+  place-items: center;
 }
 
 .gallery-lightbox::backdrop {
@@ -932,6 +941,8 @@ main {
 
 .gallery-lightbox-content {
   position: relative;
+  width: min(94vw, 1500px);
+  max-height: calc(100dvh - 2rem);
 }
 
 .gallery-lightbox figure {
@@ -944,7 +955,7 @@ main {
 .gallery-lightbox img {
   display: block;
   max-width: 94vw;
-  max-height: 84vh;
+  max-height: calc(100dvh - 5rem);
   width: auto;
   height: auto;
   border-radius: 18px;
