@@ -1240,6 +1240,10 @@ main {
   font-size: 1.35rem;
 }
 
+.detail-technology-card {
+  padding-top: clamp(1.25rem, 3vw, 2rem);
+}
+
 .detail-technology-card .tags {
   margin-top: 0;
 }
