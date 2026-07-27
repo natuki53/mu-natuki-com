@@ -1,3 +1,105 @@
+@property --page {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #faf8fb;
+}
+
+@property --surface {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+
+@property --surface-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f6f2f8;
+}
+
+@property --text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2f2a34;
+}
+
+@property --text-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #756e7b;
+}
+
+@property --line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e9e2ec;
+}
+
+@property --line-strong {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #dcd2e2;
+}
+
+@property --lavender {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #9077aa;
+}
+
+@property --lavender-deep {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #72588d;
+}
+
+@property --lavender-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #eee7f5;
+}
+
+@property --blue-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e7f2f8;
+}
+
+@property --mint-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e5f3ed;
+}
+
+@property --blush-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f7e9ed;
+}
+
+@property --success {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4b8b6d;
+}
+
+@property --danger {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b65f6a;
+}
+
+@property --header-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(250, 248, 251, 0.88);
+}
+
+@property --focus {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(114, 88, 141, 0.35);
+}
+
 :root {
   color-scheme: light;
   --font-body: 'Zen Maru Gothic', system-ui, sans-serif;
@@ -23,6 +125,24 @@
   --focus: rgba(114, 88, 141, 0.35);
   --max-width: 1120px;
   --header-height: 72px;
+  transition:
+    --page 620ms ease-in-out,
+    --surface 620ms ease-in-out,
+    --surface-soft 620ms ease-in-out,
+    --text 620ms ease-in-out,
+    --text-soft 620ms ease-in-out,
+    --line 620ms ease-in-out,
+    --line-strong 620ms ease-in-out,
+    --lavender 620ms ease-in-out,
+    --lavender-deep 620ms ease-in-out,
+    --lavender-soft 620ms ease-in-out,
+    --blue-soft 620ms ease-in-out,
+    --mint-soft 620ms ease-in-out,
+    --blush-soft 620ms ease-in-out,
+    --success 620ms ease-in-out,
+    --danger 620ms ease-in-out,
+    --header-bg 620ms ease-in-out,
+    --focus 620ms ease-in-out;
 }
 
 [data-theme='dark'] {
@@ -66,7 +186,6 @@ body {
   font-family: var(--font-body);
   line-height: 1.8;
   overflow-x: hidden;
-  transition: background-color 180ms ease, color 180ms ease;
 }
 
 button,
