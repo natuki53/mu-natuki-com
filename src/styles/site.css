@@ -1227,33 +1227,31 @@ main {
 
 .detail-technology-card,
 .detail-links-card {
-  padding: 1rem;
-}
-
-.detail-technology-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 2.5rem) 0.75rem;
 }
 
 .detail-technology-card h2,
 .detail-links-card h2 {
-  margin-bottom: 0.65rem;
-  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-size: 1.35rem;
 }
 
 .detail-technology-card .tags {
   margin-top: 0;
 }
 
+.detail-links-card {
+  padding-bottom: 0;
+}
+
 .detail-highlights {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.65rem;
   list-style: none;
 }
 
 .detail-highlights li {
-  padding-bottom: 0.8rem;
+  padding-bottom: 0.65rem;
   display: grid;
   grid-template-columns: 0.7rem 1fr;
   gap: 0.6rem;
@@ -1349,12 +1347,12 @@ main {
 
 .detail-links {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.2rem;
 }
 
 .detail-link {
-  min-height: 40px;
-  padding: 0.5rem 0.65rem;
+  min-height: 2rem;
+  padding: 0.35rem 0.65rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
