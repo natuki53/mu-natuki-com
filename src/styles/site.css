@@ -1118,6 +1118,12 @@ main {
   padding: 1rem;
 }
 
+.detail-technology-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .detail-technology-card h2,
 .detail-links-card h2 {
   margin-bottom: 0.65rem;
@@ -1125,7 +1131,7 @@ main {
 }
 
 .detail-technology-card .tags {
-  margin-top: 0.5rem;
+  margin-top: 0;
 }
 
 .detail-highlights {
