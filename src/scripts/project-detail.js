@@ -13,7 +13,6 @@ const JA = {
   'project.detail.links': '関連リンク',
   'project.detail.notFoundTitle': 'プロジェクトが見つかりません',
   'project.detail.notFoundText': '指定されたプロジェクトページは存在しません。',
-  'footer.text': 'VRChatとWebを中心に、制作と運営をしています。',
 };
 
 const escapeHtml = (value) =>
@@ -77,7 +76,6 @@ function renderShell() {
     <div id="project-content"></div>
     <footer class="site-footer">
       <p>© <span id="footer-year">${new Date().getFullYear()}</span> Natuki</p>
-      <p id="detail-footer-copy"></p>
     </footer>
   `;
 }
@@ -285,9 +283,6 @@ function applyLanguage(language) {
   document.querySelectorAll('.segment-option[data-lang]').forEach((button) => {
     button.setAttribute('aria-pressed', button.dataset.lang === language ? 'true' : 'false');
   });
-
-  const footer = document.getElementById('detail-footer-copy');
-  if (footer) footer.textContent = translation('footer.text', language);
 }
 
 document.body.classList.add('project-detail-page');

@@ -1021,11 +1021,12 @@ main {
   margin: 0 auto;
   padding: 2rem 0 2.5rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
   border-top: 1px solid var(--line);
   color: var(--text-soft);
   font-size: 0.72rem;
+  text-align: center;
 }
 
 .toast {
@@ -1575,8 +1576,7 @@ main {
   }
 
   .server-footer,
-  .contact-section,
-  .site-footer {
+  .contact-section {
     align-items: flex-start;
     flex-direction: column;
   }

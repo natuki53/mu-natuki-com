@@ -243,8 +243,6 @@ export const en = {
   'links.xDesc': 'Project updates and everyday notes',
   'links.boothDesc': 'Published tools',
   'links.githubDesc': 'Source code and development notes',
-  'footer.text': 'I build and run projects around VRChat and the web.',
-
   'project.detail.back': 'Back to projects',
   'project.detail.overview': 'Overview',
   'project.detail.facts': 'At a glance',
