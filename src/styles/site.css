@@ -729,11 +729,8 @@ main {
 }
 
 .server-section {
-  padding: clamp(2rem, 5vw, 4rem);
-  border: 1px solid var(--line);
-  border-radius: 32px;
-  background: color-mix(in srgb, var(--blue-soft) 38%, var(--surface));
-  box-shadow: var(--shadow-sm);
+  padding-top: clamp(2.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--line);
 }
 
 .server-heading {
@@ -1482,10 +1479,13 @@ main {
     font-size: clamp(2.15rem, 10.5vw, 3.1rem);
   }
 
-  .about-section,
-  .server-section {
+  .about-section {
     padding: 1.4rem;
     border-radius: 24px;
+  }
+
+  .server-section {
+    padding-top: 2rem;
   }
 
   .server-metrics-grid {
