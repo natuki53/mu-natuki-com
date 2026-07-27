@@ -750,6 +750,7 @@ main {
   font-size: 1.45rem;
   font-weight: 500;
   line-height: 1.45;
+  white-space: nowrap;
 }
 
 .project-card > p:not(.project-category) {
@@ -1102,11 +1103,11 @@ main {
 
 .detail-title {
   font-family: var(--font-accent);
-  font-size: clamp(2.7rem, 7vw, 5.8rem);
+  font-size: clamp(2.1rem, 5.2vw, 5.8rem);
   font-weight: 500;
   line-height: 1.14;
   letter-spacing: -0.05em;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 .detail-summary {
@@ -1152,7 +1153,7 @@ main {
 }
 
 .detail-cover-square {
-  width: min(100%, 30rem);
+  width: min(100%, 25rem);
   aspect-ratio: 1;
   justify-self: center;
 }
