@@ -2116,3 +2116,527 @@ main {
     transform: none;
   }
 }
+
+/* ==========================================================================
+   Discord bot status summary and public status page
+   ========================================================================== */
+
+.bot-summary-panel {
+  margin-top: 1rem;
+  padding: 1.15rem;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto;
+  align-items: center;
+  gap: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--lavender-soft) 66%, transparent), transparent 58%),
+    var(--surface);
+}
+
+.bot-summary-copy {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.bot-summary-copy .section-kicker {
+  font-size: 0.62rem;
+}
+
+.bot-summary-copy h3 {
+  font-family: var(--font-accent);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.bot-summary-copy > p:last-child {
+  color: var(--text-soft);
+  font-size: 0.72rem;
+}
+
+.bot-summary-list {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.bot-summary-list li {
+  min-width: 96px;
+  padding: 0.62rem 0.72rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+
+.bot-summary-list li > span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.bot-summary-list strong {
+  overflow: hidden;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+}
+
+.bot-summary-list small {
+  color: var(--text-soft);
+  font-size: 0.62rem;
+  white-space: nowrap;
+}
+
+.bot-summary-list [data-state='online'] .state-dot,
+.bot-summary-list [data-state='online'] {
+  color: var(--success);
+}
+
+.bot-summary-list [data-state='online'] .state-dot {
+  background: var(--success);
+}
+
+.bot-summary-list [data-state='degraded'] .state-dot {
+  background: var(--lavender);
+}
+
+.bot-summary-list [data-state='offline'] .state-dot {
+  background: var(--danger);
+}
+
+.bot-summary-link {
+  min-height: 42px;
+  padding-inline: 0.9rem;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.bot-summary-link:hover {
+  border-color: var(--lavender);
+  color: var(--lavender-deep);
+}
+
+.status-site-header .header-inner {
+  justify-content: space-between;
+}
+
+.status-page-main {
+  width: min(calc(100% - 40px), var(--max-width));
+  margin: 0 auto;
+  padding: calc(var(--header-height) + 4rem) 0 6rem;
+}
+
+.status-hero {
+  position: relative;
+  padding: clamp(1.6rem, 4vw, 3.2rem);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 88% 22%, color-mix(in srgb, var(--blue-soft) 82%, transparent) 0 13%, transparent 36%),
+    radial-gradient(circle at 72% 108%, color-mix(in srgb, var(--lavender-soft) 82%, transparent) 0 18%, transparent 43%),
+    var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-back-link {
+  margin-bottom: 3.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.status-back-link:hover {
+  color: var(--lavender-deep);
+}
+
+.status-hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 2rem;
+}
+
+.status-hero h1 {
+  margin-top: 0.7rem;
+  font-family: var(--font-accent);
+  font-size: clamp(2.25rem, 6.5vw, 4.7rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+}
+
+.status-hero-copy {
+  max-width: 660px;
+  margin-top: 1.2rem;
+  color: var(--text-soft);
+  font-size: clamp(0.9rem, 1.7vw, 1.05rem);
+  line-height: 1.9;
+}
+
+.bot-overall-state {
+  min-width: 190px;
+  padding: 0.85rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.bot-overall-state[data-state='operational'] {
+  border-color: color-mix(in srgb, var(--success) 30%, var(--line));
+  color: var(--success);
+}
+
+.bot-overall-state[data-state='operational'] .state-dot {
+  background: var(--success);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--success) 13%, transparent);
+}
+
+.bot-overall-state[data-state='degraded'] {
+  color: var(--lavender-deep);
+}
+
+.bot-overall-state[data-state='degraded'] .state-dot {
+  background: var(--lavender);
+}
+
+.bot-overall-state[data-state='outage'] {
+  color: var(--danger);
+}
+
+.bot-overall-state[data-state='outage'] .state-dot {
+  background: var(--danger);
+}
+
+.status-updated {
+  margin-top: 1.4rem;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+}
+
+.status-section {
+  padding-top: 3.75rem;
+}
+
+.status-section-heading {
+  margin-bottom: 1.7rem;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.status-section-heading h2 {
+  margin-top: 0.5rem;
+  font-family: var(--font-accent);
+  font-size: clamp(1.6rem, 4vw, 2.5rem);
+  font-weight: 500;
+}
+
+.status-section-heading > p {
+  color: var(--text-soft);
+  font-size: 0.75rem;
+}
+
+.bot-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.bot-status-card {
+  position: relative;
+  min-width: 0;
+  min-height: 350px;
+  padding: 1.3rem;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.bot-status-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 1.25rem;
+  left: 1.25rem;
+  height: 3px;
+  border-radius: 0 0 999px 999px;
+  background: var(--line-strong);
+}
+
+.bot-status-card[data-state='online']::before {
+  background: var(--success);
+}
+
+.bot-status-card[data-state='degraded']::before {
+  background: var(--lavender);
+}
+
+.bot-status-card[data-state='offline']::before {
+  background: var(--danger);
+}
+
+.bot-card-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bot-card-kind {
+  color: var(--lavender-deep);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.bot-card-heading h3 {
+  margin-top: 0.3rem;
+  font-family: var(--font-accent);
+  font-size: 1.08rem;
+  font-weight: 500;
+}
+
+.bot-state-badge {
+  padding: 0.42rem 0.58rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-soft);
+  font-size: 0.64rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.bot-status-card[data-state='online'] .bot-state-badge {
+  color: var(--success);
+}
+
+.bot-status-card[data-state='online'] .bot-state-badge .state-dot {
+  background: var(--success);
+}
+
+.bot-status-card[data-state='degraded'] .bot-state-badge {
+  color: var(--lavender-deep);
+}
+
+.bot-status-card[data-state='degraded'] .bot-state-badge .state-dot {
+  background: var(--lavender);
+}
+
+.bot-status-card[data-state='offline'] .bot-state-badge {
+  color: var(--danger);
+}
+
+.bot-status-card[data-state='offline'] .bot-state-badge .state-dot {
+  background: var(--danger);
+}
+
+.bot-card-description {
+  min-height: 3.2em;
+  margin-top: 1.25rem;
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  line-height: 1.65;
+}
+
+.bot-status-facts {
+  margin-top: 1.3rem;
+  display: grid;
+  gap: 0.72rem;
+}
+
+.bot-status-facts > div {
+  padding-bottom: 0.62rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.bot-status-facts dt {
+  color: var(--text-soft);
+  font-size: 0.66rem;
+}
+
+.bot-status-facts dd {
+  min-width: 0;
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.bot-dependency {
+  margin-top: 1.25rem;
+  padding: 0.7rem 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  color: var(--text-soft);
+  font-size: 0.65rem;
+}
+
+.bot-dependency > span {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.dependency-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-soft);
+}
+
+.bot-dependency[data-state='online'] {
+  color: var(--success);
+}
+
+.bot-dependency[data-state='online'] .dependency-dot {
+  background: var(--success);
+}
+
+.bot-dependency[data-state='offline'] {
+  color: var(--danger);
+}
+
+.bot-dependency[data-state='offline'] .dependency-dot {
+  background: var(--danger);
+}
+
+.status-server-section {
+  width: 100%;
+  margin-top: 3.75rem;
+}
+
+.status-privacy-note {
+  margin-top: 1.2rem;
+  padding: 1rem 1.2rem;
+  display: flex;
+  align-items: start;
+  gap: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface-soft);
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  line-height: 1.75;
+}
+
+.status-privacy-note > span {
+  color: var(--lavender);
+}
+
+@media (max-width: 980px) {
+  .bot-summary-panel {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .bot-summary-link {
+    justify-self: start;
+  }
+
+  .bot-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bot-status-card {
+    min-height: 0;
+  }
+
+  .bot-card-description {
+    min-height: 0;
+  }
+
+  .bot-dependency {
+    margin-top: 1.25rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .status-page-main {
+    width: min(calc(100% - 28px), var(--max-width));
+    padding-top: calc(var(--header-height) + 2rem);
+  }
+
+  .status-hero {
+    padding: 1.4rem;
+    border-radius: 25px;
+  }
+
+  .status-back-link {
+    margin-bottom: 2.5rem;
+  }
+
+  .status-hero-layout,
+  .status-section-heading {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .status-hero-layout {
+    display: grid;
+  }
+
+  .bot-overall-state {
+    min-width: 0;
+    justify-self: start;
+  }
+
+  .status-section-heading {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .status-section {
+    padding-top: 2.75rem;
+  }
+
+  .status-server-section {
+    margin-top: 2.75rem;
+  }
+
+  .bot-summary-list {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .bot-summary-list li {
+    width: 100%;
+  }
+
+  .bot-summary-link {
+    width: 100%;
+  }
+}

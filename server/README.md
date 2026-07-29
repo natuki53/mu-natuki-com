@@ -68,3 +68,49 @@ docker compose stop status-collector
 ```
 
 Apacheから`./server-status/data:/usr/local/apache2/htdocs/api:ro`のマウントを外し、Apacheだけを再作成します。フロントエンドは取得失敗を「現在値を取得できませんでした」と表示するため、監視データがなくてもポートフォリオ本体は表示できます。
+
+## Discord Botステータス
+
+`bot-status-collector.py`は各Botの専用ディレクトリを読み取り、`/api/bot-status.json`へ公開用スナップショットを書き出します。コンテナにはネットワークとDockerソケットを渡しません。
+
+### 初回準備
+
+Botを起動する前に、ホスト上へ専用ディレクトリを作成します。
+
+```bash
+sudo install -d -o 1000 -g 1000 -m 0750 \
+  /home/natuki/services/runtime-status/timecard \
+  /home/natuki/services/runtime-status/voicevox-tts \
+  /home/natuki/services/runtime-status/youtube
+```
+
+各BotのCompose設定は、自分のディレクトリだけを`/run/bot-status`へ書き込み可能でマウントします。Botを再作成してハートビートが生成されたことを確認してから、公開コレクターを起動します。
+
+```bash
+docker compose up -d bot-status-collector apache
+docker compose logs --tail=20 bot-status-collector
+curl -fsS http://127.0.0.1/api/bot-status.json
+curl -I http://127.0.0.1/api/bot-status.json
+```
+
+ハートビートが35秒を超えると`offline`、Discord未接続またはVOICEVOX Engine停止時は`degraded`、入力欠損や不正スキーマは`unknown`になります。
+
+### ロールバック
+
+```bash
+docker compose stop bot-status-collector
+```
+
+公開JSONが更新されなくても、フロントエンドは古いデータまたは取得不可として表示し、ポートフォリオ本体は継続して表示します。
+
+## 将来の管理機能で守る境界
+
+初期版の公開APIには操作機能を追加しません。管理機能を実装する段階では、
+`/admin/*`と`/api/admin/*`をCloudflare Accessで保護し、API側でも
+`Cf-Access-Jwt-Assertion`の署名、issuer、audience、有効期限、管理者メールを
+検証します。
+
+管理APIへDockerソケットはマウントしません。ホスト上のUnixソケット型ブローカーが
+固定Bot IDに対する`start`、`restart`、`stop`だけを受け付ける構成とし、任意コマンド、
+SSH、ファイル操作、ホスト再起動・停止は許可しません。変更操作には同一オリジン検証、
+CSRF対策、リクエストID、Bot単位の排他制御、90日保持の監査ログを必須とします。

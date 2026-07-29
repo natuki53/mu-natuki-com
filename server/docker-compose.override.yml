@@ -25,3 +25,28 @@ services:
     volumes:
       - ./server-status/status-collector.py:/app/status-collector.py:ro
       - ./server-status/data:/data
+
+  bot-status-collector:
+    image: python:3.13-alpine
+    container_name: bot-status-collector
+    restart: unless-stopped
+    network_mode: none
+    user: "1000:1000"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      BOT_STATUS_SOURCES_ROOT: /sources
+      BOT_STATUS_OUTPUT_PATH: /data/bot-status.json
+      BOT_STATUS_INTERVAL_SECONDS: "5"
+      BOT_STATUS_STALE_AFTER_SECONDS: "35"
+      TZ: Asia/Tokyo
+    command: ["python", "/app/bot-status-collector.py"]
+    volumes:
+      - ./server-status/bot-status-collector.py:/app/bot-status-collector.py:ro
+      - ./server-status/data:/data
+      - /home/natuki/services/runtime-status/timecard:/sources/timecard:ro
+      - /home/natuki/services/runtime-status/voicevox-tts:/sources/voicevox-tts:ro
+      - /home/natuki/services/runtime-status/youtube:/sources/youtube:ro
