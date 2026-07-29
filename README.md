@@ -54,3 +54,10 @@ NetdataのAPIやダッシュボードをブラウザへ直接公開しません�
 ブラウザは同一オリジンの`/api/bot-status.json`だけを取得します。各Botは10秒ごとに専用のハートビートを書き出し、`server/bot-status-collector.py`が約5秒ごとに公開可能な固定項目へ正規化します。
 
 公開データはBot ID、状態、稼働時間、Discord接続、Gateway遅延、最終ハートビート、VOICEVOX Engineの状態に限定します。Discordサーバー名、ユーザー、チャンネル、メッセージ、ログ、トークンは含めません。
+
+## Webアプリ稼働状況
+
+`/status/`では、サーバー上で公開しているNearEatsとYorimoの外形監視も表示します。
+`server/web-app-status-collector.py`が30秒ごとに固定URLを確認し、HTTP応答、応答時間、
+最終確認日時だけを`/api/web-app-status.json`へ公開します。管理画面、テスト環境、
+内部APIは対象外です。

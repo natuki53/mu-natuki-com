@@ -55,6 +55,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
+      '/api/web-app-status.json': {
+        target: 'https://mu-natuki.com',
+        changeOrigin: true,
+        secure: true,
+      },
     },
   },
   build: {

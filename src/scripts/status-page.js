@@ -4,12 +4,9 @@ import {
   fetchBotStatusSnapshot,
   isBotSnapshotFresh,
 } from './bot-status-api.js';
+import { reportServiceStatus } from './overall-status.js';
 
 const JA = {
-  'bot.stateOperational': 'すべて稼働中',
-  'bot.stateDegraded': '一部に問題があります',
-  'bot.stateOutage': 'Botが停止しています',
-  'bot.stateUnavailable': '状態を確認できません',
   'bot.stateOnline': '稼働中',
   'bot.stateOffline': '停止中',
   'bot.stateUnknown': '確認不可',
@@ -44,13 +41,6 @@ function stateLabel(state) {
   return t('bot.stateUnknown');
 }
 
-function overallLabel(state) {
-  if (state === 'operational') return t('bot.stateOperational');
-  if (state === 'degraded') return t('bot.stateDegraded');
-  if (state === 'outage') return t('bot.stateOutage');
-  return t('bot.stateUnavailable');
-}
-
 function connectionLabel(value) {
   if (value === true) return t('bot.connectionOnline');
   if (value === false) return t('bot.connectionOffline');
@@ -81,9 +71,7 @@ export const initBotStatusPage = () => {
   const root = document.getElementById('bot-status-root');
   if (!root) return;
 
-  const overall = document.getElementById('bot-overall-state');
-  const overallLabelElement = document.getElementById('bot-overall-label');
-  const updateStatus = document.getElementById('bot-status-updated');
+  const updateStatus = document.getElementById('bot-section-status');
   const botCards = [...root.querySelectorAll('[data-bot-id]')];
   let lastSnapshot = null;
   let refreshing = false;
@@ -115,21 +103,14 @@ export const initBotStatusPage = () => {
 
   const render = () => {
     if (!lastSnapshot) {
-      const state = fetchFailed ? 'unavailable' : 'checking';
-      overall.dataset.state = state;
-      setText(
-        overallLabelElement,
-        fetchFailed ? overallLabel('unavailable') : t('bot.loading'),
-      );
       setText(updateStatus, fetchFailed ? t('bot.fetchError') : t('bot.loading'));
       botCards.forEach((card) => renderBot(card, null));
+      if (fetchFailed) reportServiceStatus('bots', 'unavailable');
       return;
     }
 
     const fresh = isBotSnapshotFresh(lastSnapshot);
     const overallState = fresh ? lastSnapshot.status : 'unavailable';
-    overall.dataset.state = overallState;
-    setText(overallLabelElement, overallLabel(overallState));
     setText(
       updateStatus,
       fresh
@@ -141,6 +122,7 @@ export const initBotStatusPage = () => {
       const bot = lastSnapshot.bots.find((candidate) => candidate.id === card.dataset.botId);
       renderBot(card, bot);
     });
+    reportServiceStatus('bots', overallState, lastSnapshot.measuredAt);
   };
 
   const refresh = async () => {

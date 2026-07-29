@@ -50,3 +50,24 @@ services:
       - /home/natuki/services/runtime-status/timecard:/sources/timecard:ro
       - /home/natuki/services/runtime-status/voicevox-tts:/sources/voicevox-tts:ro
       - /home/natuki/services/runtime-status/youtube:/sources/youtube:ro
+
+  web-app-status-collector:
+    image: python:3.13-alpine
+    container_name: web-app-status-collector
+    restart: unless-stopped
+    network_mode: bridge
+    user: "1000:1000"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      WEB_APP_STATUS_OUTPUT_PATH: /data/web-app-status.json
+      WEB_APP_STATUS_INTERVAL_SECONDS: "30"
+      WEB_APP_STATUS_REQUEST_TIMEOUT_SECONDS: "5"
+      TZ: Asia/Tokyo
+    command: ["python", "/app/web-app-status-collector.py"]
+    volumes:
+      - ./server-status/web-app-status-collector.py:/app/web-app-status-collector.py:ro
+      - ./server-status/data:/data
