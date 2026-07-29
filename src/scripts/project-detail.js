@@ -1,0 +1,283 @@
+import { projects } from '../data/projects.js';
+import { en } from '../data/english.js';
+import { initProjectMenu } from './project-menu.js';
+import { initTheme } from './theme.js';
+import { initMobileMenu } from './mobile-menu.js';
+
+const JA = {
+  'project.detail.back': 'プロジェクト一覧へ',
+  'project.detail.overview': '概要',
+  'project.detail.facts': '数字と特徴',
+  'project.detail.highlights': 'このプロジェクトのポイント',
+  'project.detail.technology': '使用技術',
+  'project.detail.links': '関連リンク',
+  'project.detail.notFoundTitle': 'プロジェクトが見つかりません',
+  'project.detail.notFoundText': '指定されたプロジェクトページは存在しません。',
+};
+
+const escapeHtml = (value) =>
+  String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
+const projectId = document.body.dataset.projectId;
+const project = projects.find((item) => item.id === projectId);
+const app = document.getElementById('app');
+
+function translation(key, language, fallback = '') {
+  if (language === 'en' && en[key] !== undefined) return en[key];
+  return fallback || JA[key] || en[key] || '';
+}
+
+function localizedProject(language) {
+  if (!project) return null;
+  const prefix = `project.${project.id}`;
+
+  return {
+    ...project,
+    title: translation(`${prefix}.title`, language, project.title),
+    category: translation(`${prefix}.category`, language, project.category),
+    summary: translation(`${prefix}.summary`, language, project.summary),
+    description: translation(`${prefix}.description`, language, project.description),
+    highlights: translation(`${prefix}.highlights`, language, project.highlights),
+    facts: translation(`${prefix}.facts`, language, project.facts || []),
+  };
+}
+
+function renderShell() {
+  app.innerHTML = `
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="site-brand" href="/" aria-label="ホームへ戻る">
+          <span class="brand-title">雨苺なつき</span>
+          <span class="brand-subtitle">PORTFOLIO</span>
+        </a>
+        <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu-panel"
+          aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+        <div id="mobile-menu-panel" class="mobile-menu-panel">
+          <nav class="menu-nav" aria-label="ページナビゲーション">
+            <div id="project-menu-host"></div>
+          </nav>
+          <div class="header-tools">
+            <div id="theme-toggle" class="segment-group" role="group" aria-label="テーマを切り替え">
+              <button type="button" class="segment-option" data-theme="light" aria-pressed="false" aria-label="ライトテーマ">☀</button>
+              <button type="button" class="segment-option" data-theme="dark" aria-pressed="false" aria-label="ダークテーマ">☾</button>
+            </div>
+            <div id="lang-toggle" class="segment-group lang-segment" role="group" aria-label="言語を切り替え">
+              <button type="button" class="segment-option" data-lang="ja" aria-pressed="false">JA</button>
+              <button type="button" class="segment-option" data-lang="en" aria-pressed="false">EN</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div id="project-content"></div>
+    <footer class="site-footer">
+      <p>© <span id="footer-year">${new Date().getFullYear()}</span> Natuki</p>
+    </footer>
+  `;
+}
+
+function createMedia(item) {
+  const container = document.createElement('div');
+  container.className = 'detail-media';
+  const media = item.media || (item.cover
+    ? { type: 'image', src: item.cover.src, title: item.cover.alt }
+    : null);
+
+  if (!media) {
+    container.classList.add('detail-media-placeholder');
+    const category = document.createElement('span');
+    category.textContent = item.category;
+    const title = document.createElement('strong');
+    title.textContent = item.title;
+    container.append(category, title);
+  } else if (media.type === 'video') {
+    const video = document.createElement('video');
+    video.src = media.src;
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.setAttribute('aria-label', media.title || `${item.title} video`);
+    container.appendChild(video);
+  } else if (media.type === 'iframe') {
+    const iframe = document.createElement('iframe');
+    iframe.src = media.src;
+    iframe.title = media.title || `${item.title} preview`;
+    iframe.loading = 'lazy';
+    iframe.allow = 'fullscreen; web-share; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.setAttribute('allowfullscreen', '');
+    container.appendChild(iframe);
+  } else if (media.type === 'image') {
+    const image = document.createElement('img');
+    image.src = media.src;
+    image.alt = media.title || `${item.title} image`;
+    image.loading = 'lazy';
+    container.appendChild(image);
+  }
+
+  return container;
+}
+
+function renderNotFound(language) {
+  const content = document.getElementById('project-content');
+  const title = translation('project.detail.notFoundTitle', language);
+  const text = translation('project.detail.notFoundText', language);
+  const back = translation('project.detail.back', language);
+
+  document.title = `${title} | Natuki`;
+  content.innerHTML = `
+    <main id="main-content" class="project-detail-main not-found">
+      <div>
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml(text)}</p>
+        <a class="button button-primary" href="/#projects">${escapeHtml(back)}</a>
+      </div>
+    </main>
+  `;
+}
+
+function renderProject(language) {
+  const item = localizedProject(language);
+  if (!item) {
+    renderNotFound(language);
+    return;
+  }
+
+  const labels = {
+    back: translation('project.detail.back', language),
+    overview: translation('project.detail.overview', language),
+    facts: translation('project.detail.facts', language),
+    highlights: translation('project.detail.highlights', language),
+    technology: translation('project.detail.technology', language),
+    links: translation('project.detail.links', language),
+  };
+
+  const highlightItems = item.highlights
+    .map((highlight) => `<li><span aria-hidden="true"></span>${escapeHtml(highlight)}</li>`)
+    .join('');
+  const tagItems = item.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('');
+  const factItems = (item.facts || [])
+    .map(
+      (fact) => `
+        <li>
+          <strong>${escapeHtml(fact.value)}</strong>
+          <span>${escapeHtml(fact.label)}</span>
+        </li>
+      `,
+    )
+    .join('');
+  const coverMarkup = item.cover
+    ? `
+      <figure class="detail-cover${item.cover.fit === 'header' ? ' detail-cover-header' : ''}${
+        item.cover.fit === 'contain' ? ' detail-cover-contain' : ''
+      }${item.cover.aspect === 'square' ? ' detail-cover-square' : ''}">
+        <img src="${escapeHtml(item.cover.src)}" alt="${escapeHtml(item.cover.alt || item.title)}" />
+      </figure>
+    `
+    : '';
+  const linkItems = item.links
+    .map(
+      (link) => `
+        <a class="detail-link" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">
+          <span>${escapeHtml(link.label)}</span><span aria-hidden="true">↗</span>
+        </a>
+      `,
+    )
+    .join('');
+  const content = document.getElementById('project-content');
+  content.innerHTML = `
+    <main id="main-content" class="project-detail-main">
+      <a class="detail-back" href="/#projects"><span aria-hidden="true">←</span>${escapeHtml(labels.back)}</a>
+
+      <section class="detail-hero${item.cover ? '' : ' detail-hero-no-cover'}">
+        <div class="detail-hero-copy">
+          <p class="project-category">${escapeHtml(item.category)}</p>
+          <h1 class="detail-title">${escapeHtml(item.title)}</h1>
+          <p class="detail-summary">${escapeHtml(item.summary)}</p>
+        </div>
+        ${coverMarkup}
+      </section>
+
+      ${
+        factItems
+          ? `
+        <section class="detail-facts" aria-labelledby="detail-facts-heading">
+          <h2 id="detail-facts-heading">${escapeHtml(labels.facts)}</h2>
+          <ul>${factItems}</ul>
+        </section>
+      `
+          : ''
+      }
+
+      <div class="detail-layout">
+        <div class="detail-primary">
+          <section class="detail-card detail-overview-card">
+            <h2>${escapeHtml(labels.overview)}</h2>
+            <p class="detail-description">${escapeHtml(item.description)}</p>
+          </section>
+          <div id="project-media-slot"></div>
+        </div>
+
+        <aside class="detail-side">
+          <section class="detail-card detail-highlights-card">
+            <h2>${escapeHtml(labels.highlights)}</h2>
+            <ul class="detail-highlights">${highlightItems}</ul>
+          </section>
+          <section class="detail-card detail-technology-card">
+            <h2>${escapeHtml(labels.technology)}</h2>
+            <div class="tags">${tagItems}</div>
+          </section>
+          <section class="detail-card detail-links-card">
+            <h2>${escapeHtml(labels.links)}</h2>
+            <div class="detail-links">${linkItems}</div>
+          </section>
+        </aside>
+      </div>
+
+    </main>
+  `;
+
+  const media = createMedia(item);
+  if (media) document.getElementById('project-media-slot')?.appendChild(media);
+
+  document.title = `${item.title} | Natuki`;
+  const descriptionMeta = document.querySelector('meta[name="description"]');
+  if (descriptionMeta) descriptionMeta.setAttribute('content', item.summary);
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.setAttribute('content', `${item.title} | Natuki`);
+  const ogDescription = document.querySelector('meta[property="og:description"]');
+  if (ogDescription) ogDescription.setAttribute('content', item.summary);
+}
+
+function applyLanguage(language) {
+  document.documentElement.lang = language;
+  localStorage.setItem('lang', language);
+  renderProject(language);
+
+  document.querySelectorAll('.segment-option[data-lang]').forEach((button) => {
+    button.setAttribute('aria-pressed', button.dataset.lang === language ? 'true' : 'false');
+  });
+  window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: language } }));
+}
+
+document.body.classList.add('project-detail-page');
+renderShell();
+initProjectMenu({ currentProjectId: projectId });
+initTheme();
+initMobileMenu();
+
+document.querySelectorAll('.segment-option[data-lang]').forEach((button) => {
+  button.addEventListener('click', () => {
+    if (button.getAttribute('aria-pressed') === 'true') return;
+    applyLanguage(button.dataset.lang);
+  });
+});
+
+applyLanguage(localStorage.getItem('lang') || 'ja');

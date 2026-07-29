@@ -1,121 +1,299 @@
-/**
- * English translations for data-i18n keys.
- * index.html uses data-i18n="key" and this object provides the English text.
- */
 export const en = {
-  // Aria labels
-  'aria.themeToggle': 'Toggle theme',
-  'aria.langToggle': '日本語 / English',
+  'aria.themeToggle': 'Change color theme',
+  'aria.langToggle': 'Change language',
 
-  // Language button label (shows current language name)
-  'lang.label': 'English',
-
-  // Toast messages (language switch)
   'toast.switchedToEn': 'Switched to English',
-  'toast.switchedToJa': 'Switched to Japanese',
+  'toast.switchedToJa': '日本語に変更しました',
 
-  // Global menu
-  'nav.top': 'Top',
-  'nav.works': 'Works',
-  'nav.worksProject': 'Projects',
-  'nav.profile': 'Profile',
-  'nav.server': 'Home server',
+  'nav.profile': 'About',
+  'nav.gallery': 'Gallery',
+  'nav.server': 'Server',
 
-  // Hero
-  'hero.name': 'Amai Natuki',
-  'hero.subtitle': '✨ Student / Developer / Writer / Photographer ✨',
+  'hero.eyebrow': 'Natuki’s activity log',
+  'hero.heading':
+    '<span class="hero-line">Ideas into</span><span class="hero-line hero-line-accent">something real.</span>',
+  'hero.lead':
+    'I turn the little inconveniences and “I wish this existed” moments in VRChat and everyday life into web services and Unity tools.',
+  'hero.viewProjects': 'View projects',
+  'hero.aboutMe': 'About me',
+  'hero.fieldDevelopment': 'Independent development',
+  'hero.fieldMedia': 'Media operations',
+  'hero.fieldCreators': 'VR creator support',
+  'hero.note': 'Hi, I’m Natuki',
 
-  // Profile
-  'profile.sectionTitle': 'About Me',
+  'section.about': 'About me',
+  'section.projects': 'Things I make',
+  'section.gallery': 'Photos from VRChat',
+  'section.server': 'This site’s server',
+  'section.links': 'LINKS',
+
+  'profile.heading': 'Notice it, then make it.',
   'profile.intro':
-    'Hi! I\'m <strong>Amai Natuki</strong>.<br>\n' +
-    'I\'m a student who loves programming and VRChat ✨<br>\n' +
-    'I write articles on vrnabi and make handy tools!<br>\n' +
-    '<br>\n' +
-    'My motto is "<strong>Enjoy personal development</strong>" and "<strong>Solve problems with technology</strong>".',
-  'profile.badgeVrnabi': 'vrnabi Operator',
-  'profile.badgeMofu': 'MofuMagic Owner',
-  'profile.badgePhoto': 'VRChat Photographer',
+    'Hi, I’m <strong>Natuki</strong>. My activities center on VRChat, where I run a media site and develop tools.',
+  'profile.detail':
+    'I do not treat technology as the goal. I choose it as a way to solve a problem for the person using what I make, and I keep improving things after release based on real feedback.',
+  'profile.principle': 'Make → publish → listen → improve',
+  'profile.factActivityLabel': 'Main activities',
+  'profile.factActivity': 'Media operations / tool development / VR creator support',
+  'profile.factTechLabel': 'Technologies',
+  'profile.factTech': 'Unity & C# / JavaScript & TypeScript / Java & Python',
+  'profile.factLikesLabel': 'Things I enjoy',
+  'profile.factLikes': 'VRChat / photography / finding ways to communicate the appeal of creative work',
+  'profile.historyHeading': 'What I’ve been doing',
+  'profile.historyVrchatPeriod': 'When I joined VRChat',
+  'profile.historyVrchat': 'I joined VRChat and discovered its community of people who play and create together.',
+  'profile.historySchoolPeriod': 'When I started learning development',
+  'profile.historySchool': 'While learning Unity and web development, I co-founded the VRChat media site vrnavi.',
+  'profile.historyPublishPeriod': 'Independent projects',
+  'profile.historyPublish':
+    'I released FaceMixer, VRCosme, 360-viewer, and other tools, and use feedback from their users in later improvements.',
+  'profile.historyNowPeriod': 'Now',
+  'profile.historyNow':
+    'I continue planning and writing articles, analyzing readership, and coordinating the vrnavi team while working on personal development projects.',
+  'projects.heading': 'Things I make and run',
+  'projects.view': 'View details',
 
-  // Projects section
-  'projects.sectionTitle': 'Projects',
-
-  // Project cards & modal descriptions
-  'project.vrnavi.title': 'vrnabi',
-  'project.vrnavi.desc': 'A site that gathers VRChat information',
+  'project.vrnavi.title': 'vrnavi',
+  'project.vrnavi.category': 'Media / Web',
+  'project.vrnavi.desc': 'A media site for discovering more ways to enjoy VRChat',
+  'project.vrnavi.summary': 'A media site helping newcomers understand and enjoy more of VRChat.',
   'project.vrnavi.description':
-    'A site that gathers VRChat information. We share event info, world introductions, and more to help you enjoy VRChat.<br><br>You can try the embedded page below.',
+    'I co-founded vrnavi to help people who leave before enjoying VRChat because of its terminology and assumed knowledge. I work on article planning and writing, SEO, data analysis, external communication, and coordinating a nine-person team.',
+  'project.vrnavi.highlights': [
+    'Co-founded and run by a nine-person team',
+    'Improved through article planning, SEO, and reader data',
+    'Peak of 250,000 monthly page views and 60,000 active users',
+  ],
+  'project.vrnavi.facts': [
+    { value: '250K', label: 'peak monthly views' },
+    { value: '60K', label: 'active users' },
+    { value: '9 people', label: 'editorial team' },
+  ],
 
   'project.facemixer.title': 'FaceMixer',
-  'project.facemixer.desc': 'Easy VRChat avatar expression editing!',
+  'project.facemixer.category': 'Avatar / Tool',
+  'project.facemixer.desc': 'Make VRChat avatar expression editing easier',
+  'project.facemixer.summary': 'One button creates a new starting point when an avatar expression is hard to imagine.',
   'project.facemixer.description':
-    'Make VRChat avatar expression editing easy! An intuitive tool to create and edit expressions in Unity.',
+    'A Unity Editor extension that generates random expressions for VRChat avatars. It was created in response to people who find expression creation difficult, so they can experiment without specialist knowledge and discover something personal.',
+  'project.facemixer.highlights': [
+    'Randomize eyes, eyebrows, and mouth together or separately',
+    'Creates natural expressions while keeping left and right sides symmetrical',
+    'Includes live preview and animation export',
+  ],
+  'project.facemixer.facts': [
+    { value: '1,000+', label: 'BOOTH likes' },
+    { value: 'v3.0.0', label: 'public version' },
+    { value: 'Unity', label: 'Editor extension' },
+  ],
 
   'project.vrcosme.title': 'VRCosme',
-  'project.vrcosme.desc': 'Easy retouch tool for VRChat photos',
+  'project.vrcosme.category': 'Photo / App',
+  'project.vrcosme.desc': 'An easy retouching tool for VRChat photos',
+  'project.vrcosme.summary': 'Quickly tidy up a VRChat photo before sharing it on social media.',
   'project.vrcosme.description':
-    'A Windows tool that makes retouching VRChat photos easy.',
+    'A Windows app for retouching VRChat photos. Instead of pursuing more advanced editing features, it focuses on a short, clear flow for fixing the details people notice before posting to social media.',
+  'project.vrcosme.highlights': [
+    'A four-step flow: open, adjust, compare, and save',
+    'Includes basic correction, cropping, comparison, and undo / redo',
+    'Reads PNG, JPEG, and WebP images',
+  ],
+  'project.vrcosme.facts': [
+    { value: '4 steps', label: 'editing flow' },
+    { value: 'Windows', label: '10 / 11' },
+    { value: '3 formats', label: 'image input' },
+  ],
+  'project.vrcosme-web.title': 'VRCosme Web',
+  'project.vrcosme-web.category': 'Web app / Photography',
+  'project.vrcosme-web.desc': 'Retouch, share, and enjoy VRChat photos in the browser',
+  'project.vrcosme-web.summary': 'A place to enjoy VRChat photos from retouching through sharing.',
+  'project.vrcosme-web.description':
+    'A photo platform that expands VRCosme to the browser and desktop. It connects easy retouching with photo contests, galleries, and a Windows companion app.',
+  'project.vrcosme-web.highlights': [
+    'Start retouching in the browser without signing in',
+    'Includes photo contests and a public gallery',
+    'The Windows app supports photo organization and cloud workflows',
+  ],
+  'project.vrcosme-web.facts': [
+    { value: 'Web', label: 'use in a browser' },
+    { value: 'PWA', label: 'installable experience' },
+    { value: 'Tauri', label: 'Windows app' },
+  ],
 
   'project.cliprack.title': 'ClipRack',
-  'project.cliprack.desc': 'Clipboard manager app for macOS',
+  'project.cliprack.category': 'Productivity / App',
+  'project.cliprack.desc': 'Clipboard history manager for macOS',
+  'project.cliprack.summary': 'Keep the things you copy ready when you need them again.',
   'project.cliprack.description':
-    'An app that adds clipboard history so copy-paste is more convenient.',
+    'A macOS app that adds clipboard history and makes everyday copy and paste more convenient.',
+  'project.cliprack.highlights': [
+    'Stores up to 100 clipboard entries',
+    'Open with ⌘⇧V, select with the keyboard, and press Enter to paste',
+    'Supports text, images, files, URLs, and pinned entries',
+  ],
+  'project.cliprack.facts': [
+    { value: '100', label: 'history entries' },
+    { value: '⌘⇧V', label: 'keyboard shortcut' },
+    { value: 'macOS 13+', label: 'supported system' },
+  ],
 
-  'project.booth-import.title': 'BOOTH Import Assistant',
-  'project.booth-import.desc': 'Makes importing from BOOTH easier',
-  'project.booth-import.description':
-    'A tool that makes importing from BOOTH easier. It streamlines importing purchased avatars and outfits. You need to install a browser extension to use it.',
-
-  'project.booth-library.title': 'BOOTH Library Search',
-  'project.booth-library.desc': 'Quick search for your BOOTH library',
-  'project.booth-library.description':
-    'A Chrome extension that lets you search your BOOTH library quickly. Smooth search from purchase history.',
+  'project.campustrade.title': 'CampusTrade',
+  'project.campustrade.category': 'Team development / Web',
+  'project.campustrade.desc': 'A student-to-student reuse marketplace',
+  'project.campustrade.summary': 'A marketplace supporting student reuse from listing through handoff.',
+  'project.campustrade.description':
+    'A marketplace for students to list and purchase textbooks and everyday items. The team designed it from requirements and database structure through authentication, permissions, transaction states, and moderation.',
+  'project.campustrade.highlights': [
+    'Product listing, search, image management, and purchase requests',
+    'Open, in-progress, and completed transaction states with messaging',
+    'Identity checks and administrator moderation with Spring Security',
+  ],
+  'project.campustrade.facts': [
+    { value: '3 states', label: 'transaction workflow' },
+    { value: '5 images', label: 'per listing' },
+    { value: 'Java 21', label: 'runtime' },
+  ],
 
   'project.360-viewer.title': '360-viewer',
-  'project.360-viewer.desc': '360° image viewer in the browser',
+  'project.360-viewer.category': 'Photo / Web',
+  'project.360-viewer.desc': 'An interactive 360° image viewer for the browser',
+  'project.360-viewer.summary': 'Experience a 360° scene directly in the browser.',
   'project.360-viewer.description':
-    'A 360° image viewer in the browser. You can browse while interacting to experience the appeal of the metaverse.<br><br>You can try the embedded page below.',
+    'A WordPress plugin for adding interactive 360° images from the block editor. It helps communicate metaverse spaces that are difficult to convey through a single still image.',
+  'project.360-viewer.highlights': [
+    'Add 360° images as a Gutenberg block',
+    'Drag, zoom, auto-rotate, and fullscreen controls',
+    'Responsive display with progressive image loading',
+  ],
+  'project.360-viewer.facts': [
+    { value: 'v1.1.1', label: 'public version' },
+    { value: 'Three.js', label: '360° rendering' },
+    { value: 'Mobile', label: 'responsive' },
+  ],
 
   'project.timecard.title': 'TimeCard Web',
-  'project.timecard.desc': 'Attendance management site (school project)',
+  'project.timecard.category': 'Team development',
+  'project.timecard.desc': 'A simple attendance app for clocking in and reviewing monthly records',
+  'project.timecard.summary': 'A time and attendance app designed and built as a team.',
   'project.timecard.description':
-    'An attendance management site created as a school project. Built with Java Servlets on Apache Tomcat. Runs on a home server.',
+    'A time and attendance site created as a team project. I worked on the overall design and implementation using Java Servlets, JSP, Apache Tomcat, and MySQL. It currently runs on my home server.',
+  'project.timecard.highlights': [
+    'Login, clock-in / clock-out, and monthly records',
+    'Built with Java 21, Jakarta Servlet / JSP, and MySQL',
+    'Includes user and administrator manuals',
+  ],
+  'project.timecard.facts': [
+    { value: 'Java 21', label: 'runtime' },
+    { value: 'MySQL 8', label: 'database' },
+    { value: '2 guides', label: 'user manuals' },
+  ],
 
-  'project.toc-ad.title': 'TOC-AD',
-  'project.toc-ad.desc': 'WordPress plugin that adds ad images under the table of contents',
+  'project.toc-ad.title': 'TOC AD',
+  'project.toc-ad.category': 'Plugin / Web',
+  'project.toc-ad.desc': 'A WordPress plugin that inserts an ad image below the table of contents',
+  'project.toc-ad.summary': 'Automatically add an ad image below an article’s table of contents.',
   'project.toc-ad.description':
-    'A WordPress plugin that automatically adds ad images below the table of contents.',
+    'A WordPress plugin that automatically inserts an ad image below the table of contents. Image, link, alt text, display size, and CSS class can be configured from the dashboard.',
+  'project.toc-ad.highlights': [
+    'Detects table-of-contents blocks, shortcodes, and comments',
+    'Configurable image, link, alt text, size, and CSS class',
+    'Includes a preview and extension filter hooks',
+  ],
+  'project.toc-ad.facts': [
+    { value: 'MIT', label: 'license' },
+    { value: 'PHP', label: 'language' },
+    { value: 'WordPress', label: 'platform' },
+  ],
 
-  // Gallery
-  'gallery.sectionTitle': 'Gallery',
-  'gallery.desc': 'Memories from VRChat!',
-  'gallery.caption1': 'Summer ☀️',
-  'gallery.caption2': 'JPT Party 🎉',
-  'gallery.caption3': 'Beautiful View ✨',
-  'gallery.caption4': 'Street Snap 📸',
-  'gallery.caption5': 'Memories...',
-  'gallery.caption6': 'Cute!',
+  'gallery.heading': 'Memories from VRChat',
+  'gallery.caption1': 'Summer',
+  'gallery.caption2': 'JPT Party',
+  'gallery.caption3': 'Beautiful View',
+  'gallery.caption4': 'Street Snap',
+  'gallery.caption5': 'Memories',
+  'gallery.caption6': 'Cute',
+  'gallery.open': 'Enlarge photo',
+  'gallery.dialogLabel': 'Enlarged photo',
+  'gallery.close': 'Close enlarged photo',
 
-  // Home server (Netdata API)
-  'server.sectionTitle': 'Home server status',
+  'server.heading': 'What keeps this place running',
   'server.desc':
-    'Key metrics from Netdata are fetched over its HTTP API and shown here in the site style (refreshed about every 10 seconds).<br><br>' +
-    'For full charts and history, open the ' +
-    '<a href="https://monitor.mu-natuki.com/spaces/natuki-ubuntu-server/rooms/local/overview" target="_blank" rel="noopener noreferrer">Netdata dashboard</a>. ' +
-    'You can change the API base URL at build time with <code>VITE_NETDATA_BASE_URL</code>.',
-  'server.metricCpu': 'CPU usage',
-  'server.metricRam': 'Memory usage',
-  'server.statusLoading': 'Loading metrics…',
-  'server.statusError': 'Could not load metrics. Please try again later.',
-  'server.statusPartial': 'Some metrics could not be loaded.',
+    'Current status from the home server hosting this site. Public data refreshes about once a second.',
+  'server.stateChecking': 'Checking',
+  'server.stateOnline': 'Online',
+  'server.stateError': 'Unavailable',
+  'server.metricCpu': 'CPU',
+  'server.metricRam': 'Memory',
+  'server.metricDisk': 'Disk',
+  'server.metricUptime': 'Uptime',
+  'server.uptimeNote': 'Time since the last restart',
+  'server.statusLoading': 'Loading current data…',
+  'server.statusError': 'Current data could not be loaded.',
+  'server.statusPartial': 'Some data is unavailable.',
   'server.statusUpdatedPrefix': 'Updated',
+  'server.statusStale': 'The latest update appears to be old.',
+  'server.days': 'days',
+  'server.botSummaryKicker': 'DISCORD BOTS',
+  'server.botSummaryHeading': 'Bots running on this server',
+  'server.botSummaryAria': 'Discord bot status',
+  'server.botSummaryLink': 'View detailed status',
 
-  // Links (labels are often kept as-is; add if you want different wording)
-  'links.twitter': 'X(Twitter)',
-  'links.twitch': 'Twitch',
-  'links.booth': 'BOOTH',
-  'links.github': 'GitHub',
+  'status.backAria': 'Back to the home page',
+  'status.back': 'Back to home',
+  'status.kicker': 'SYSTEM STATUS',
+  'status.heading': 'How things are running, right now.',
+  'status.desc':
+    'Current public status for the home server and the Discord bots running on it.',
+  'status.botsKicker': 'DISCORD BOTS',
+  'status.botsHeading': 'Bot status',
+  'status.botsNote': 'Updates automatically about every 10 seconds.',
+  'status.botWork': 'WORK',
+  'status.botVoice': 'VOICE',
+  'status.botMedia': 'MEDIA',
+  'status.timecardDesc': 'Tracks work starts, finishes, and breaks',
+  'status.voicevoxDesc': 'Reads text channels aloud with VOICEVOX',
+  'status.youtubeDesc': 'Downloads media and plays audio in voice channels',
+  'status.discordConnection': 'Discord connection',
+  'status.gatewayLatency': 'Gateway latency',
+  'status.botUptime': 'Bot uptime',
+  'status.lastHeartbeat': 'Last heartbeat',
+  'status.serverHeading': 'Current server metrics',
+  'status.serverDesc': 'Public metrics from the home server running the bots and this site.',
+  'status.privacy':
+    'This page only shows public operational data. It does not collect Discord server names, users, messages, or logs.',
 
-  // Footer
-  'footer.text': 'Made with by Amai Natuki',
+  'bot.stateOperational': 'All systems operational',
+  'bot.stateDegraded': 'Partial outage',
+  'bot.stateOutage': 'Bots are offline',
+  'bot.stateUnavailable': 'Status unavailable',
+  'bot.stateOnline': 'Online',
+  'bot.stateOffline': 'Offline',
+  'bot.stateUnknown': 'Unknown',
+  'bot.connectionOnline': 'Connected',
+  'bot.connectionOffline': 'Disconnected',
+  'bot.connectionUnknown': 'Unknown',
+  'bot.updatedPrefix': 'Last checked',
+  'bot.loading': 'Loading bot status…',
+  'bot.fetchError': 'Bot status could not be loaded. Please try again later.',
+  'bot.stale': 'The latest bot status update appears to be old.',
+  'bot.days': 'd',
+  'bot.hours': 'h',
+  'bot.minutes': 'm',
+  'bot.summaryChecking': 'Checking bot status…',
+  'bot.summaryUnavailable': 'Bot status could not be loaded.',
+  'bot.summaryStale': 'The latest bot update appears to be old.',
+  'bot.summaryCount': '{online}/{total} bots online',
+
+  'links.heading': 'Other links',
+  'links.xDesc': 'Project updates and everyday notes',
+  'links.boothDesc': 'Published tools',
+  'links.githubDesc': 'Source code and development notes',
+  'project.detail.back': 'Back to projects',
+  'project.detail.overview': 'Overview',
+  'project.detail.facts': 'At a glance',
+  'project.detail.highlights': 'Highlights',
+  'project.detail.technology': 'Technology',
+  'project.detail.links': 'Related links',
+  'project.detail.notFoundTitle': 'Project not found',
+  'project.detail.notFoundText': 'The requested project page does not exist.',
 };

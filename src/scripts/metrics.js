@@ -1,12 +1,20 @@
 import { en } from '../data/english.js';
-import { NETDATA_BASE_URL, NETDATA_CHARTS, NETDATA_POLL_MS } from '../config/netdata.js';
+import { SERVER_STATUS_POLL_MS, SERVER_STATUS_URL } from '../config/server-status.js';
 
 const JA = {
-  'server.statusLoading': '指標を読み込み中…',
-  'server.statusError': '指標を取得できませんでした。しばらくしてから再度お試しください。',
-  'server.statusPartial': '一部の指標のみ表示しています。',
+  'server.stateChecking': '確認中',
+  'server.stateOnline': '稼働中',
+  'server.stateError': '取得不可',
+  'server.statusLoading': '現在の情報を読み込み中…',
+  'server.statusError': '現在の情報を取得できませんでした。',
+  'server.statusPartial': '一部の情報を取得できませんでした。',
   'server.statusUpdatedPrefix': '更新',
+  'server.statusStale': '最新の更新情報が古い可能性があります。',
+  'server.days': '日',
 };
+
+const FRESHNESS_LIMIT_MS = Math.max(15_000, SERVER_STATUS_POLL_MS * 6);
+const REQUEST_TIMEOUT_MS = 2_500;
 
 function currentLang() {
   return document.documentElement.getAttribute('lang') || 'ja';
@@ -16,201 +24,254 @@ function t(key) {
   return currentLang() === 'en' ? en[key] : JA[key] ?? en[key];
 }
 
-function nf(maxFrac = 1) {
-  const lang = currentLang() === 'en' ? 'en-US' : 'ja-JP';
-  return new Intl.NumberFormat(lang, { maximumFractionDigits: maxFrac, minimumFractionDigits: 0 });
+function numberFormat(maximumFractionDigits = 1) {
+  return new Intl.NumberFormat(currentLang() === 'en' ? 'en-US' : 'ja-JP', {
+    maximumFractionDigits,
+    minimumFractionDigits: 0,
+  });
 }
 
-function clamp(n, min, max) {
-  return Math.min(max, Math.max(min, n));
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
 
-function labelIndex(labels, name) {
-  const i = labels.indexOf(name);
-  return i === -1 ? null : i;
+function percentage(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? clamp(value, 0, 100) : null;
 }
 
-function dataUrl(chart, extra = {}) {
-  const u = new URL('/api/v1/data', `${NETDATA_BASE_URL}/`);
-  u.searchParams.set('chart', chart);
-  u.searchParams.set('format', 'json');
-  u.searchParams.set('points', '1');
-  u.searchParams.set('group', 'average');
-  // Request a fresh window near "now" to avoid stale aggregated points.
-  u.searchParams.set('after', `-${Math.max(1, Math.round(NETDATA_POLL_MS / 1000))}`);
-  u.searchParams.set('before', '0');
-  Object.entries(extra).forEach(([k, v]) => u.searchParams.set(k, String(v)));
-  return u.toString();
+function nonNegativeNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : null;
 }
 
-async function fetchNetdataJson(url) {
-  const res = await fetch(url, { credentials: 'omit', cache: 'no-store' });
-  if (!res.ok) throw new Error(String(res.status));
-  return res.json();
-}
-
-function lastRow(json) {
-  const { labels, data } = json || {};
-  if (!Array.isArray(labels) || !Array.isArray(data) || data.length === 0) return null;
-  const row = data[data.length - 1];
-  if (!Array.isArray(row) || row.length !== labels.length) return null;
-  return { labels, row };
-}
-
-function parseCpuPct({ labels, row }) {
-  const idleIdx = labelIndex(labels, 'idle');
-  if (idleIdx != null && typeof row[idleIdx] === 'number') {
-    return clamp(100 - row[idleIdx], 0, 100);
+function parseSnapshot(json) {
+  if (!json || json.version !== 1 || !['ok', 'partial', 'unavailable'].includes(json.status)) {
+    return null;
   }
-  let sum = 0;
-  for (let i = 1; i < row.length; i++) {
-    const v = row[i];
-    if (typeof v === 'number') sum += v;
+
+  const measuredAt = typeof json.measuredAt === 'string' ? new Date(json.measuredAt) : null;
+  const validMeasuredAt = measuredAt && !Number.isNaN(measuredAt.getTime()) ? measuredAt : null;
+
+  return {
+    status: json.status,
+    cpu: percentage(json.cpuPct),
+    ram: percentage(json.memoryPct),
+    disk: percentage(json.diskPct),
+    uptime: nonNegativeNumber(json.uptimeSeconds),
+    measuredAt: validMeasuredAt,
+  };
+}
+
+async function fetchSnapshot() {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const url = new URL(SERVER_STATUS_URL, window.location.origin);
+  url.searchParams.set('_', String(Date.now()));
+
+  try {
+    const response = await fetch(url, {
+      credentials: 'omit',
+      cache: 'no-store',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Status snapshot returned ${response.status}`);
+
+    const snapshot = parseSnapshot(await response.json());
+    if (!snapshot) throw new Error('Status snapshot has an invalid schema');
+    return snapshot;
+  } finally {
+    window.clearTimeout(timeoutId);
   }
-  return clamp(sum, 0, 100);
 }
 
-function parseRamPct({ labels, row }) {
-  const keys = ['free', 'used', 'cached', 'buffers'];
-  let total = 0;
-  let used = null;
-  for (const k of keys) {
-    const idx = labelIndex(labels, k);
-    if (idx == null || typeof row[idx] !== 'number') return null;
-    if (k === 'used') used = row[idx];
-    total += row[idx];
-  }
-  if (total <= 0 || used == null) return null;
-  return clamp((100 * used) / total, 0, 100);
+function setMetricTrack(track, value) {
+  if (!track) return;
+  const fill = track.querySelector('.server-metric-fill');
+  const safeValue = value == null ? 0 : clamp(value, 0, 100);
+  if (fill) fill.style.width = `${safeValue}%`;
+  track.setAttribute('aria-valuenow', String(Math.round(safeValue)));
 }
 
-function setMetricTrack(trackEl, pct) {
-  if (!trackEl) return;
-  const fill = trackEl.querySelector('.server-metric-fill');
-  const p = pct == null ? 0 : clamp(pct, 0, 100);
-  if (fill) fill.style.width = `${p}%`;
-  trackEl.setAttribute('aria-valuenow', String(Math.round(p)));
+function setText(element, value) {
+  if (element) element.textContent = value;
 }
 
-function setText(el, text) {
-  if (el) el.textContent = text;
+function formatUptime(seconds) {
+  if (seconds == null) return '—';
+  const days = Math.floor(seconds / 86_400);
+  const hours = Math.floor((seconds % 86_400) / 3_600);
+
+  if (currentLang() === 'en') return `${numberFormat(0).format(days)}d ${hours}h`;
+  return `${numberFormat(0).format(days)}${t('server.days')} ${hours}時間`;
+}
+
+function isFresh(measuredAt) {
+  if (!measuredAt) return false;
+  const age = Date.now() - measuredAt.getTime();
+  return age >= -5_000 && age <= FRESHNESS_LIMIT_MS;
 }
 
 export const initServerMetrics = () => {
   const root = document.getElementById('server-metrics-root');
   if (!root) return;
 
-  const els = {
+  const elements = {
     cpuTrack: document.getElementById('metric-cpu-track'),
-    cpuVal: document.getElementById('metric-cpu-val'),
+    cpuValue: document.getElementById('metric-cpu-val'),
     ramTrack: document.getElementById('metric-ram-track'),
-    ramVal: document.getElementById('metric-ram-val'),
+    ramValue: document.getElementById('metric-ram-val'),
+    diskTrack: document.getElementById('metric-disk-track'),
+    diskValue: document.getElementById('metric-disk-val'),
+    uptimeValue: document.getElementById('metric-uptime-val'),
     status: document.getElementById('server-metrics-status'),
     partial: document.getElementById('server-metrics-partial'),
+    state: document.getElementById('server-state'),
   };
 
   let lastSnapshot = null;
-  let lastUpdatedAt = null;
+  let refreshing = false;
+  let sectionNearby = false;
+  let consecutiveFailures = 0;
+  let retryAt = 0;
 
-  const applySnapshot = (snap) => {
-    lastSnapshot = snap;
-    const fmt = nf(1);
+  const applySnapshot = (snapshot) => {
+    lastSnapshot = snapshot;
+    const formatter = numberFormat(1);
 
-    setMetricTrack(els.cpuTrack, snap.cpu);
-    setText(els.cpuVal, snap.cpu == null ? '—' : `${fmt.format(snap.cpu)}%`);
+    setMetricTrack(elements.cpuTrack, snapshot.cpu);
+    setText(elements.cpuValue, snapshot.cpu == null ? '—' : `${formatter.format(snapshot.cpu)}%`);
 
-    setMetricTrack(els.ramTrack, snap.ram);
-    setText(els.ramVal, snap.ram == null ? '—' : `${fmt.format(snap.ram)}%`);
+    setMetricTrack(elements.ramTrack, snapshot.ram);
+    setText(elements.ramValue, snapshot.ram == null ? '—' : `${formatter.format(snapshot.ram)}%`);
+
+    setMetricTrack(elements.diskTrack, snapshot.disk);
+    setText(elements.diskValue, snapshot.disk == null ? '—' : `${formatter.format(snapshot.disk)}%`);
+
+    setText(elements.uptimeValue, formatUptime(snapshot.uptime));
   };
 
-  const setStatus = (kind) => {
-    if (!els.status) return;
+  const setState = (kind) => {
+    if (!elements.state) return;
+    const label = elements.state.querySelector('span:last-child');
+    elements.state.dataset.state = kind;
+
+    if (kind === 'ok') setText(label, t('server.stateOnline'));
+    else if (kind === 'error') setText(label, t('server.stateError'));
+    else setText(label, t('server.stateChecking'));
+  };
+
+  const setStatus = (kind, measuredAt = null) => {
+    if (!elements.status) return;
+    elements.status.dataset.state = kind;
+
     if (kind === 'loading') {
-      els.status.textContent = t('server.statusLoading');
-      els.status.dataset.state = 'loading';
+      elements.status.textContent = t('server.statusLoading');
       return;
     }
     if (kind === 'error') {
-      els.status.textContent = t('server.statusError');
-      els.status.dataset.state = 'error';
+      elements.status.textContent = t('server.statusError');
       return;
     }
-    if (kind === 'ok') {
-      const d = lastUpdatedAt ?? new Date();
-      const timeStr = d.toLocaleString(currentLang() === 'en' ? 'en-US' : 'ja-JP', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      });
-      els.status.textContent = `${t('server.statusUpdatedPrefix')} ${timeStr}`;
-      els.status.dataset.state = 'ok';
+    if (kind === 'stale') {
+      elements.status.textContent = t('server.statusStale');
+      return;
     }
+
+    const measuredTime = measuredAt.toLocaleTimeString(currentLang() === 'en' ? 'en-US' : 'ja-JP', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    elements.status.textContent = `${t('server.statusUpdatedPrefix')} ${measuredTime}`;
   };
 
   const showPartial = (show) => {
-    if (els.partial) {
-      els.partial.hidden = !show;
-      if (show) els.partial.textContent = t('server.statusPartial');
-    }
+    if (!elements.partial) return;
+    elements.partial.hidden = !show;
+    if (show) elements.partial.textContent = t('server.statusPartial');
   };
 
   const refresh = async () => {
-    setStatus('loading');
-    showPartial(false);
+    if (refreshing) return;
+    refreshing = true;
     root.setAttribute('aria-busy', 'true');
-
-    const results = await Promise.allSettled([
-      fetchNetdataJson(dataUrl(NETDATA_CHARTS.cpu)),
-      fetchNetdataJson(dataUrl(NETDATA_CHARTS.ram)),
-    ]);
-
-    const snap = { cpu: null, ram: null };
-    const chartKeys = ['cpu', 'ram'];
-    let failures = 0;
-
-    results.forEach((r, i) => {
-      if (r.status !== 'fulfilled') {
-        failures += 1;
-        return;
-      }
-      const lr = lastRow(r.value);
-      if (!lr) {
-        failures += 1;
-        return;
-      }
-      const key = chartKeys[i];
-      if (key === 'cpu') snap.cpu = parseCpuPct(lr);
-      if (key === 'ram') snap.ram = parseRamPct(lr);
-    });
-
-    applySnapshot(snap);
-
-    if (failures === 2) {
-      setStatus('error');
-    } else {
-      lastUpdatedAt = new Date();
-      setStatus('ok');
-      showPartial(failures > 0);
+    if (!lastSnapshot) {
+      setState('loading');
+      setStatus('loading');
     }
+    showPartial(false);
 
-    root.setAttribute('aria-busy', 'false');
+    try {
+      const snapshot = await fetchSnapshot();
+      consecutiveFailures = 0;
+      retryAt = 0;
+      applySnapshot(snapshot);
+
+      const availableValues = [snapshot.cpu, snapshot.ram, snapshot.disk, snapshot.uptime].filter(
+        (value) => value != null,
+      ).length;
+
+      if (snapshot.status === 'unavailable' || availableValues === 0) {
+        setState('error');
+        setStatus('error');
+        return;
+      }
+
+      setState('ok');
+      showPartial(snapshot.status === 'partial' || availableValues < 4);
+      setStatus(isFresh(snapshot.measuredAt) ? 'ok' : 'stale', snapshot.measuredAt);
+    } catch {
+      consecutiveFailures += 1;
+      retryAt =
+        Date.now() + Math.min(30_000, SERVER_STATUS_POLL_MS * 2 ** Math.min(consecutiveFailures, 5));
+      setState('error');
+      setStatus('error');
+    } finally {
+      refreshing = false;
+      root.setAttribute('aria-busy', 'false');
+    }
   };
 
-  const onLang = () => {
+  const onLanguageChange = () => {
     if (lastSnapshot) applySnapshot(lastSnapshot);
-    const st = els.status?.dataset.state;
-    if (st === 'loading') setStatus('loading');
-    else if (st === 'error') setStatus('error');
-    else if (st === 'ok') setStatus('ok');
-    if (els.partial && !els.partial.hidden) els.partial.textContent = t('server.statusPartial');
+
+    const state = elements.state?.dataset.state;
+    setState(state === 'ok' || state === 'error' ? state : 'loading');
+
+    const status = elements.status?.dataset.state;
+    if (status === 'ok' && lastSnapshot?.measuredAt) setStatus('ok', lastSnapshot.measuredAt);
+    else if (status === 'stale') setStatus('stale');
+    else if (status === 'error') setStatus('error');
+    else setStatus('loading');
+
+    if (elements.partial && !elements.partial.hidden) {
+      elements.partial.textContent = t('server.statusPartial');
+    }
   };
 
-  window.addEventListener('langchange', onLang);
-
-  refresh();
-  window.setInterval(refresh, NETDATA_POLL_MS);
-
+  window.addEventListener('langchange', onLanguageChange);
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') refresh();
+    if (document.visibilityState === 'visible' && sectionNearby) refresh();
   });
+
+  const refreshWhileVisible = () => {
+    if (!sectionNearby || document.visibilityState !== 'visible' || Date.now() < retryAt) return;
+    refresh();
+  };
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        sectionNearby = entry.isIntersecting;
+        if (sectionNearby) refreshWhileVisible();
+      },
+      { rootMargin: '600px 0px' },
+    );
+    observer.observe(root);
+  } else {
+    sectionNearby = true;
+    refreshWhileVisible();
+  }
+
+  window.setInterval(refreshWhileVisible, SERVER_STATUS_POLL_MS);
 };
