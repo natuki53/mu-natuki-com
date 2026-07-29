@@ -1174,7 +1174,10 @@ main {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 14%, transparent);
 }
 
-.server-state[data-state='ok'] .state-dot::after {
+.server-state[data-state='ok'] .state-dot::after,
+.bot-summary-list [data-state='online'] .state-dot::after,
+.bot-overall-state[data-state='operational'] .state-dot::after,
+.bot-status-card[data-state='online'] .bot-state-badge .state-dot::after {
   content: '';
   position: absolute;
   inset: -4px;
@@ -2098,7 +2101,10 @@ main {
     scroll-behavior: auto;
   }
 
-  .server-state[data-state='ok'] .state-dot::after {
+  .server-state[data-state='ok'] .state-dot::after,
+  .bot-summary-list [data-state='online'] .state-dot::after,
+  .bot-overall-state[data-state='operational'] .state-dot::after,
+  .bot-status-card[data-state='online'] .bot-state-badge .state-dot::after {
     animation: none;
   }
 
@@ -2199,6 +2205,7 @@ main {
 
 .bot-summary-list [data-state='online'] .state-dot {
   background: var(--success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 14%, transparent);
 }
 
 .bot-summary-list [data-state='degraded'] .state-dot {
@@ -2475,6 +2482,7 @@ main {
 
 .bot-status-card[data-state='online'] .bot-state-badge .state-dot {
   background: var(--success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 14%, transparent);
 }
 
 .bot-status-card[data-state='degraded'] .bot-state-badge {
