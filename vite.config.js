@@ -50,12 +50,18 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
+      '/api/bot-status.json': {
+        target: 'https://mu-natuki.com',
+        changeOrigin: true,
+        secure: true,
+      },
     },
   },
   build: {
     rollupOptions: {
       input: {
         main: resolve(rootDir, 'index.html'),
+        status: resolve(rootDir, 'status/index.html'),
         ...projectEntries,
       },
     },

@@ -46,3 +46,11 @@ npm run preview
 NetdataのAPIやダッシュボードをブラウザへ直接公開しません。`server/status-collector.py`がサーバー内部のNetdataから必要な値だけを取得し、約10秒ごとに固定スキーマのJSONへ書き出します。
 
 サーバー側の構成例とテストは`server/`にあります。公開データにはホスト名、コンテナ名、チャート一覧、アラーム、ログなどを含めないでください。
+
+## Discord Bot稼働状況
+
+`/status/`では、サーバーメトリクスに加えてTimecard、VOICEVOX読み上げ、YouTubeの3 Botを表示します。トップページには要約だけを表示します。
+
+ブラウザは同一オリジンの`/api/bot-status.json`だけを取得します。各Botは10秒ごとに専用のハートビートを書き出し、`server/bot-status-collector.py`が約5秒ごとに公開可能な固定項目へ正規化します。
+
+公開データはBot ID、状態、稼働時間、Discord接続、Gateway遅延、最終ハートビート、VOICEVOX Engineの状態に限定します。Discordサーバー名、ユーザー、チャンネル、メッセージ、ログ、トークンは含めません。

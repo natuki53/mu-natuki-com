@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="雨苺なつきの自宅サーバーとDiscord Botの現在の稼働状況を確認できます。" />
+  <meta name="theme-color" content="#faf8fb" />
+
+  <meta property="og:title" content="稼働状況 | 雨苺なつき" />
+  <meta property="og:description" content="自宅サーバーとDiscord Botの現在の稼働状況。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mu-natuki.com/status/" />
+  <meta property="og:image" content="https://mu-natuki.com/status-og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://mu-natuki.com/status-og.png" />
+
+  <link rel="icon" href="/gallery/png/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Zen+Maru+Gothic:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles/main.css" />
+  <title>稼働状況 | 雨苺なつき</title>
+</head>
+
+<body class="status-page">
+  <a class="skip-link" href="#main-content">本文へ移動</a>
+
+  <div id="app">
+    <header class="site-header status-site-header">
+      <div class="header-inner">
+        <a class="site-brand" href="/" aria-label="ホームへ戻る" data-i18n-aria="status.backAria">
+          <span class="brand-title">雨苺なつき</span>
+          <span class="brand-subtitle">STATUS</span>
+        </a>
+
+        <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu-panel"
+          aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+
+        <div id="mobile-menu-panel" class="mobile-menu-panel">
+          <nav class="menu-nav" aria-label="メインナビゲーション">
+            <a href="/#profile" class="menu-link" data-i18n="nav.profile">About</a>
+            <div id="project-menu-host"></div>
+            <a href="/#gallery" class="menu-link" data-i18n="nav.gallery">Gallery</a>
+            <a href="/#server-monitor" class="menu-link" data-i18n="nav.server">Server</a>
+          </nav>
+
+          <div class="header-tools">
+            <div id="theme-toggle" class="segment-group" role="group" aria-label="テーマを切り替え"
+              data-i18n-aria="aria.themeToggle">
+              <button type="button" class="segment-option" data-theme="light" aria-pressed="false"
+                aria-label="ライトテーマ">☀</button>
+              <button type="button" class="segment-option" data-theme="dark" aria-pressed="false"
+                aria-label="ダークテーマ">☾</button>
+            </div>
+            <div id="lang-toggle" class="segment-group lang-segment" role="group" aria-label="言語を切り替え"
+              data-i18n-aria="aria.langToggle">
+              <button type="button" class="segment-option" data-lang="ja" aria-pressed="false">JA</button>
+              <button type="button" class="segment-option" data-lang="en" aria-pressed="false">EN</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="status-page-main">
+      <section class="status-hero" aria-labelledby="status-heading">
+        <a class="status-back-link" href="/">
+          <span aria-hidden="true">←</span>
+          <span data-i18n="status.back">ホームへ戻る</span>
+        </a>
+        <p class="section-kicker" data-i18n="status.kicker">SYSTEM STATUS</p>
+        <div class="status-hero-layout">
+          <div>
+            <h1 id="status-heading" data-i18n="status.heading">この場所の、いま。</h1>
+            <p class="status-hero-copy" data-i18n="status.desc">
+              自宅サーバーと、そこで動いているDiscord Botの現在の状態を公開用の情報だけでお知らせします。
+            </p>
+          </div>
+          <div id="bot-overall-state" class="bot-overall-state" data-state="checking" role="status"
+            aria-live="polite">
+            <span class="state-dot" aria-hidden="true"></span>
+            <span id="bot-overall-label" data-i18n="bot.loading">Botの状態を読み込み中…</span>
+          </div>
+        </div>
+        <p id="bot-status-updated" class="status-updated" aria-live="polite" data-i18n="bot.loading">
+          Botの状態を読み込み中…
+        </p>
+      </section>
+
+      <section id="bot-status-root" class="status-section" aria-labelledby="bots-heading" aria-busy="true">
+        <div class="status-section-heading">
+          <div>
+            <p class="section-kicker" data-i18n="status.botsKicker">DISCORD BOTS</p>
+            <h2 id="bots-heading" data-i18n="status.botsHeading">Botの稼働状況</h2>
+          </div>
+          <p data-i18n="status.botsNote">約10秒ごとに自動更新します。</p>
+        </div>
+
+        <div class="bot-status-grid">
+          <article class="bot-status-card" data-bot-id="timecard" data-state="unknown">
+            <div class="bot-card-heading">
+              <div>
+                <p class="bot-card-kind" data-i18n="status.botWork">WORK</p>
+                <h3>Timecard Bot</h3>
+              </div>
+              <span class="bot-state-badge">
+                <span class="state-dot" aria-hidden="true"></span>
+                <span data-bot-state>確認不可</span>
+              </span>
+            </div>
+            <p class="bot-card-description" data-i18n="status.timecardDesc">
+              出退勤と休憩時間を記録するBot
+            </p>
+            <dl class="bot-status-facts">
+              <div>
+                <dt data-i18n="status.discordConnection">Discord接続</dt>
+                <dd data-bot-discord>不明</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.gatewayLatency">Gateway遅延</dt>
+                <dd data-bot-latency>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.botUptime">Bot稼働時間</dt>
+                <dd data-bot-uptime>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.lastHeartbeat">最終ハートビート</dt>
+                <dd data-bot-updated>—</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="bot-status-card" data-bot-id="voicevox-tts" data-state="unknown">
+            <div class="bot-card-heading">
+              <div>
+                <p class="bot-card-kind" data-i18n="status.botVoice">VOICE</p>
+                <h3>VOICEVOX読み上げBot</h3>
+              </div>
+              <span class="bot-state-badge">
+                <span class="state-dot" aria-hidden="true"></span>
+                <span data-bot-state>確認不可</span>
+              </span>
+            </div>
+            <p class="bot-card-description" data-i18n="status.voicevoxDesc">
+              テキストチャンネルを音声で読み上げるBot
+            </p>
+            <dl class="bot-status-facts">
+              <div>
+                <dt data-i18n="status.discordConnection">Discord接続</dt>
+                <dd data-bot-discord>不明</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.gatewayLatency">Gateway遅延</dt>
+                <dd data-bot-latency>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.botUptime">Bot稼働時間</dt>
+                <dd data-bot-uptime>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.lastHeartbeat">最終ハートビート</dt>
+                <dd data-bot-updated>—</dd>
+              </div>
+            </dl>
+            <div class="bot-dependency" data-dependency-id="voicevox-engine" data-state="unknown">
+              <span>
+                <span class="dependency-dot" aria-hidden="true"></span>
+                VOICEVOX Engine
+              </span>
+              <strong data-dependency-state>確認不可</strong>
+            </div>
+          </article>
+
+          <article class="bot-status-card" data-bot-id="youtube" data-state="unknown">
+            <div class="bot-card-heading">
+              <div>
+                <p class="bot-card-kind" data-i18n="status.botMedia">MEDIA</p>
+                <h3>YouTube Bot</h3>
+              </div>
+              <span class="bot-state-badge">
+                <span class="state-dot" aria-hidden="true"></span>
+                <span data-bot-state>確認不可</span>
+              </span>
+            </div>
+            <p class="bot-card-description" data-i18n="status.youtubeDesc">
+              動画取得とボイスチャンネル再生を行うBot
+            </p>
+            <dl class="bot-status-facts">
+              <div>
+                <dt data-i18n="status.discordConnection">Discord接続</dt>
+                <dd data-bot-discord>不明</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.gatewayLatency">Gateway遅延</dt>
+                <dd data-bot-latency>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.botUptime">Bot稼働時間</dt>
+                <dd data-bot-uptime>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.lastHeartbeat">最終ハートビート</dt>
+                <dd data-bot-updated>—</dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+      </section>
+
+      <section id="server-monitor" class="section-shell server-section status-server-section"
+        aria-labelledby="server-monitor-heading">
+        <div class="server-heading">
+          <div>
+            <p class="section-kicker" data-i18n="section.server">このサイトのサーバー</p>
+            <h2 id="server-monitor-heading" data-i18n="status.serverHeading">サーバーの現在値</h2>
+            <p class="section-intro" data-i18n="status.serverDesc">
+              Botとこのサイトを動かしている自宅サーバーの公開用メトリクスです。
+            </p>
+          </div>
+          <div id="server-state" class="server-state" data-state="loading">
+            <span class="state-dot" aria-hidden="true"></span>
+            <span data-i18n="server.stateChecking">確認中</span>
+          </div>
+        </div>
+
+        <div id="server-metrics-root" class="server-metrics-grid" aria-busy="true">
+          <article class="server-metric-card" aria-labelledby="metric-cpu-title">
+            <div class="server-metric-head">
+              <h3 id="metric-cpu-title" data-i18n="server.metricCpu">CPU</h3>
+              <span class="server-metric-value" id="metric-cpu-val">—</span>
+            </div>
+            <div id="metric-cpu-track" class="server-metric-track" role="progressbar" aria-valuemin="0"
+              aria-valuemax="100" aria-valuenow="0" aria-labelledby="metric-cpu-title">
+              <span class="server-metric-fill server-metric-fill-cpu"></span>
+            </div>
+          </article>
+          <article class="server-metric-card" aria-labelledby="metric-ram-title">
+            <div class="server-metric-head">
+              <h3 id="metric-ram-title" data-i18n="server.metricRam">メモリ</h3>
+              <span class="server-metric-value" id="metric-ram-val">—</span>
+            </div>
+            <div id="metric-ram-track" class="server-metric-track" role="progressbar" aria-valuemin="0"
+              aria-valuemax="100" aria-valuenow="0" aria-labelledby="metric-ram-title">
+              <span class="server-metric-fill server-metric-fill-ram"></span>
+            </div>
+          </article>
+          <article class="server-metric-card" aria-labelledby="metric-disk-title">
+            <div class="server-metric-head">
+              <h3 id="metric-disk-title" data-i18n="server.metricDisk">ディスク</h3>
+              <span class="server-metric-value" id="metric-disk-val">—</span>
+            </div>
+            <div id="metric-disk-track" class="server-metric-track" role="progressbar" aria-valuemin="0"
+              aria-valuemax="100" aria-valuenow="0" aria-labelledby="metric-disk-title">
+              <span class="server-metric-fill server-metric-fill-disk"></span>
+            </div>
+          </article>
+          <article class="server-metric-card server-metric-card-uptime" aria-labelledby="metric-uptime-title">
+            <div class="server-metric-head">
+              <h3 id="metric-uptime-title" data-i18n="server.metricUptime">連続稼働</h3>
+              <span class="server-metric-value" id="metric-uptime-val">—</span>
+            </div>
+            <p data-i18n="server.uptimeNote">再起動からの経過時間</p>
+          </article>
+        </div>
+
+        <div class="server-footer">
+          <div>
+            <p id="server-metrics-status" class="server-monitor-status" aria-live="polite"></p>
+            <p id="server-metrics-partial" class="server-monitor-partial" hidden role="status"></p>
+          </div>
+        </div>
+      </section>
+
+      <aside class="status-privacy-note">
+        <span aria-hidden="true">✦</span>
+        <p data-i18n="status.privacy">
+          このページでは公開用に絞った稼働情報だけを表示し、Discord上のサーバー名・ユーザー・メッセージやログは取得していません。
+        </p>
+      </aside>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="footer-year">2026</span> Natuki</p>
+    </footer>
+
+    <div id="toast" class="toast hidden" aria-live="polite" role="status"></div>
+  </div>
+
+  <script type="module" src="/src/scripts/status-main.js"></script>
+</body>
+
+</html>

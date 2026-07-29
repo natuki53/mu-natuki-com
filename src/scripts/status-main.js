@@ -1,22 +1,17 @@
-// Main JavaScript entry point
-import { initMenu } from './menu.js';
 import { initTheme } from './theme.js';
 import { initI18n } from './i18n.js';
-import { initScrollReveal } from './scroll-reveal.js';
 import { initServerMetrics } from './metrics.js';
-import { initGalleryLightbox } from './gallery-lightbox.js';
+import { initBotStatusPage } from './status-page.js';
+import { initProjectMenu } from './project-menu.js';
 import { initMobileMenu } from './mobile-menu.js';
-import { initBotSummary } from './bot-summary.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  initMenu();
   initTheme();
   initI18n();
+  initProjectMenu({ currentProjectId: 'status' });
   initMobileMenu();
-  initScrollReveal();
   initServerMetrics();
-  initBotSummary();
-  initGalleryLightbox();
+  initBotStatusPage();
 
   const footerYear = document.getElementById('footer-year');
   if (footerYear) footerYear.textContent = String(new Date().getFullYear());

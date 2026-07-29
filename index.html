@@ -389,6 +389,44 @@
           </article>
         </div>
 
+        <aside id="bot-summary-root" class="bot-summary-panel" data-state="checking" aria-busy="true">
+          <div class="bot-summary-copy">
+            <p class="section-kicker" data-i18n="server.botSummaryKicker">DISCORD BOTS</p>
+            <h3 data-i18n="server.botSummaryHeading">サーバーで動いているBot</h3>
+            <p id="bot-summary-status" aria-live="polite" data-i18n="bot.summaryChecking">
+              Botの状態を確認中…
+            </p>
+          </div>
+          <ul class="bot-summary-list" aria-label="Discord Botの稼働状態"
+            data-i18n-aria="server.botSummaryAria">
+            <li data-summary-bot="timecard" data-state="unknown">
+              <span class="state-dot" aria-hidden="true"></span>
+              <span>
+                <strong>Timecard</strong>
+                <small data-summary-state>確認不可</small>
+              </span>
+            </li>
+            <li data-summary-bot="voicevox-tts" data-state="unknown">
+              <span class="state-dot" aria-hidden="true"></span>
+              <span>
+                <strong>VOICEVOX</strong>
+                <small data-summary-state>確認不可</small>
+              </span>
+            </li>
+            <li data-summary-bot="youtube" data-state="unknown">
+              <span class="state-dot" aria-hidden="true"></span>
+              <span>
+                <strong>YouTube</strong>
+                <small data-summary-state>確認不可</small>
+              </span>
+            </li>
+          </ul>
+          <a class="button button-secondary bot-summary-link" href="/status/">
+            <span data-i18n="server.botSummaryLink">詳しい稼働状況</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </aside>
+
         <div class="server-footer">
           <div>
             <p id="server-metrics-status" class="server-monitor-status" aria-live="polite"></p>
