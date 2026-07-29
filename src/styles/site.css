@@ -2355,6 +2355,44 @@ main {
   font-size: 0.75rem;
 }
 
+.status-section-meta {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  text-align: right;
+}
+
+.status-section-meta p:last-child {
+  font-weight: 700;
+}
+
+.web-app-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.web-app-status-card {
+  min-height: 300px;
+}
+
+.web-app-open-link {
+  margin-top: auto;
+  padding-top: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--lavender-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.web-app-open-link:hover {
+  color: var(--text);
+}
+
 .bot-status-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2570,6 +2608,10 @@ main {
     grid-template-columns: 1fr;
   }
 
+  .web-app-status-grid {
+    grid-template-columns: 1fr;
+  }
+
   .bot-status-card {
     min-height: 0;
   }
@@ -2616,6 +2658,10 @@ main {
   .status-section-heading {
     display: grid;
     gap: 0.75rem;
+  }
+
+  .status-section-meta {
+    text-align: left;
   }
 
   .status-section {

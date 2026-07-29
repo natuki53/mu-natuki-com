@@ -4,11 +4,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="雨苺なつきの自宅サーバーとDiscord Botの現在の稼働状況を確認できます。" />
+  <meta name="description" content="雨苺なつきのWebアプリ、自宅サーバー、Discord Botの現在の稼働状況を確認できます。" />
   <meta name="theme-color" content="#faf8fb" />
 
   <meta property="og:title" content="稼働状況 | 雨苺なつき" />
-  <meta property="og:description" content="自宅サーバーとDiscord Botの現在の稼働状況。" />
+  <meta property="og:description" content="Webアプリ、自宅サーバー、Discord Botの現在の稼働状況。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://mu-natuki.com/status/" />
   <meta property="og:image" content="https://mu-natuki.com/status-og.png" />
@@ -78,17 +78,18 @@
           <div>
             <h1 id="status-heading" data-i18n="status.heading">この場所の、いま。</h1>
             <p class="status-hero-copy" data-i18n="status.desc">
-              自宅サーバーと、そこで動いているDiscord Botの現在の状態を公開用の情報だけでお知らせします。
+              公開中のWebアプリとDiscord Bot、自宅サーバーの現在の状態を公開用の情報だけでお知らせします。
             </p>
           </div>
-          <div id="bot-overall-state" class="bot-overall-state" data-state="checking" role="status"
+          <div id="service-overall-state" class="bot-overall-state" data-state="checking" role="status"
             aria-live="polite">
             <span class="state-dot" aria-hidden="true"></span>
-            <span id="bot-overall-label" data-i18n="bot.loading">Botの状態を読み込み中…</span>
+            <span id="service-overall-label" data-i18n="overall.loading">サービスの状態を読み込み中…</span>
           </div>
         </div>
-        <p id="bot-status-updated" class="status-updated" aria-live="polite" data-i18n="bot.loading">
-          Botの状態を読み込み中…
+        <p id="service-status-updated" class="status-updated" aria-live="polite"
+          data-i18n="overall.loading">
+          サービスの状態を読み込み中…
         </p>
       </section>
 
@@ -98,7 +99,12 @@
             <p class="section-kicker" data-i18n="status.botsKicker">DISCORD BOTS</p>
             <h2 id="bots-heading" data-i18n="status.botsHeading">Botの稼働状況</h2>
           </div>
-          <p data-i18n="status.botsNote">約10秒ごとに自動更新します。</p>
+          <div class="status-section-meta">
+            <p data-i18n="status.botsNote">約10秒ごとに自動更新します。</p>
+            <p id="bot-section-status" aria-live="polite" data-i18n="bot.loading">
+              Botの状態を読み込み中…
+            </p>
+          </div>
         </div>
 
         <div class="bot-status-grid">
@@ -213,6 +219,96 @@
         </div>
       </section>
 
+      <section id="web-app-status-root" class="status-section" aria-labelledby="web-apps-heading"
+        aria-busy="true">
+        <div class="status-section-heading">
+          <div>
+            <p class="section-kicker" data-i18n="status.webAppsKicker">WEB APPS</p>
+            <h2 id="web-apps-heading" data-i18n="status.webAppsHeading">Webアプリの稼働状況</h2>
+          </div>
+          <div class="status-section-meta">
+            <p data-i18n="status.webAppsNote">約30秒ごとに外部からの応答を確認します。</p>
+            <p id="web-app-status-updated" aria-live="polite" data-i18n="webApp.loading">
+              Webアプリの状態を読み込み中…
+            </p>
+          </div>
+        </div>
+
+        <div class="web-app-status-grid">
+          <article class="bot-status-card web-app-status-card" data-app-id="neareats"
+            data-state="unknown">
+            <div class="bot-card-heading">
+              <div>
+                <p class="bot-card-kind" data-i18n="status.webAppKind">WEB APP</p>
+                <h3>NearEats</h3>
+              </div>
+              <span class="bot-state-badge">
+                <span class="state-dot" aria-hidden="true"></span>
+                <span data-app-state>確認不可</span>
+              </span>
+            </div>
+            <p class="bot-card-description" data-i18n="status.neareatsDesc">
+              現在地周辺の飲食店を探せるWebアプリ
+            </p>
+            <dl class="bot-status-facts">
+              <div>
+                <dt data-i18n="status.httpResponse">HTTP応答</dt>
+                <dd data-app-http>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.responseTime">応答時間</dt>
+                <dd data-app-response-time>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.lastChecked">最終確認</dt>
+                <dd data-app-checked>—</dd>
+              </div>
+            </dl>
+            <a class="web-app-open-link" href="https://neareats.mu-natuki.com/" target="_blank"
+              rel="noopener noreferrer">
+              <span data-i18n="status.openApp">アプリを開く</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </article>
+
+          <article class="bot-status-card web-app-status-card" data-app-id="yorimo"
+            data-state="unknown">
+            <div class="bot-card-heading">
+              <div>
+                <p class="bot-card-kind" data-i18n="status.webAppKind">WEB APP</p>
+                <h3>Yorimo</h3>
+              </div>
+              <span class="bot-state-badge">
+                <span class="state-dot" aria-hidden="true"></span>
+                <span data-app-state>確認不可</span>
+              </span>
+            </div>
+            <p class="bot-card-description" data-i18n="status.yorimoDesc">
+              寄り道スポットを共有・発見できるマッピングSNS
+            </p>
+            <dl class="bot-status-facts">
+              <div>
+                <dt data-i18n="status.httpResponse">HTTP応答</dt>
+                <dd data-app-http>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.responseTime">応答時間</dt>
+                <dd data-app-response-time>—</dd>
+              </div>
+              <div>
+                <dt data-i18n="status.lastChecked">最終確認</dt>
+                <dd data-app-checked>—</dd>
+              </div>
+            </dl>
+            <a class="web-app-open-link" href="https://yorimo.mu-natuki.com/" target="_blank"
+              rel="noopener noreferrer">
+              <span data-i18n="status.openApp">アプリを開く</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </article>
+        </div>
+      </section>
+
       <section id="server-monitor" class="section-shell server-section status-server-section"
         aria-labelledby="server-monitor-heading">
         <div class="server-heading">
@@ -280,7 +376,7 @@
       <aside class="status-privacy-note">
         <span aria-hidden="true">✦</span>
         <p data-i18n="status.privacy">
-          このページでは公開用に絞った稼働情報だけを表示し、Discord上のサーバー名・ユーザー・メッセージやログは取得していません。
+          Webアプリは公開URLへのHTTP応答だけを確認しています。Discord上のサーバー名・ユーザー・メッセージやログは取得していません。
         </p>
       </aside>
     </main>

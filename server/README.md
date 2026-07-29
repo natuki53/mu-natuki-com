@@ -114,3 +114,19 @@ docker compose stop bot-status-collector
 固定Bot IDに対する`start`、`restart`、`stop`だけを受け付ける構成とし、任意コマンド、
 SSH、ファイル操作、ホスト再起動・停止は許可しません。変更操作には同一オリジン検証、
 CSRF対策、リクエストID、Bot単位の排他制御、90日保持の監査ログを必須とします。
+
+## 公開Webアプリの外形監視
+
+`web-app-status-collector.py`は、固定した公開URLのHTTP応答を30秒ごとに確認し、
+`/api/web-app-status.json`へ応答状態、HTTPステータス、応答時間、最終確認日時だけを
+書き出します。現在の対象はNearEatsとYorimoです。
+
+コレクターはDockerソケットやホストネットワークを持たず、通常のbridgeネットワークから
+固定URLへアクセスします。管理画面、テスト環境、データベース、内部APIは監視対象や
+公開JSONへ含めません。
+
+```bash
+docker compose up -d web-app-status-collector apache
+docker compose logs --tail=20 web-app-status-collector
+curl -fsS http://127.0.0.1/api/web-app-status.json
+```
