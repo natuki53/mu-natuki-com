@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "status": "unavailable",
+  "measuredAt": "2026-07-29T00:00:00Z",
+  "apps": [
+    {
+      "id": "neareats",
+      "displayName": "NearEats",
+      "url": "https://neareats.mu-natuki.com/",
+      "state": "unknown",
+      "httpStatus": null,
+      "responseTimeMs": null,
+      "lastCheckedAt": null
+    },
+    {
+      "id": "yorimo",
+      "displayName": "Yorimo",
+      "url": "https://yorimo.mu-natuki.com/",
+      "state": "unknown",
+      "httpStatus": null,
+      "responseTimeMs": null,
+      "lastCheckedAt": null
+    }
+  ]
+}
