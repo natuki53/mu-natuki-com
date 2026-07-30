@@ -67,6 +67,7 @@ export default defineConfig({
       input: {
         main: resolve(rootDir, 'index.html'),
         status: resolve(rootDir, 'status/index.html'),
+        admin: resolve(rootDir, 'admin/index.html'),
         ...projectEntries,
       },
     },

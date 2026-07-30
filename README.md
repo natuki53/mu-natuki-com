@@ -61,3 +61,19 @@ NetdataのAPIやダッシュボードをブラウザへ直接公開しません�
 `server/web-app-status-collector.py`が30秒ごとに固定URLを確認し、HTTP応答、応答時間、
 最終確認日時だけを`/api/web-app-status.json`へ公開します。管理画面、テスト環境、
 内部APIは対象外です。
+
+## 管理者向け管理画面
+
+`/admin/`はCloudflare Accessで保護する管理者専用ページです。Timecard Botの月別集計、
+出勤中一覧、CSV出力、完了済み勤務の訂正と、固定したBot・Webアプリの
+開始・停止・再起動を提供します。
+
+管理APIは`Cf-Access-Jwt-Assertion`を再検証し、許可メール、issuer、audience、
+有効期限が一致しない通信を拒否します。管理APIにDockerソケットやTimecard DBを
+マウントせず、ホスト上の固定操作ブローカーをUnixソケット経由で利用します。
+
+対象はTimecard、VOICEVOX Bot、VOICEVOX Engine、YouTube Bot、NearEats、Yorimoに
+固定されています。DB、Cloudflare Tunnel、デプロイ受信機、Apache、ホストOS、
+任意コマンド、ログ閲覧は管理画面から操作できません。
+
+サーバーへの導入手順と秘密設定は[`server/README.md`](server/README.md)を参照してください。

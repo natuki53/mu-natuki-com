@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="雨苺なつきの管理者向けサービス管理画面" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="theme-color" content="#faf8fb" />
+  <link rel="icon" href="/gallery/png/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Zen+Maru+Gothic:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles/main.css" />
+  <link rel="stylesheet" href="/src/styles/admin.css" />
+  <title>管理 | 雨苺なつき</title>
+</head>
+
+<body class="admin-page">
+  <a class="skip-link" href="#main-content">本文へ移動</a>
+
+  <div id="app">
+    <header class="site-header admin-site-header">
+      <div class="header-inner">
+        <a class="site-brand" href="/" aria-label="ホームへ戻る" data-i18n-aria="admin.backAria">
+          <span class="brand-title">雨苺なつき</span>
+          <span class="brand-subtitle">ADMIN</span>
+        </a>
+
+        <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu-panel"
+          aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+
+        <div id="mobile-menu-panel" class="mobile-menu-panel">
+          <nav class="menu-nav" aria-label="メインナビゲーション">
+            <a href="/#profile" class="menu-link" data-i18n="nav.profile">About</a>
+            <div id="project-menu-host"></div>
+            <a href="/#gallery" class="menu-link" data-i18n="nav.gallery">Gallery</a>
+            <a href="/#server-monitor" class="menu-link" data-i18n="nav.server">Server</a>
+          </nav>
+
+          <div class="header-tools">
+            <div id="theme-toggle" class="segment-group" role="group" aria-label="テーマを切り替え"
+              data-i18n-aria="aria.themeToggle">
+              <button type="button" class="segment-option" data-theme="light" aria-pressed="false"
+                aria-label="ライトテーマ">☀</button>
+              <button type="button" class="segment-option" data-theme="dark" aria-pressed="false"
+                aria-label="ダークテーマ">☾</button>
+            </div>
+            <div id="lang-toggle" class="segment-group lang-segment" role="group" aria-label="言語を切り替え"
+              data-i18n-aria="aria.langToggle">
+              <button type="button" class="segment-option" data-lang="ja" aria-pressed="false">JA</button>
+              <button type="button" class="segment-option" data-lang="en" aria-pressed="false">EN</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="admin-main">
+      <section class="admin-hero" aria-labelledby="admin-heading">
+        <div>
+          <p class="section-kicker" data-i18n="admin.kicker">PRIVATE CONTROL ROOM</p>
+          <h1 id="admin-heading" data-i18n="admin.heading">この場所を、静かに整える。</h1>
+          <p class="admin-hero-copy" data-i18n="admin.desc">
+            勤怠の確認と、Bot・Webアプリの安全な保守操作をまとめた管理者専用ページです。
+          </p>
+        </div>
+        <div class="admin-identity">
+          <span class="admin-identity-label" data-i18n="admin.signedIn">ログイン中</span>
+          <strong id="admin-email">確認中…</strong>
+        </div>
+      </section>
+
+      <nav class="admin-tabs" aria-label="管理メニュー" data-i18n-aria="admin.tabsAria">
+        <button type="button" class="admin-tab is-active" data-admin-tab="overview" aria-selected="true"
+          data-i18n="admin.tabOverview">概要</button>
+        <button type="button" class="admin-tab" data-admin-tab="timecard" aria-selected="false"
+          data-i18n="admin.tabTimecard">勤怠</button>
+        <button type="button" class="admin-tab" data-admin-tab="services" aria-selected="false"
+          data-i18n="admin.tabServices">サービス</button>
+        <button type="button" class="admin-tab" data-admin-tab="audit" aria-selected="false"
+          data-i18n="admin.tabAudit">監査ログ</button>
+      </nav>
+
+      <div id="admin-global-message" class="admin-message" role="status" aria-live="polite" hidden></div>
+
+      <section class="admin-panel is-active" data-admin-panel="overview" aria-labelledby="overview-heading">
+        <div class="admin-section-heading">
+          <div>
+            <p class="section-kicker" data-i18n="admin.overviewKicker">OVERVIEW</p>
+            <h2 id="overview-heading" data-i18n="admin.overviewHeading">いまの全体像</h2>
+          </div>
+          <button type="button" class="admin-button admin-button-secondary" data-refresh="overview"
+            data-i18n="admin.refresh">更新</button>
+        </div>
+        <div id="admin-overview-cards" class="admin-summary-grid" aria-busy="true"></div>
+        <div class="admin-card">
+          <div class="admin-card-heading">
+            <h3 data-i18n="admin.serviceSnapshot">サービスの状態</h3>
+            <span id="overview-updated">—</span>
+          </div>
+          <div id="overview-services" class="admin-compact-list"></div>
+        </div>
+      </section>
+
+      <section class="admin-panel" data-admin-panel="timecard" aria-labelledby="timecard-heading" hidden>
+        <div class="admin-section-heading">
+          <div>
+            <p class="section-kicker" data-i18n="admin.timecardKicker">TIMECARD</p>
+            <h2 id="timecard-heading" data-i18n="admin.timecardHeading">勤怠の確認</h2>
+          </div>
+          <button type="button" class="admin-button admin-button-secondary" data-refresh="timecard"
+            data-i18n="admin.refresh">更新</button>
+        </div>
+
+        <form id="timecard-filters" class="admin-filter-bar">
+          <label>
+            <span data-i18n="admin.month">対象月</span>
+            <input id="timecard-month" type="month" required />
+          </label>
+          <label>
+            <span data-i18n="admin.member">メンバー</span>
+            <select id="timecard-member">
+              <option value="" data-i18n="admin.allMembers">全員</option>
+            </select>
+          </label>
+          <button type="submit" class="admin-button" data-i18n="admin.apply">表示</button>
+          <a id="timecard-export" class="admin-button admin-button-secondary" href="#"
+            data-i18n="admin.exportCsv">CSV出力</a>
+        </form>
+
+        <div id="timecard-summary" class="admin-summary-grid" aria-busy="true"></div>
+
+        <div class="admin-card">
+          <div class="admin-card-heading">
+            <div>
+              <p class="admin-card-kicker" data-i18n="admin.activeNow">ACTIVE NOW</p>
+              <h3 data-i18n="admin.activeAttendance">現在の出勤状況</h3>
+            </div>
+          </div>
+          <div id="timecard-active-list" class="admin-compact-list"></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-heading">
+            <div>
+              <p class="admin-card-kicker" data-i18n="admin.completedRecords">COMPLETED</p>
+              <h3 data-i18n="admin.attendanceRecords">勤務明細</h3>
+            </div>
+            <span id="timecard-record-count">—</span>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th data-i18n="admin.member">メンバー</th>
+                  <th data-i18n="admin.clockIn">出勤</th>
+                  <th data-i18n="admin.clockOut">退勤</th>
+                  <th data-i18n="admin.breakTime">休憩</th>
+                  <th data-i18n="admin.workTime">勤務</th>
+                  <th><span class="sr-only" data-i18n="admin.actions">操作</span></th>
+                </tr>
+              </thead>
+              <tbody id="timecard-records"></tbody>
+            </table>
+          </div>
+          <div class="admin-pagination" aria-label="勤務明細のページ切り替え"
+            data-i18n-aria="admin.paginationAria">
+            <button id="timecard-page-prev" type="button" class="admin-button admin-button-secondary"
+              data-i18n="admin.previous">前へ</button>
+            <span id="timecard-page-label">1 / 1</span>
+            <button id="timecard-page-next" type="button" class="admin-button admin-button-secondary"
+              data-i18n="admin.next">次へ</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-panel" data-admin-panel="services" aria-labelledby="services-heading" hidden>
+        <div class="admin-section-heading">
+          <div>
+            <p class="section-kicker" data-i18n="admin.servicesKicker">MAINTENANCE</p>
+            <h2 id="services-heading" data-i18n="admin.servicesHeading">サービス管理</h2>
+          </div>
+          <button type="button" class="admin-button admin-button-secondary" data-refresh="services"
+            data-i18n="admin.refresh">更新</button>
+        </div>
+        <p class="admin-section-note" data-i18n="admin.servicesNote">
+          データベース、トンネル、デプロイ機構は操作対象に含まれません。
+        </p>
+        <div id="admin-services-grid" class="admin-services-grid" aria-busy="true"></div>
+      </section>
+
+      <section class="admin-panel" data-admin-panel="audit" aria-labelledby="audit-heading" hidden>
+        <div class="admin-section-heading">
+          <div>
+            <p class="section-kicker" data-i18n="admin.auditKicker">AUDIT TRAIL</p>
+            <h2 id="audit-heading" data-i18n="admin.auditHeading">操作の記録</h2>
+          </div>
+          <button type="button" class="admin-button admin-button-secondary" data-refresh="audit"
+            data-i18n="admin.refresh">更新</button>
+        </div>
+        <div class="admin-card">
+          <div id="admin-audit-list" class="admin-audit-list" aria-busy="true"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="footer-year">2026</span> Natuki</p>
+    </footer>
+
+    <dialog id="service-action-dialog" class="admin-dialog">
+      <form method="dialog">
+        <p class="admin-card-kicker" data-i18n="admin.confirmKicker">CONFIRMATION</p>
+        <h2 id="service-action-title" data-i18n="admin.confirmServiceAction">サービスを操作しますか？</h2>
+        <p id="service-action-description"></p>
+        <div class="admin-dialog-actions">
+          <button value="cancel" class="admin-button admin-button-secondary" data-i18n="admin.cancel">キャンセル</button>
+          <button id="service-action-confirm" value="confirm" class="admin-button admin-button-danger"
+            data-i18n="admin.execute">実行</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="attendance-edit-dialog" class="admin-dialog admin-dialog-wide">
+      <form id="attendance-edit-form">
+        <p class="admin-card-kicker" data-i18n="admin.correctionKicker">CORRECTION</p>
+        <h2 data-i18n="admin.correctAttendance">勤務明細を修正</h2>
+        <p id="attendance-edit-member" class="admin-dialog-lead"></p>
+        <div class="admin-edit-grid">
+          <label>
+            <span data-i18n="admin.clockIn">出勤</span>
+            <input id="attendance-edit-start" type="datetime-local" step="1" required />
+          </label>
+          <label>
+            <span data-i18n="admin.clockOut">退勤</span>
+            <input id="attendance-edit-end" type="datetime-local" step="1" required />
+          </label>
+          <label>
+            <span data-i18n="admin.breakMinutes">休憩（分）</span>
+            <input id="attendance-edit-break" type="number" min="0" step="1" required />
+          </label>
+          <label class="admin-edit-reason">
+            <span data-i18n="admin.reason">修正理由</span>
+            <textarea id="attendance-edit-reason" minlength="3" maxlength="500" required></textarea>
+          </label>
+        </div>
+        <p class="admin-dialog-note" data-i18n="admin.correctionNote">
+          元の値と修正後の値、理由、操作者が監査記録に残ります。
+        </p>
+        <div class="admin-dialog-actions">
+          <button type="button" class="admin-button admin-button-secondary" data-close-dialog
+            data-i18n="admin.cancel">キャンセル</button>
+          <button type="submit" class="admin-button" data-i18n="admin.saveCorrection">修正を保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast hidden" aria-live="polite" role="status"></div>
+  </div>
+
+  <script type="module" src="/src/scripts/admin-main.js"></script>
+</body>
+
+</html>

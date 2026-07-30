@@ -130,3 +130,86 @@ docker compose up -d web-app-status-collector apache
 docker compose logs --tail=20 web-app-status-collector
 curl -fsS http://127.0.0.1/api/web-app-status.json
 ```
+
+## 管理者向け管理基盤
+
+### 構成
+
+- `admin-api/`: Cloudflare Access JWT、CSRF、同一オリジンを検証する管理API
+- `admin_broker.py`: 固定サービス操作とTimecardの参照・訂正だけを受け付けるホストサービス
+- `admin-broker-config.example.json`: 本番Composeとコンテナを固定IDへ割り当てる設定
+- `mu-admin-broker.service`: Dockerグループの一般ユーザーで起動するsystemdユニット
+
+管理APIコンテナにはDockerソケットとTimecard DBを渡しません。ブローカーは署名付きの
+Unixソケット要求だけを受け、設定に存在しないサービス、アクション、引数を拒否します。
+
+### Cloudflare Access
+
+同じSelf-hosted Accessアプリケーションへ次の2パスを登録します。
+
+- `mu-natuki.com/admin/*`
+- `mu-natuki.com/api/admin/*`
+
+Allowポリシーは管理者メール1件だけとし、認証方式はOne-time PINを使用します。
+Accessを有効にして未認証ブラウザが両パスへ到達できないことを確認してから
+管理画面を公開してください。
+
+API側では次の値を秘密設定として使用します。
+
+- `ADMIN_CF_TEAM_DOMAIN`: `https://<team>.cloudflareaccess.com`
+- `ADMIN_CF_POLICY_AUD`: AccessアプリケーションのAUDタグ
+- `ADMIN_ALLOWED_EMAIL`: OTPを受け取る管理者メール
+- `ADMIN_CSRF_SECRET`: 32文字以上のランダム値
+- `ADMIN_BROKER_SHARED_SECRET`: APIとブローカーだけが持つ別のランダム値
+
+### ホスト側の準備
+
+サーバー上で設定例をコピーし、秘密値をGit管理外で作成します。
+
+```bash
+install -d -m 0750 /home/natuki/services/admin-runtime
+cp server-status/admin-broker-config.example.json \
+  /home/natuki/services/admin-runtime/broker.json
+cp server-status/admin.env.example .admin.env
+chmod 0600 .admin.env
+```
+
+`/home/natuki/services/admin-runtime/broker.env`には次の1行だけを保存します。
+
+```dotenv
+ADMIN_BROKER_SHARED_SECRET=<.admin.envと同じランダム値>
+```
+
+systemdユニットを配置して起動します。
+
+```bash
+sudo install -m 0644 server-status/mu-admin-broker.service \
+  /etc/systemd/system/mu-admin-broker.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now mu-admin-broker.service
+```
+
+最後に管理APIとApacheを起動します。
+
+```bash
+docker compose -f docker-compose.yml \
+  -f server-status/docker-compose.override.yml \
+  up -d --build admin-api apache
+```
+
+JWTヘッダーを持たないローカル通信が拒否されることを確認します。
+
+```bash
+curl -i http://127.0.0.1/api/admin/v1/session
+```
+
+期待結果は`403`です。`200`になる場合は公開しないでください。
+
+### データと監査
+
+Timecardの完了済み勤務を訂正すると、元の値と訂正後の値を
+`db/admin_audit.db`へ同一SQLiteトランザクションで保存します。勤務時間はAPI入力を
+信用せず、開始・終了・休憩からブローカーが再計算します。
+
+サービス操作ログは90日保持します。勤怠訂正履歴は勤務データと同期間保持します。
+公開JSONへ管理情報、Discord ID、氏名、コンテナ名、監査ログは追加しません。
