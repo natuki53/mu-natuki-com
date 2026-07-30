@@ -1,0 +1,61 @@
+{
+  "auditDbPath": "/home/natuki/services/discord-bots/timecard-discord-bot/db/admin_audit.db",
+  "timecardDbDir": "/home/natuki/services/discord-bots/timecard-discord-bot/db",
+  "targets": {
+    "timecard": {
+      "displayName": "Timecard Bot",
+      "composeDir": "/home/natuki/services/discord-bots/timecard-discord-bot",
+      "composeFiles": [
+        "/home/natuki/services/discord-bots/timecard-discord-bot/docker-compose.yml"
+      ],
+      "deployLockFile": "/home/natuki/services/discord-bots/timecard-discord-bot/deploy/.deploy.lock",
+      "services": ["timecard-bot"],
+      "containers": ["timecard-discord-bot"]
+    },
+    "voicevox-tts": {
+      "displayName": "VOICEVOX読み上げBot",
+      "composeDir": "/home/natuki/services/discord-bots/VOICEVOX_TTS_Discord_Bot-managed",
+      "composeFiles": [
+        "/home/natuki/services/discord-bots/VOICEVOX_TTS_Discord_Bot-managed/docker-compose.yml"
+      ],
+      "deployLockFile": "/tmp/voicebot-auto-deploy.lock",
+      "services": ["bot"],
+      "containers": ["voicevox-tts-discord-bot"]
+    },
+    "voicevox-engine": {
+      "displayName": "VOICEVOX Engine",
+      "composeDir": "/home/natuki/services/discord-bots/VOICEVOX_TTS_Discord_Bot-managed",
+      "composeFiles": [
+        "/home/natuki/services/discord-bots/VOICEVOX_TTS_Discord_Bot-managed/docker-compose.yml"
+      ],
+      "deployLockFile": "/tmp/voicebot-auto-deploy.lock",
+      "services": ["voicevox"],
+      "containers": ["voicevox-engine"]
+    },
+    "youtube": {
+      "displayName": "YouTube Bot",
+      "composeDir": "/home/natuki/services/discord-bots/youtube-bot",
+      "composeFiles": [
+        "/home/natuki/services/discord-bots/youtube-bot/docker-compose.yml"
+      ],
+      "deployLockFile": "/home/natuki/services/discord-bots/youtube-bot/deploy/.deploy.lock",
+      "services": ["youtube-bot"],
+      "containers": ["youtube-bot"]
+    },
+    "neareats": {
+      "displayName": "NearEats",
+      "composeDir": "/home/natuki/services/neareats",
+      "composeFiles": ["/home/natuki/services/neareats/docker-compose.yml"],
+      "services": ["api", "web"],
+      "containers": ["neareats-api", "neareats-web"]
+    },
+    "yorimo": {
+      "displayName": "Yorimo",
+      "composeDir": "/home/natuki/services/yorimo",
+      "composeFiles": ["/home/natuki/services/yorimo/compose.production.yml"],
+      "envFile": "/home/natuki/services/yorimo/.env.production",
+      "services": ["app"],
+      "containers": ["yorimo-app-1"]
+    }
+  }
+}

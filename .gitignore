@@ -11,6 +11,8 @@ node_modules
 dist/
 dist-ssr
 *.local
+.admin.env
+server/admin-runtime/
 
 # Editor directories and files
 .vscode/*

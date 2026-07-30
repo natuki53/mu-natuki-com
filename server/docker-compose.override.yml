@@ -1,8 +1,37 @@
 services:
   apache:
+    depends_on:
+      - admin-api
     volumes:
       - ./server-status/data:/usr/local/apache2/htdocs/api:ro
       - ./server-status/apache-status-cache.conf:/usr/local/apache2/conf/extra/server-status-cache.conf:ro
+
+  admin-api:
+    build: ./server-status/admin-api
+    container_name: admin-api
+    restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - ./.admin.env
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    volumes:
+      - /home/natuki/services/admin-runtime:/run/admin-broker:ro
+      - ./server-status/data:/public-status:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2)"
+      interval: 15s
+      timeout: 3s
+      retries: 5
 
   status-collector:
     image: python:3.13-alpine

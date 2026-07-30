@@ -1,0 +1,23 @@
+[Unit]
+Description=mu-natuki administration capability broker
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=natuki
+Group=natuki
+SupplementaryGroups=docker
+WorkingDirectory=/home/natuki/services/web-server
+EnvironmentFile=/home/natuki/services/admin-runtime/broker.env
+ExecStart=/usr/bin/python3 /home/natuki/services/web-server/server-status/admin_broker.py --config /home/natuki/services/admin-runtime/broker.json --socket /home/natuki/services/admin-runtime/control.sock
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/natuki/services/admin-runtime /home/natuki/services/discord-bots/timecard-discord-bot/db /home/natuki/services/discord-bots/timecard-discord-bot/deploy /home/natuki/services/discord-bots/youtube-bot/deploy
+
+[Install]
+WantedBy=multi-user.target
