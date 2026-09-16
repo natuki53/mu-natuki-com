@@ -24,7 +24,7 @@ export const projects = [
       title: 'ぶいなびのサイトプレビュー',
     },
     links: [
-      { type: 'website', url: 'https://vrnavi.jp', label: 'Visit Site' },
+      { type: 'website', url: 'https://vrnavi.jp', label: 'Visit Site', icon: '/icons/links/vrnavi.jpg' },
       { type: 'youtube', url: 'https://www.youtube.com/@vrcnavi', label: 'YouTube' },
       { type: 'x', url: 'https://x.com/vrcnavi', label: 'X (Twitter)' },
     ],
@@ -57,12 +57,32 @@ export const projects = [
     links: [{ type: 'booth', url: 'https://booth.pm/ja/items/6819792', label: 'BOOTH Page' }],
   },
   {
-    id: 'vrcosme',
+    id: 'vrcosme-web',
     title: 'VRCosme',
-    category: '写真編集アプリ',
-    summary: 'SNSへ投稿する前に、VRChatで撮った写真を迷わず整える。',
+    category: '写真編集アプリ / Web・Windows',
+    summary: 'ブラウザでもWindowsでも、VRChatの写真をレタッチして共有できる。',
     description:
-      'VRChatの写真を簡単にレタッチできるWindowsアプリです。高度な画像編集機能を増やすよりも、SNSへ投稿する前に気になる部分を短い操作で整えられることを重視しています。',
+      'VRChatで撮影した写真を、ブラウザとWindowsで手軽にレタッチできる正式版の写真アプリです。フォトコンテストやギャラリーへの共有まで、写真を撮った後の体験をひとつにつなげています。',
+    highlights: ['ログインなしでもブラウザからレタッチを開始', 'フォトコンテストと作品ギャラリーを用意', 'Windowsアプリから写真管理とクラウド連携を支援'],
+    facts: [
+      { value: 'Web', label: 'ブラウザですぐ利用' },
+      { value: 'Windows', label: 'デスクトップ版' },
+      { value: 'Free', label: '無料で利用可能' },
+    ],
+    tags: ['React', 'TypeScript', 'Cloudflare', 'Tauri'],
+    cover: {
+      src: '/projects/vrcosme-web/cover.webp',
+      alt: 'VRCosmeの写真レタッチ画面',
+    },
+    links: [{ type: 'website', url: 'https://vrcosme.com/', label: 'Visit Site', icon: '/icons/links/vrcosme.svg' }],
+  },
+  {
+    id: 'vrcosme',
+    title: 'VRCosme Classic',
+    category: '写真編集アプリ / Classic',
+    summary: '従来のWindowsデスクトップ版VRCosme。',
+    description:
+      'これまで「VRCosme」として配布していた写真レタッチ用Windowsアプリです。後継の正式版VRCosmeと区別するため、VRCosme Classicへ名称を変更しました。',
     highlights: ['読み込み・調整・比較・保存の4ステップ', '基本補正、トリミング、比較、Undo / Redoに対応', 'PNG・JPEG・WebPの読み込みに対応'],
     facts: [
       { value: '4 step', label: '編集の流れ' },
@@ -72,34 +92,18 @@ export const projects = [
     tags: ['C#', 'Windows', 'Image Editing', 'VRChat'],
     cover: {
       src: '/projects/vrcosme/cover.webp',
-      alt: 'VRCosmeの紹介画面',
+      alt: 'VRCosme Classicの紹介画面',
     },
     media: {
       type: 'video',
       src: '/gallery/VRCosme紹介動画.mp4',
-      title: 'VRCosme紹介動画',
+      title: 'VRCosme Classic紹介動画',
     },
     links: [
-      { type: 'website', url: 'https://natuki53.github.io/VRCosme/', label: 'Visit Site' },
+      { type: 'website', url: 'https://natuki53.github.io/VRCosme/', label: 'Visit Site', icon: '/icons/links/vrcosme-classic.ico' },
       { type: 'booth', url: 'https://mofumagic.booth.pm/items/8035872', label: 'BOOTH Page' },
       { type: 'github', url: 'https://github.com/natuki53/VRCosme', label: 'GitHub' },
     ],
-  },
-  {
-    id: 'vrcosme-web',
-    title: 'VRCosme Web',
-    category: 'Webアプリ / 写真体験',
-    summary: 'レタッチから作品の共有まで、VRChatの写真をブラウザで楽しむ場所。',
-    description:
-      'VRCosmeをブラウザとデスクトップへ広げた写真プラットフォームです。手軽なレタッチに加えて、フォトコンテストやギャラリー、Windowsアプリとの連携まで、写真を撮った後の体験をひとつにつなげています。',
-    highlights: ['ログインなしでもブラウザからレタッチを開始', 'フォトコンテストと作品ギャラリーを用意', 'Windowsアプリから写真管理とクラウド連携を支援'],
-    facts: [
-      { value: 'Web', label: 'ブラウザですぐ利用' },
-      { value: 'PWA', label: '端末に合わせて利用' },
-      { value: 'Tauri', label: 'Windowsアプリ' },
-    ],
-    tags: ['React', 'TypeScript', 'Cloudflare', 'Tauri'],
-    links: [{ type: 'website', url: 'https://vrcosme.com/', label: 'Visit Site' }],
   },
   {
     id: 'cliprack',
@@ -107,7 +111,7 @@ export const projects = [
     category: 'macOSアプリ',
     summary: 'よく使うコピーを、必要なときにすぐ取り出せる。',
     description:
-      'クリップボードの履歴を保存し、キーボードだけでもすばやく呼び出せるmacOS向けアプリです。テキストだけでなく、画像・ファイル・URLにも対応しています。',
+      'クリップボードの履歴を保存し、キーボードだけでもすばやく呼び出せるmacOS向けアプリです。テキストだけでなく、画像・ファイル・URLにも対応しています。Mac App Storeからダウンロードできます。',
     highlights: ['最大100件のクリップボード履歴を保存', '⌘⇧Vで開き、選択してEnterで貼り付け', 'テキスト・画像・ファイル・URLとピン留めに対応'],
     facts: [
       { value: '100件', label: '保存できる履歴' },
@@ -116,26 +120,10 @@ export const projects = [
     ],
     tags: ['Swift', 'SwiftUI', 'macOS', 'Productivity'],
     links: [
-      { type: 'website', url: 'https://natuki53.github.io/ClipRack-docs/', label: 'Visit Site' },
-      { type: 'testflight', url: 'https://testflight.apple.com/join/YEPq8pt7', label: 'TestFlight' },
+      { type: 'website', url: 'https://natuki53.github.io/ClipRack-docs/', label: 'Visit Site', icon: '/icons/links/cliprack.svg' },
+      { type: 'appstore', url: 'https://apps.apple.com/jp/app/cliprack/id6757835911?mt=12', label: 'App Store' },
       { type: 'github', url: 'https://github.com/natuki53/ClipRack-docs', label: 'GitHub' },
     ],
-  },
-  {
-    id: 'campustrade',
-    title: 'CampusTrade',
-    category: 'チーム開発 / Webアプリ',
-    summary: '学生同士のリユースを、出品から受け渡しまで支えるマーケット。',
-    description:
-      '教科書や生活用品を学生同士で出品・購入できるフリーマーケットシステムです。要件定義からDB設計、認証・権限、取引状態、モデレーションまでをチームで設計し、ひとつのWebアプリとして実装しました。',
-    highlights: ['商品出品・検索・画像管理・購入申し込みを実装', '出品中・取引中・完了の状態遷移とメッセージ機能', 'Spring Securityによる本人確認と管理者モデレーション'],
-    facts: [
-      { value: '3 states', label: '取引ステータス' },
-      { value: '5枚', label: '商品画像の上限' },
-      { value: 'Java 21', label: '実行環境' },
-    ],
-    tags: ['Java', 'Spring Boot', 'Thymeleaf', 'MySQL'],
-    links: [{ type: 'github', url: 'https://github.com/natuki53/CampusTrade', label: 'GitHub' }],
   },
   {
     id: '360-viewer',
@@ -157,9 +145,41 @@ export const projects = [
       title: '360-viewerの操作プレビュー',
     },
     links: [
-      { type: 'website', url: 'https://vrnavi.jp/photo_world_introduction', label: 'Using Site' },
+      { type: 'website', url: 'https://vrnavi.jp/photo_world_introduction', label: 'Using Site', icon: '/icons/links/vrnavi.jpg' },
       { type: 'github', url: 'https://github.com/natuki53/360-viewer', label: 'GitHub' },
     ],
+  },
+  {
+    id: 'toc-ad',
+    title: 'TOC-AD',
+    category: 'WordPressプラグイン',
+    summary: '記事の目次下へ広告画像を自動で追加。',
+    description:
+      'WordPressの記事で、目次の下に広告画像を自動挿入するプラグインです。画像やリンク、alt、表示サイズを管理画面から設定でき、記事ごとの定型作業を減らします。',
+    highlights: ['目次ブロック・ショートコード・コメントを検出', '画像、リンク、alt、サイズ、CSSクラスを設定可能', 'プレビューと拡張用フィルターフックを用意'],
+    facts: [
+      { value: 'MIT', label: 'ライセンス' },
+      { value: 'PHP', label: '実装言語' },
+      { value: 'WordPress', label: '対応CMS' },
+    ],
+    tags: ['PHP', 'WordPress', 'Plugin'],
+    links: [{ type: 'github', url: 'https://github.com/natuki53/TOC-AD', label: 'GitHub' }],
+  },
+  {
+    id: 'campustrade',
+    title: 'CampusTrade',
+    category: 'チーム開発 / Webアプリ',
+    summary: '学生同士のリユースを、出品から受け渡しまで支えるマーケット。',
+    description:
+      '教科書や生活用品を学生同士で出品・購入できるフリーマーケットシステムです。要件定義からDB設計、認証・権限、取引状態、モデレーションまでをチームで設計し、ひとつのWebアプリとして実装しました。',
+    highlights: ['商品出品・検索・画像管理・購入申し込みを実装', '出品中・取引中・完了の状態遷移とメッセージ機能', 'Spring Securityによる本人確認と管理者モデレーション'],
+    facts: [
+      { value: '3 states', label: '取引ステータス' },
+      { value: '5枚', label: '商品画像の上限' },
+      { value: 'Java 21', label: '実行環境' },
+    ],
+    tags: ['Java', 'Spring Boot', 'Thymeleaf', 'MySQL'],
+    links: [{ type: 'github', url: 'https://github.com/natuki53/CampusTrade', label: 'GitHub' }],
   },
   {
     id: 'timecard',
@@ -178,24 +198,8 @@ export const projects = [
     links: [
       { type: 'website', url: 'https://mu-natuki.com/timecard-web-school', label: 'Visit Site' },
       { type: 'github', url: 'https://github.com/natuki53/TimeCard-Web-School', label: 'GitHub' },
-      { type: 'website', url: 'https://mu-natuki.com/timecard-web-school/manual/', label: 'User Manual' },
-      { type: 'website', url: 'https://mu-natuki.com/timecard-web-school/manual-admin/', label: 'Admin Manual' },
+      { type: 'manual', url: 'https://mu-natuki.com/timecard-web-school/manual/', label: 'User Manual' },
+      { type: 'manual', url: 'https://mu-natuki.com/timecard-web-school/manual-admin/', label: 'Admin Manual' },
     ],
-  },
-  {
-    id: 'toc-ad',
-    title: 'TOC AD',
-    category: 'WordPressプラグイン',
-    summary: '記事の目次下へ広告画像を自動で追加。',
-    description:
-      'WordPressの記事で、目次の下に広告画像を自動挿入するプラグインです。画像やリンク、alt、表示サイズを管理画面から設定でき、記事ごとの定型作業を減らします。',
-    highlights: ['目次ブロック・ショートコード・コメントを検出', '画像、リンク、alt、サイズ、CSSクラスを設定可能', 'プレビューと拡張用フィルターフックを用意'],
-    facts: [
-      { value: 'MIT', label: 'ライセンス' },
-      { value: 'PHP', label: '実装言語' },
-      { value: 'WordPress', label: '対応CMS' },
-    ],
-    tags: ['PHP', 'WordPress', 'Plugin'],
-    links: [{ type: 'github', url: 'https://github.com/natuki53/TOC-AD', label: 'GitHub' }],
   },
 ];
