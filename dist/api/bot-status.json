@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "status": "unavailable",
+  "measuredAt": "2026-07-29T00:00:00Z",
+  "bots": [
+    {
+      "id": "timecard",
+      "displayName": "Timecard Bot",
+      "state": "unknown",
+      "uptimeSeconds": null,
+      "discordConnected": null,
+      "gatewayLatencyMs": null,
+      "lastHeartbeatAt": null,
+      "dependencies": []
+    },
+    {
+      "id": "voicevox-tts",
+      "displayName": "VOICEVOX読み上げBot",
+      "state": "unknown",
+      "uptimeSeconds": null,
+      "discordConnected": null,
+      "gatewayLatencyMs": null,
+      "lastHeartbeatAt": null,
+      "dependencies": [
+        {
+          "id": "voicevox-engine",
+          "displayName": "VOICEVOX Engine",
+          "state": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "youtube",
+      "displayName": "YouTube Bot",
+      "state": "unknown",
+      "uptimeSeconds": null,
+      "discordConnected": null,
+      "gatewayLatencyMs": null,
+      "lastHeartbeatAt": null,
+      "dependencies": []
+    }
+  ]
+}
