@@ -1672,8 +1672,8 @@ main {
 }
 
 .detail-link {
-  min-height: 2rem;
-  padding: 0.35rem 0.65rem;
+  min-height: 3rem;
+  padding: 0.45rem 0.65rem 0.45rem 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1690,6 +1690,36 @@ main {
   border-color: var(--lavender);
   color: var(--lavender-deep);
   transform: translateX(2px);
+}
+
+.detail-link-main {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.detail-link-icon {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  border-radius: 9px;
+  background: #fff;
+}
+
+.detail-link-icon img {
+  width: 1.35rem;
+  height: 1.35rem;
+  object-fit: contain;
+}
+
+.detail-link-arrow {
+  flex: 0 0 auto;
+  color: var(--text-soft);
 }
 
 .not-found {

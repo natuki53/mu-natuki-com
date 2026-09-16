@@ -87,12 +87,12 @@ export const en = {
     { value: 'Unity', label: 'Editor extension' },
   ],
 
-  'project.vrcosme.title': 'VRCosme',
-  'project.vrcosme.category': 'Photo / App',
-  'project.vrcosme.desc': 'An easy retouching tool for VRChat photos',
-  'project.vrcosme.summary': 'Quickly tidy up a VRChat photo before sharing it on social media.',
+  'project.vrcosme.title': 'VRCosme Classic',
+  'project.vrcosme.category': 'Photo editing / Classic app',
+  'project.vrcosme.desc': 'The original Windows photo retouching app',
+  'project.vrcosme.summary': 'The original VRCosme desktop app for Windows.',
   'project.vrcosme.description':
-    'A Windows app for retouching VRChat photos. Instead of pursuing more advanced editing features, it focuses on a short, clear flow for fixing the details people notice before posting to social media.',
+    'The Windows photo retouching app previously distributed as VRCosme. It has been renamed VRCosme Classic to distinguish it from the new official VRCosme.',
   'project.vrcosme.highlights': [
     'A four-step flow: open, adjust, compare, and save',
     'Includes basic correction, cropping, comparison, and undo / redo',
@@ -103,12 +103,12 @@ export const en = {
     { value: 'Windows', label: '10 / 11' },
     { value: '3 formats', label: 'image input' },
   ],
-  'project.vrcosme-web.title': 'VRCosme Web',
-  'project.vrcosme-web.category': 'Web app / Photography',
-  'project.vrcosme-web.desc': 'Retouch, share, and enjoy VRChat photos in the browser',
-  'project.vrcosme-web.summary': 'A place to enjoy VRChat photos from retouching through sharing.',
+  'project.vrcosme-web.title': 'VRCosme',
+  'project.vrcosme-web.category': 'Photo editing / Web & Windows',
+  'project.vrcosme-web.desc': 'Retouch and share VRChat photos on the web or Windows',
+  'project.vrcosme-web.summary': 'Retouch and share VRChat photos in the browser or on Windows.',
   'project.vrcosme-web.description':
-    'A photo platform that expands VRCosme to the browser and desktop. It connects easy retouching with photo contests, galleries, and a Windows companion app.',
+    'The official photo app for easily retouching VRChat photos in a browser or on Windows. It connects editing with photo contests and gallery sharing.',
   'project.vrcosme-web.highlights': [
     'Start retouching in the browser without signing in',
     'Includes photo contests and a public gallery',
@@ -116,8 +116,8 @@ export const en = {
   ],
   'project.vrcosme-web.facts': [
     { value: 'Web', label: 'use in a browser' },
-    { value: 'PWA', label: 'installable experience' },
-    { value: 'Tauri', label: 'Windows app' },
+    { value: 'Windows', label: 'desktop app' },
+    { value: 'Free', label: 'free to use' },
   ],
 
   'project.cliprack.title': 'ClipRack',
@@ -188,7 +188,7 @@ export const en = {
     { value: '2 guides', label: 'user manuals' },
   ],
 
-  'project.toc-ad.title': 'TOC AD',
+  'project.toc-ad.title': 'TOC-AD',
   'project.toc-ad.category': 'Plugin / Web',
   'project.toc-ad.desc': 'A WordPress plugin that inserts an ad image below the table of contents',
   'project.toc-ad.summary': 'Automatically add an ad image below an article’s table of contents.',
