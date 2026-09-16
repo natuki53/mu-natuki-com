@@ -233,22 +233,19 @@ function renderProject(language) {
       }
 
       <div class="detail-layout">
-        <div class="detail-primary">
-          <section class="detail-card detail-overview-card">
-            <h2>${escapeHtml(labels.overview)}</h2>
-            <p class="detail-description">${escapeHtml(item.description)}</p>
-          </section>
-          <div id="project-media-slot"></div>
-        </div>
-
+        <section class="detail-card detail-overview-card">
+          <h2>${escapeHtml(labels.overview)}</h2>
+          <p class="detail-description">${escapeHtml(item.description)}</p>
+        </section>
+        <div id="project-media-slot"></div>
+        <section class="detail-card detail-highlights-card">
+          <h2>${escapeHtml(labels.highlights)}</h2>
+          <ul class="detail-highlights">${highlightItems}</ul>
+        </section>
         <aside class="detail-side">
-          <section class="detail-card detail-highlights-card">
-            <h2>${escapeHtml(labels.highlights)}</h2>
-            <ul class="detail-highlights">${highlightItems}</ul>
-          </section>
           <section class="detail-card detail-technology-card">
             <h2>${escapeHtml(labels.technology)}</h2>
-            <div class="tags">${tagItems}</div>
+            <div class="tags" data-count="${item.tags.length}">${tagItems}</div>
           </section>
           <section class="detail-card detail-links-card">
             <h2>${escapeHtml(labels.links)}</h2>
