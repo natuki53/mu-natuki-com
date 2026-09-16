@@ -107,7 +107,7 @@ export const projects = [
     category: 'macOSアプリ',
     summary: 'よく使うコピーを、必要なときにすぐ取り出せる。',
     description:
-      'クリップボードの履歴を保存し、キーボードだけでもすばやく呼び出せるmacOS向けアプリです。テキストだけでなく、画像・ファイル・URLにも対応しています。',
+      'クリップボードの履歴を保存し、キーボードだけでもすばやく呼び出せるmacOS向けアプリです。テキストだけでなく、画像・ファイル・URLにも対応しています。Mac App Storeからダウンロードできます。',
     highlights: ['最大100件のクリップボード履歴を保存', '⌘⇧Vで開き、選択してEnterで貼り付け', 'テキスト・画像・ファイル・URLとピン留めに対応'],
     facts: [
       { value: '100件', label: '保存できる履歴' },
@@ -117,7 +117,7 @@ export const projects = [
     tags: ['Swift', 'SwiftUI', 'macOS', 'Productivity'],
     links: [
       { type: 'website', url: 'https://natuki53.github.io/ClipRack-docs/', label: 'Visit Site' },
-      { type: 'testflight', url: 'https://testflight.apple.com/join/YEPq8pt7', label: 'TestFlight' },
+      { type: 'appstore', url: 'https://apps.apple.com/jp/app/cliprack/id6757835911?mt=12', label: 'App Store' },
       { type: 'github', url: 'https://github.com/natuki53/ClipRack-docs', label: 'GitHub' },
     ],
   },

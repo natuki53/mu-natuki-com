@@ -125,7 +125,7 @@ export const en = {
   'project.cliprack.desc': 'Clipboard history manager for macOS',
   'project.cliprack.summary': 'Keep the things you copy ready when you need them again.',
   'project.cliprack.description':
-    'A macOS app that adds clipboard history and makes everyday copy and paste more convenient.',
+    'A macOS app that adds clipboard history and makes everyday copy and paste more convenient. Available to download from the Mac App Store.',
   'project.cliprack.highlights': [
     'Stores up to 100 clipboard entries',
     'Open with ⌘⇧V, select with the keyboard, and press Enter to paste',
