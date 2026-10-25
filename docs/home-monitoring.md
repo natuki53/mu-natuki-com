@@ -165,7 +165,7 @@ Intel側の設定例は次の通り。保持設定は**実際に導入したル�
 | `/api/admin/v1/monitoring/logs` | 同上。host/service/level/since/q、ページカーソル対応 |
 | `/api/admin/v1/monitoring/ci/logs` | 同上。登録リポジトリだけを読み取り |
 | `/internal/monitoring/v1/hosts/{hostId}` | ホスト別HMAC署名、時刻5分以内、hostId照合、古い観測の拒否 |
-| `/hooks/github/actions` | GitHubのHMAC-SHA256署名、対象リポジトリ、イベント種別、delivery ID重複排除 |
+| `/monitoring-hooks/github/actions` (API内部 `/hooks/github/actions`) | GitHubのHMAC-SHA256署名、対象リポジトリ、イベント種別、delivery ID重複排除 |
 
 機械向け受信口は管理者用JWTを流用しない。Collector受信口はLAN内のTLS終端など、管理ネットワークからだけ到達させる。
 GitHubのWebhook受信口は専用パスへ転送し、署名検証を必須にする。管理API全体のAccess保護を外して通してはいけない。

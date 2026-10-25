@@ -10,7 +10,7 @@
 | 管理API | 既存 admin-api。監視設定を読み取り専用で追加し、監視用 SQLite だけ書き込み可能 |
 | ホスト収集 | 両ホストの `/home/natuki/services/monitoring/code`。標準Pythonでディスク・VM・サービス・限定ログ・既存バックアップ記録を読む |
 | 内部受信 | Intel `192.168.1.10:18443` の TLS。ホスト別HMACで受信。管理APIの閲覧・操作パスは転送しない |
-| GitHubイベント | 公開Apacheの `/hooks/github/actions` のみ管理APIへ転送。既存 `/hooks/` デプロイ経路の前に置く |
+| GitHubイベント | 公開Apacheの `/monitoring-hooks/github/actions` のみ管理APIへ転送。既存Tunnelが `/hooks/*` をデプロイサービスへ直接送るため、別の公開パスを使用する |
 | 監視データ | `/home/natuki/services/monitoring/state`。公開ディレクトリ外。ログ7日・最大50,000件、容量90日 |
 
 収集周期は30秒、バックアップ全世代一覧・サイズは5分、CI照合は60秒。Webhookで開始・終了を受信し、API照合で取りこぼしを補う。実行中・待機中のワークフローは直近15件に含まれなくても追跡する。100件の取得上限を超えた一覧は正常扱いせず、取得エラーとして表示する。
@@ -75,7 +75,7 @@ PowerShellで次を実行し、`GitHub token` のマスク入力へ貼り付け�
 5. digest固定のnginxイメージを取得し、admin-api と monitoring-ingest のみを `up -d --no-build --pull never` で起動する。収集先のTLS証明書は配置済みCAで検証し、`curl -k` を使わない。18443番の到達性を確認し、必要な場合だけRyzen→Intelの通信を許可する。インターネット向けのポート転送やTunnelルートは追加しない。
 6. 両ホストで Collector を `--once` 実行して署名付き受信を確認する。systemd unitを配置し、構文確認・daemon-reload・enable/startを行う。unitのユーザーは既存のnatuki。`NoNewPrivileges=false` は `crontab -l` のsetgid読み取りに必要で、trueだと両ホストで次回予定を取得できないことを確認済み。読み取り専用ファイルシステム・CPU/メモリ制限は維持する。Ryzenの既存user timer参照には既存のuser busを使用する。
 7. Apacheの候補設定と追加Includeを配置し、`httpd -t` 成功後にApacheだけ再読み込みする。既存 `/hooks/` の転送を維持する。`/internal/` は公開Apacheで403、署名なしWebhookは403を確認する。
-8. GitHubで専用Webhookを登録する。URLは `https://mu-natuki.com/hooks/github/actions`、Content-Type application/json、SSL検証有効、workflow_run / workflow_jobのみ。候補のWebhook秘密を安全に設定する。既存のデプロイWebhookは変更しない。
+8. GitHubで専用Webhookを登録する。URLは `https://mu-natuki.com/monitoring-hooks/github/actions`、Content-Type application/json、SSL検証有効、workflow_run / workflow_jobのみ。ApacheがAPI内部の `/hooks/github/actions` へ転送する。候補のWebhook秘密を安全に設定する。既存のデプロイWebhookとTunnelの `/hooks/*` 経路は変更しない。
 9. 画面を反映し、未認証拒否、管理者ログイン、2ホスト・全ディスク・3保存先・次回予定・CI・ログを確認する。既存の勤怠表示・CSV・操作履歴も確認する。実勤怠の訂正やサービス再起動を動作確認目的で実行しない。
 10. 収集を一時停止する場合は新規Collectorだけを対象とし、古い情報・復帰表示を確認する。バックアップtimer、復元試験、既存サービスは止めない。受信が継続してから導入完了とする。
 

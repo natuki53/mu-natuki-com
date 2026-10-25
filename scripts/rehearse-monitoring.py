@@ -128,8 +128,8 @@ def main(candidate, work):
         payload=json.dumps({'repository':{'full_name':'fixture/repo'},'workflow_run':{'id':123,'name':'Test','status':'in_progress'}}).encode()
         hook={'X-GitHub-Event':'workflow_run','X-GitHub-Delivery':'readiness-delivery-123',
               'X-Hub-Signature-256':'sha256='+hmac.new(secret.encode(),payload,hashlib.sha256).hexdigest()}
-        require('webhook-exact-route',request(base,'/hooks/github/actions',payload,hook)[0]==200)
-        require('webhook-invalid-signature',request(base,'/hooks/github/actions',payload,{**hook,'X-Hub-Signature-256':'bad'})[0]==403)
+        require('webhook-exact-route',request(base,'/monitoring-hooks/github/actions',payload,hook)[0]==200)
+        require('webhook-invalid-signature',request(base,'/monitoring-hooks/github/actions',payload,{**hook,'X-Hub-Signature-256':'bad'})[0]==403)
         dc('restart','admin-api')
         for _ in range(30):
             try:
