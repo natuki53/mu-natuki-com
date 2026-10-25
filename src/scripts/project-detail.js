@@ -23,6 +23,18 @@ const escapeHtml = (value) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+const LINK_ICONS = {
+  appstore: '/icons/links/cliprack-app.png',
+  booth: '/icons/links/booth.png',
+  github: '/icons/links/github.svg',
+  manual: '/icons/links/description.svg',
+  website: '/icons/links/language.svg',
+  x: '/icons/links/x.png',
+  youtube: '/icons/links/youtube.png',
+};
+
+const linkIcon = (link) => link.icon || LINK_ICONS[link.type] || LINK_ICONS.website;
+
 const projectId = document.body.dataset.projectId;
 const project = projects.find((item) => item.id === projectId);
 const app = document.getElementById('app');
@@ -186,7 +198,11 @@ function renderProject(language) {
     .map(
       (link) => `
         <a class="detail-link" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">
-          <span>${escapeHtml(link.label)}</span><span aria-hidden="true">↗</span>
+          <span class="detail-link-main">
+            <span class="detail-link-icon"><img src="${escapeHtml(linkIcon(link))}" alt="" /></span>
+            <span>${escapeHtml(link.label)}</span>
+          </span>
+          <span class="detail-link-arrow" aria-hidden="true">↗</span>
         </a>
       `,
     )
@@ -217,22 +233,19 @@ function renderProject(language) {
       }
 
       <div class="detail-layout">
-        <div class="detail-primary">
-          <section class="detail-card detail-overview-card">
-            <h2>${escapeHtml(labels.overview)}</h2>
-            <p class="detail-description">${escapeHtml(item.description)}</p>
-          </section>
-          <div id="project-media-slot"></div>
-        </div>
-
+        <section class="detail-card detail-overview-card">
+          <h2>${escapeHtml(labels.overview)}</h2>
+          <p class="detail-description">${escapeHtml(item.description)}</p>
+        </section>
+        <div id="project-media-slot"></div>
+        <section class="detail-card detail-highlights-card">
+          <h2>${escapeHtml(labels.highlights)}</h2>
+          <ul class="detail-highlights">${highlightItems}</ul>
+        </section>
         <aside class="detail-side">
-          <section class="detail-card detail-highlights-card">
-            <h2>${escapeHtml(labels.highlights)}</h2>
-            <ul class="detail-highlights">${highlightItems}</ul>
-          </section>
           <section class="detail-card detail-technology-card">
             <h2>${escapeHtml(labels.technology)}</h2>
-            <div class="tags">${tagItems}</div>
+            <div class="tags" data-count="${item.tags.length}">${tagItems}</div>
           </section>
           <section class="detail-card detail-links-card">
             <h2>${escapeHtml(labels.links)}</h2>
