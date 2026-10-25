@@ -371,6 +371,11 @@ class Collector:
                 'errors': (raw['errors'] + operations['errors'])[:20]}
 
 
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs):
+        return None
+
+
 def push(config,data):
     url=config['ingestUrl']
     parsed=urllib.parse.urlparse(url)
@@ -382,7 +387,6 @@ def push(config,data):
     stamp=str(int(time.time()))
     headers={'Content-Type':'application/json','X-Monitor-Timestamp':stamp,
         'X-Monitor-Signature':hmac.new(key,stamp.encode()+b'.'+body,hashlib.sha256).hexdigest()}
-    from monitoring_github import NoRedirect
     context=ssl.create_default_context(cafile=config.get('caFile'))
     with urllib.request.build_opener(NoRedirect(),urllib.request.HTTPSHandler(context=context)).open(urllib.request.Request(url,data=body,headers=headers),timeout=15) as response:
         if response.status!=200:raise RuntimeError('Collector ingestion failed')

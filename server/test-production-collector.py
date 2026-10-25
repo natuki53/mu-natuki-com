@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from monitoring_collector import Collector, push
 from monitoring_models import Observation, utcnow
@@ -11,6 +11,18 @@ from monitoring_github import GitHubMonitor, GitHubUnavailable
 
 
 class ProductionCollectorTests(unittest.TestCase):
+    def test_native_sender_does_not_import_api_dependencies(self):
+        with tempfile.TemporaryDirectory() as temp:
+            key=Path(temp)/'key';key.write_text('k'*40)
+            response=Mock();response.__enter__=Mock(return_value=response);response.__exit__=Mock(return_value=False)
+            response.status=200
+            opener=Mock();opener.open.return_value=response
+            with patch.dict('sys.modules',{'monitoring_github':None}),patch('urllib.request.build_opener',return_value=opener):
+                push({'ingestUrl':'https://localhost/internal','secretFile':str(key)},{'hostId':'intel'})
+            request=opener.open.call_args.args[0]
+            self.assertEqual(request.get_method(),'POST')
+            self.assertTrue(request.get_header('X-monitor-signature'))
+
     def test_native_payload_contract_and_cache_use_same_reader_as_preview(self):
         at=utcnow().isoformat()
         machine={'name':'ci-vm','state':'shut off','vcpus':2,'memoryKiB':4096,'autostart':'disable'}
