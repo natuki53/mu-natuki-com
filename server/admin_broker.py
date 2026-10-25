@@ -14,6 +14,7 @@ import socketserver
 import sqlite3
 import subprocess
 import threading
+import time
 import uuid
 from contextlib import closing, contextmanager
 from pathlib import Path
@@ -24,6 +25,25 @@ JST = ZoneInfo("Asia/Tokyo")
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 ALLOWED_ACTIONS = {"start", "stop", "restart"}
 MAX_RPC_BYTES = 1024 * 1024
+ACTIVE_SESSION_CLOCK_SKEW = dt.timedelta(minutes=5)
+MAX_ATTENDANCE_RECORD_DURATION = dt.timedelta(days=31)
+RECORD_DURATION_TOLERANCE_SECONDS = 2
+VALID_ATTENDANCE_RECORD_SQL = f"""
+    row_rank = 1
+    AND legacy_source = 0
+    AND start_time IS NOT NULL
+    AND end_time IS NOT NULL
+    AND end_time > start_time
+    AND COALESCE(total_break_duration, 0) >= 0
+    AND COALESCE(work_duration, 0) >= 0
+    AND (
+        COALESCE(total_break_duration, 0)
+        + COALESCE(work_duration, 0)
+    ) <= (
+        (julianday(end_time) - julianday(start_time)) * 86400
+        + {RECORD_DURATION_TOLERANCE_SECONDS}
+    )
+"""
 
 
 class BrokerError(Exception):
@@ -206,6 +226,48 @@ class AttendanceStore:
         return conn
 
     @staticmethod
+    def _table_exists(conn: sqlite3.Connection, name: str) -> bool:
+        return bool(
+            conn.execute(
+                """
+                SELECT 1 FROM sqlite_master
+                WHERE type = 'table' AND name = ?
+                """,
+                (name,),
+            ).fetchone()
+        )
+
+    @staticmethod
+    def _ranked_records_sql(table: str, where: str, has_legacy_users: bool) -> str:
+        legacy_source = (
+            """
+            CASE WHEN EXISTS (
+                SELECT 1
+                FROM users AS legacy
+                WHERE legacy.id = history.user_id
+                  AND legacy.start_time = history.start_time
+            ) THEN 1 ELSE 0 END
+            """
+            if has_legacy_users
+            else "0"
+        )
+        return f"""
+            WITH ranked AS (
+                SELECT history.id, history.guild_id, history.user_id,
+                       history.start_time, history.end_time,
+                       history.total_break_duration, history.work_duration,
+                       {legacy_source} AS legacy_source,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY COALESCE(history.guild_id, 0),
+                                        history.user_id, history.start_time
+                           ORDER BY history.id DESC
+                       ) AS row_rank
+                FROM {table} AS history
+                {where}
+            )
+        """
+
+    @staticmethod
     def _parse_db_time(value: str) -> dt.datetime:
         return dt.datetime.strptime(value, "%Y-%m-%d %H:%M:%S").replace(tzinfo=JST)
 
@@ -246,6 +308,86 @@ class AttendanceStore:
             for row in rows
         }
 
+    def _legacy_session_keys(self) -> set[tuple[int, str]]:
+        keys: set[tuple[int, str]] = set()
+        for path in self.db_dir.glob("work_tracking_*.db"):
+            try:
+                with closing(self._connect_readonly(path)) as conn:
+                    if not self._table_exists(conn, "users"):
+                        continue
+                    rows = conn.execute(
+                        """
+                        SELECT id, start_time
+                        FROM users
+                        WHERE start_time IS NOT NULL
+                        """
+                    ).fetchall()
+                keys.update((int(row["id"]), row["start_time"]) for row in rows)
+            except sqlite3.Error:
+                continue
+        return keys
+
+    @staticmethod
+    def _break_seconds_for_session(
+        row: sqlite3.Row,
+        break_rows: list[sqlite3.Row],
+        started: dt.datetime,
+        reference_time: dt.datetime,
+    ) -> int:
+        guild_id = int(row["guild_id"])
+        user_id = int(row["user_id"])
+        total = 0
+        matched = False
+        for break_row in break_rows:
+            if int(break_row["user_id"]) != user_id:
+                continue
+            break_guild_id = int(break_row["guild_id"])
+            if guild_id and break_guild_id not in {guild_id, 0}:
+                continue
+            break_started = AttendanceStore._parse_db_time(
+                break_row["break_start"]
+            )
+            if break_started < started:
+                continue
+            break_ended = (
+                AttendanceStore._parse_db_time(break_row["break_end"])
+                if break_row["break_end"]
+                else reference_time
+            )
+            range_start = max(started, break_started)
+            range_end = min(reference_time, break_ended)
+            if range_end <= range_start:
+                continue
+            matched = True
+            total += int((range_end - range_start).total_seconds())
+        if matched:
+            return total
+
+        legacy_total = int(round(row["total_break_duration"] or 0))
+        if row["is_on_break"] and row["break_start_time"]:
+            break_started = AttendanceStore._parse_db_time(
+                row["break_start_time"]
+            )
+            if started <= break_started < reference_time:
+                legacy_total += int((reference_time - break_started).total_seconds())
+        return max(0, legacy_total)
+
+    @staticmethod
+    def _display_name(
+        names: dict[tuple[int, int], str], guild_id: int, user_id: int
+    ) -> str:
+        exact = names.get((guild_id, user_id))
+        if exact:
+            return exact
+        candidates = {
+            display_name
+            for (_candidate_guild_id, candidate_user_id), display_name in names.items()
+            if candidate_user_id == user_id
+        }
+        if len(candidates) == 1:
+            return candidates.pop()
+        return f"Discord user …{str(user_id)[-4:]}"
+
     @staticmethod
     def _row_version(row: sqlite3.Row | dict) -> str:
         values = {
@@ -268,9 +410,7 @@ class AttendanceStore:
             "id": int(row["id"]),
             "guildId": str(guild_id),
             "memberId": str(user_id),
-            "displayName": names.get(
-                (guild_id, user_id), f"Discord user …{str(user_id)[-4:]}"
-            ),
+            "displayName": self._display_name(names, guild_id, user_id),
             "startAt": self._format_api_time(row["start_time"]),
             "endAt": self._format_api_time(row["end_time"]),
             "breakSeconds": int(round(row["total_break_duration"] or 0)),
@@ -291,11 +431,12 @@ class AttendanceStore:
             )
         ]
 
-    def active(self) -> list[dict]:
+    def active(self, now: dt.datetime | None = None) -> list[dict]:
         if not self.active_path.is_file():
             return []
         names = self._member_names()
-        now = dt.datetime.now(JST)
+        legacy_sessions = self._legacy_session_keys()
+        reference_time = (now or dt.datetime.now(JST)).astimezone(JST)
         with closing(self._connect_readonly(self.active_path)) as conn:
             rows = conn.execute(
                 """
@@ -305,27 +446,53 @@ class AttendanceStore:
                 ORDER BY start_time
                 """
             ).fetchall()
+            break_rows = (
+                conn.execute(
+                    """
+                    SELECT guild_id, user_id, break_start, break_end
+                    FROM break_records
+                    ORDER BY break_start
+                    """
+                ).fetchall()
+                if self._table_exists(conn, "break_records")
+                else []
+            )
         results = []
         for row in rows:
-            started = self._parse_db_time(row["start_time"])
-            elapsed = max(0, int((now - started).total_seconds()))
-            break_seconds = int(round(row["total_break_duration"] or 0))
-            if row["is_on_break"] and row["break_start_time"]:
-                break_started = self._parse_db_time(row["break_start_time"])
-                break_seconds += max(0, int((now - break_started).total_seconds()))
-            guild_id = int(row["guild_id"])
             user_id = int(row["user_id"])
+            if (user_id, row["start_time"]) in legacy_sessions:
+                continue
+            started = self._parse_db_time(row["start_time"])
+            age = reference_time - started
+            if age < -ACTIVE_SESSION_CLOCK_SKEW:
+                continue
+            elapsed = max(0, int(age.total_seconds()))
+            break_seconds = self._break_seconds_for_session(
+                row, break_rows, started, reference_time
+            )
+            current_break_seconds = 0
+            if row["is_on_break"] and row["break_start_time"]:
+                current_break_started = self._parse_db_time(
+                    row["break_start_time"]
+                )
+                if current_break_started < reference_time:
+                    current_break_seconds = int(
+                        (reference_time - current_break_started).total_seconds()
+                    )
+            guild_id = int(row["guild_id"])
             results.append(
                 {
                     "guildId": str(guild_id),
                     "memberId": str(user_id),
-                    "displayName": names.get(
-                        (guild_id, user_id),
-                        f"Discord user …{str(user_id)[-4:]}",
+                    "displayName": self._display_name(
+                        names, guild_id, user_id
                     ),
                     "startAt": started.isoformat(),
                     "state": "break" if row["is_on_break"] else "working",
                     "breakStartedAt": self._format_api_time(row["break_start_time"]),
+                    "elapsedSeconds": elapsed,
+                    "breakSeconds": break_seconds,
+                    "currentBreakSeconds": current_break_seconds,
                     "workSeconds": max(0, elapsed - break_seconds),
                 }
             )
@@ -346,6 +513,7 @@ class AttendanceStore:
                 "month": normalized,
                 "items": [],
                 "total": 0,
+                "excludedTotal": 0,
                 "page": safe_page,
                 "pageSize": safe_size,
             }
@@ -354,24 +522,47 @@ class AttendanceStore:
         if member_id:
             if not str(member_id).isdigit():
                 raise BrokerError(400, "memberId must be a Discord numeric ID")
-            where = "WHERE user_id = ?"
+            where = "WHERE history.user_id = ?"
             params.append(int(member_id))
         names = self._member_names()
         with closing(self._connect_readonly(path)) as conn:
-            if not conn.execute(
-                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
-                (table,),
-            ).fetchone():
-                return {"month": normalized, "items": [], "total": 0}
+            if not self._table_exists(conn, table):
+                return {
+                    "month": normalized,
+                    "items": [],
+                    "total": 0,
+                    "excludedTotal": 0,
+                    "page": safe_page,
+                    "pageSize": safe_size,
+                }
+            ranked = self._ranked_records_sql(
+                table, where, self._table_exists(conn, "users")
+            )
+            deduplicated_total = conn.execute(
+                f"""
+                {ranked}
+                SELECT COUNT(*)
+                FROM ranked
+                WHERE row_rank = 1
+                """,
+                params,
+            ).fetchone()[0]
             total = conn.execute(
-                f"SELECT COUNT(*) FROM {table} {where}", params
+                f"""
+                {ranked}
+                SELECT COUNT(*)
+                FROM ranked
+                WHERE {VALID_ATTENDANCE_RECORD_SQL}
+                """,
+                params,
             ).fetchone()[0]
             rows = conn.execute(
                 f"""
+                {ranked}
                 SELECT id, guild_id, user_id, start_time, end_time,
                        total_break_duration, work_duration
-                FROM {table}
-                {where}
+                FROM ranked
+                WHERE {VALID_ATTENDANCE_RECORD_SQL}
                 ORDER BY start_time DESC, id DESC
                 LIMIT ? OFFSET ?
                 """,
@@ -381,6 +572,7 @@ class AttendanceStore:
             "month": normalized,
             "items": [self._serialize_record(row, names) for row in rows],
             "total": int(total),
+            "excludedTotal": max(0, int(deduplicated_total) - int(total)),
             "page": safe_page,
             "pageSize": safe_size,
         }
@@ -397,21 +589,29 @@ class AttendanceStore:
                 "breakSeconds": 0,
                 "workSeconds": 0,
                 "recordCount": 0,
+                "excludedRecordCount": 0,
             }
         params: list[object] = []
         where = ""
         if member_id:
-            where = "WHERE user_id = ?"
+            where = "WHERE history.user_id = ?"
             params.append(int(member_id))
         with closing(self._connect_readonly(path)) as conn:
+            ranked = self._ranked_records_sql(
+                table, where, self._table_exists(conn, "users")
+            )
             row = conn.execute(
                 f"""
+                {ranked}
                 SELECT COUNT(*) AS shifts,
-                       COUNT(DISTINCT substr(start_time, 1, 10)) AS days,
+                       COUNT(
+                           DISTINCT COALESCE(guild_id, 0) || ':' || user_id
+                           || ':' || substr(start_time, 1, 10)
+                       ) AS days,
                        COALESCE(SUM(total_break_duration), 0) AS breaks,
                        COALESCE(SUM(work_duration), 0) AS work
-                FROM {table}
-                {where}
+                FROM ranked
+                WHERE {VALID_ATTENDANCE_RECORD_SQL}
                 """,
                 params,
             ).fetchone()
@@ -423,6 +623,7 @@ class AttendanceStore:
             "breakSeconds": int(round(row["breaks"])),
             "workSeconds": int(round(row["work"])),
             "recordCount": data["total"],
+            "excludedRecordCount": data["excludedTotal"],
         }
 
     def correct(
@@ -449,8 +650,9 @@ class AttendanceStore:
         start_dt = self._parse_db_time(start_time)
         end_dt = self._parse_db_time(end_time)
         elapsed = int((end_dt - start_dt).total_seconds())
-        if elapsed <= 0 or elapsed > 36 * 3600:
-            raise BrokerError(400, "the shift must be between 1 second and 36 hours")
+        max_duration = int(MAX_ATTENDANCE_RECORD_DURATION.total_seconds())
+        if elapsed <= 0 or elapsed > max_duration:
+            raise BrokerError(400, "the shift must be between 1 second and 31 days")
         try:
             break_seconds = int(payload.get("breakSeconds"))
         except (TypeError, ValueError) as exc:
@@ -558,11 +760,16 @@ class AttendanceStore:
 
 
 class ServiceController:
+    STATUS_CACHE_SECONDS = 5.0
+
     def __init__(self, targets: dict, audit: AuditStore, runner=None):
         self.targets = targets
         self.audit = audit
         self.runner = runner or subprocess.run
         self._locks = {target_id: threading.Lock() for target_id in targets}
+        self._status_cache = None
+        self._status_cache_at = 0.0
+        self._status_cache_lock = threading.Lock()
 
     def _run(self, args: list[str], timeout: int = 45) -> subprocess.CompletedProcess:
         return self.runner(
@@ -610,50 +817,41 @@ class ServiceController:
             finally:
                 fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
-    def status(self, target_id: str) -> dict:
-        target = self._target(target_id)
-        components = []
-        for name in target["containers"]:
-            inspect = self._run(
-                [
-                    "docker",
-                    "inspect",
-                    "--format",
-                    "{{json .State}}|{{.RestartCount}}",
-                    name,
-                ],
-                timeout=10,
-            )
-            if inspect.returncode != 0:
-                components.append(
-                    {
-                        "name": name,
-                        "state": "stopped",
-                        "health": None,
-                        "startedAt": None,
-                        "finishedAt": None,
-                        "exitCode": None,
-                        "oomKilled": False,
-                        "restartCount": 0,
-                        "cpuPct": None,
-                        "memoryUsage": None,
-                    }
-                )
-                continue
-            state_json, restart_count = inspect.stdout.strip().rsplit("|", 1)
-            state = json.loads(state_json)
-            stats = self._run(
-                ["docker", "stats", "--no-stream", "--format", "{{json .}}", name],
-                timeout=10,
-            )
-            stats_data = {}
-            if stats.returncode == 0 and stats.stdout.strip():
-                try:
-                    stats_data = json.loads(stats.stdout.strip().splitlines()[0])
-                except json.JSONDecodeError:
-                    stats_data = {}
-            components.append(
-                {
+    @staticmethod
+    def _stopped_component(name: str) -> dict:
+        return {
+            "name": name,
+            "state": "stopped",
+            "health": None,
+            "startedAt": None,
+            "finishedAt": None,
+            "exitCode": None,
+            "oomKilled": False,
+            "restartCount": 0,
+            "cpuPct": None,
+            "memoryUsage": None,
+        }
+
+    def _inspect_components(self, names: list[str]) -> dict[str, dict]:
+        if not names:
+            return {}
+        inspect = self._run(
+            [
+                "docker",
+                "inspect",
+                "--format",
+                "{{json .State}}|{{.RestartCount}}|{{.Name}}",
+                *names,
+            ],
+            timeout=10,
+        )
+        components = {}
+        for line in inspect.stdout.splitlines():
+            try:
+                state_json, restart_count, raw_name = line.rsplit("|", 2)
+                state = json.loads(state_json)
+                name = raw_name.strip().removeprefix("/")
+                components[name] = {
                     "name": name,
                     "state": "running" if state.get("Running") else "stopped",
                     "health": (state.get("Health") or {}).get("Status"),
@@ -662,10 +860,21 @@ class ServiceController:
                     "exitCode": state.get("ExitCode"),
                     "oomKilled": bool(state.get("OOMKilled")),
                     "restartCount": int(restart_count or 0),
-                    "cpuPct": stats_data.get("CPUPerc"),
-                    "memoryUsage": stats_data.get("MemUsage"),
+                    "cpuPct": None,
+                    "memoryUsage": None,
                 }
-            )
+            except (ValueError, json.JSONDecodeError):
+                continue
+        return components
+
+    def _status_from_components(
+        self, target_id: str, inspected: dict[str, dict]
+    ) -> dict:
+        target = self._target(target_id)
+        components = [
+            inspected.get(name, self._stopped_component(name))
+            for name in target["containers"]
+        ]
         running = [item["state"] == "running" for item in components]
         unhealthy = any(item["health"] == "unhealthy" for item in components)
         if components and all(running) and not unhealthy:
@@ -681,8 +890,39 @@ class ServiceController:
             "components": components,
         }
 
+    def status(self, target_id: str) -> dict:
+        target = self._target(target_id)
+        inspected = self._inspect_components(list(target["containers"]))
+        return self._status_from_components(target_id, inspected)
+
+    def _invalidate_status_cache(self) -> None:
+        with self._status_cache_lock:
+            self._status_cache = None
+            self._status_cache_at = 0.0
+
     def list_statuses(self) -> list[dict]:
-        return [self.status(target_id) for target_id in self.targets]
+        with self._status_cache_lock:
+            now = time.monotonic()
+            if (
+                self._status_cache is not None
+                and now - self._status_cache_at < self.STATUS_CACHE_SECONDS
+            ):
+                return self._status_cache
+            container_names = list(
+                dict.fromkeys(
+                    name
+                    for target in self.targets.values()
+                    for name in target["containers"]
+                )
+            )
+            inspected = self._inspect_components(container_names)
+            statuses = [
+                self._status_from_components(target_id, inspected)
+                for target_id in self.targets
+            ]
+            self._status_cache = statuses
+            self._status_cache_at = time.monotonic()
+            return statuses
 
     def action(
         self, target_id: str, action: str, actor: str, request_id: str
@@ -716,7 +956,11 @@ class ServiceController:
                     command = [*prefix, "stop", "-t", "30", *services]
                 else:
                     command = [*prefix, "restart", "-t", "30", *services]
-                result = self._run(command, timeout=60)
+                self._invalidate_status_cache()
+                try:
+                    result = self._run(command, timeout=60)
+                finally:
+                    self._invalidate_status_cache()
             if result.returncode != 0:
                 self.audit.finish_service_request(
                     request_id, "failed", "service operation failed"

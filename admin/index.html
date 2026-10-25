@@ -15,7 +15,8 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="/src/styles/main.css" />
   <link rel="stylesheet" href="/src/styles/admin.css" />
-  <title>管理 | 雨苺なつき</title>
+  <link rel="stylesheet" href="/src/styles/admin-operations.css" />
+  <title>管理画面 | 雨苺なつき</title>
 </head>
 
 <body class="admin-page">
@@ -26,7 +27,7 @@
       <div class="header-inner">
         <a class="site-brand" href="/" aria-label="ホームへ戻る" data-i18n-aria="admin.backAria">
           <span class="brand-title">雨苺なつき</span>
-          <span class="brand-subtitle">ADMIN</span>
+          <span class="brand-subtitle">HOME / OPERATIONS</span>
         </a>
 
         <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu-panel"
@@ -46,9 +47,9 @@
             <div id="theme-toggle" class="segment-group" role="group" aria-label="テーマを切り替え"
               data-i18n-aria="aria.themeToggle">
               <button type="button" class="segment-option" data-theme="light" aria-pressed="false"
-                aria-label="ライトテーマ">☀</button>
+                aria-label="ライトテーマ"><span data-lucide="sun" aria-hidden="true"></span></button>
               <button type="button" class="segment-option" data-theme="dark" aria-pressed="false"
-                aria-label="ダークテーマ">☾</button>
+                aria-label="ダークテーマ"><span data-lucide="moon" aria-hidden="true"></span></button>
             </div>
             <div id="lang-toggle" class="segment-group lang-segment" role="group" aria-label="言語を切り替え"
               data-i18n-aria="aria.langToggle">
@@ -64,10 +65,8 @@
       <section class="admin-hero" aria-labelledby="admin-heading">
         <div>
           <p class="section-kicker" data-i18n="admin.kicker">PRIVATE CONTROL ROOM</p>
-          <h1 id="admin-heading" data-i18n="admin.heading">この場所を、静かに整える。</h1>
-          <p class="admin-hero-copy" data-i18n="admin.desc">
-            勤怠の確認と、Bot・Webアプリの安全な保守操作をまとめた管理者専用ページです。
-          </p>
+          <h1 id="admin-heading">サーバー管理</h1>
+          <div id="ops-connection" class="ops-connection" role="status" aria-live="polite">接続を確認しています…</div>
         </div>
         <div class="admin-identity">
           <span class="admin-identity-label" data-i18n="admin.signedIn">ログイン中</span>
@@ -75,39 +74,38 @@
         </div>
       </section>
 
-      <nav class="admin-tabs" aria-label="管理メニュー" data-i18n-aria="admin.tabsAria">
-        <button type="button" class="admin-tab is-active" data-admin-tab="overview" aria-selected="true"
-          data-i18n="admin.tabOverview">概要</button>
-        <button type="button" class="admin-tab" data-admin-tab="timecard" aria-selected="false"
-          data-i18n="admin.tabTimecard">勤怠</button>
-        <button type="button" class="admin-tab" data-admin-tab="services" aria-selected="false"
-          data-i18n="admin.tabServices">サービス</button>
-        <button type="button" class="admin-tab" data-admin-tab="audit" aria-selected="false"
-          data-i18n="admin.tabAudit">監査ログ</button>
+      <nav class="admin-tabs" role="tablist" data-active-tab="overview" aria-label="管理メニュー"
+        data-i18n-aria="admin.tabsAria">
+        <span class="ops-nav-heading" aria-hidden="true">WORKSPACE</span>
+        <button id="admin-tab-overview" type="button" role="tab" class="admin-tab is-active" data-admin-tab="overview" aria-controls="admin-panel-overview" aria-selected="true" aria-pressed="true"><span class="ops-nav-icon" data-lucide="layout-dashboard" aria-hidden="true"></span><span class="ops-nav-label">全体状況</span></button>
+        <button id="admin-tab-hosts" type="button" role="tab" class="admin-tab" data-admin-tab="hosts" aria-controls="admin-panel-hosts" aria-selected="false" aria-pressed="false"><span class="ops-nav-icon" data-lucide="server" aria-hidden="true"></span><span class="ops-nav-label">サーバー</span></button>
+        <button id="admin-tab-services" type="button" role="tab" class="admin-tab" data-admin-tab="services" aria-controls="admin-panel-services" aria-selected="false" aria-pressed="false"><span class="ops-nav-icon" data-lucide="boxes" aria-hidden="true"></span><span class="ops-nav-label">サービス</span></button>
+        <button id="admin-tab-backups" type="button" role="tab" class="admin-tab" data-admin-tab="backups" aria-controls="admin-panel-backups" aria-selected="false" aria-pressed="false"><span class="ops-nav-icon" data-lucide="database-backup" aria-hidden="true"></span><span class="ops-nav-label">バックアップ</span></button>
+        <button id="admin-tab-logs" type="button" role="tab" class="admin-tab" data-admin-tab="logs" aria-controls="admin-panel-logs" aria-selected="false" aria-pressed="false"><span class="ops-nav-icon" data-lucide="logs" aria-hidden="true"></span><span class="ops-nav-label">ログ</span></button>
+        <button id="admin-tab-ci" type="button" role="tab" class="admin-tab" data-admin-tab="ci" aria-controls="admin-panel-ci" aria-selected="false" aria-pressed="false"><span class="ops-nav-icon" data-lucide="git-branch" aria-hidden="true"></span><span class="ops-nav-label">GitHub CI</span></button>
+        <span class="ops-nav-heading" aria-hidden="true">MANAGEMENT</span>
+        <button id="admin-tab-timecard" type="button" role="tab" class="admin-tab" data-admin-tab="timecard" aria-controls="admin-panel-timecard" aria-selected="false" aria-pressed="false"><span class="ops-nav-icon" data-lucide="clock-3" aria-hidden="true"></span><span class="ops-nav-label">勤怠管理</span></button>
+        <button id="admin-tab-audit" type="button" role="tab" class="admin-tab" data-admin-tab="audit" aria-controls="admin-panel-audit" aria-selected="false" aria-pressed="false"><span class="ops-nav-icon" data-lucide="history" aria-hidden="true"></span><span class="ops-nav-label">操作履歴</span></button>
+        <span class="ops-nav-footer" aria-hidden="true">PRIVATE ENVIRONMENT<br />RYZEN + INTEL</span>
       </nav>
+
+      <div class="ops-demo" id="ops-demo" hidden><strong>ローカル検証 / SAMPLE DATA</strong><span>表示値は検証用です。本番のデータではありません。</span><label>検証シナリオ<select id="ops-scenario"><option value="normal">正常</option><option value="backup-failure">バックアップ失敗</option><option value="disk-missing">HDD未接続</option><option value="low-space">容量不足</option><option value="collector-offline">監視通信停止</option><option value="service-failure">サービス異常</option><option value="ci-failure">CI失敗</option><option value="ci-idle">CI待機中</option><option value="ci-offline">CI未稼働</option></select></label></div>
 
       <div id="admin-global-message" class="admin-message" role="status" aria-live="polite" hidden></div>
 
-      <section class="admin-panel is-active" data-admin-panel="overview" aria-labelledby="overview-heading">
-        <div class="admin-section-heading">
-          <div>
-            <p class="section-kicker" data-i18n="admin.overviewKicker">OVERVIEW</p>
-            <h2 id="overview-heading" data-i18n="admin.overviewHeading">いまの全体像</h2>
-          </div>
-          <button type="button" class="admin-button admin-button-secondary" data-refresh="overview"
-            data-i18n="admin.refresh">更新</button>
-        </div>
-        <div id="admin-overview-cards" class="admin-summary-grid" aria-busy="true"></div>
-        <div class="admin-card">
-          <div class="admin-card-heading">
-            <h3 data-i18n="admin.serviceSnapshot">サービスの状態</h3>
-            <span id="overview-updated">—</span>
-          </div>
-          <div id="overview-services" class="admin-compact-list"></div>
-        </div>
+      <div class="ops-demo ops-live-source" id="ops-live-source" hidden></div>
+      <section id="admin-panel-overview" class="admin-panel is-active" role="tabpanel" tabindex="0"
+        data-admin-panel="overview" aria-labelledby="admin-tab-overview">
+        <div id="ops-overview"></div>
       </section>
 
-      <section class="admin-panel" data-admin-panel="timecard" aria-labelledby="timecard-heading" hidden>
+      <section id="admin-panel-hosts" class="admin-panel" role="tabpanel" tabindex="0" data-admin-panel="hosts" aria-labelledby="admin-tab-hosts" hidden><div id="ops-hosts"></div></section>
+      <section id="admin-panel-backups" class="admin-panel" role="tabpanel" tabindex="0" data-admin-panel="backups" aria-labelledby="admin-tab-backups" hidden><div id="ops-backups"></div></section>
+      <section id="admin-panel-logs" class="admin-panel" role="tabpanel" tabindex="0" data-admin-panel="logs" aria-labelledby="admin-tab-logs" hidden><div id="ops-logs"></div></section>
+      <section id="admin-panel-ci" class="admin-panel" role="tabpanel" tabindex="0" data-admin-panel="ci" aria-labelledby="admin-tab-ci" hidden><div id="ops-ci"></div></section>
+
+      <section id="admin-panel-timecard" class="admin-panel" role="tabpanel" tabindex="0"
+        data-admin-panel="timecard" aria-labelledby="admin-tab-timecard timecard-heading" hidden>
         <div class="admin-section-heading">
           <div>
             <p class="section-kicker" data-i18n="admin.timecardKicker">TIMECARD</p>
@@ -116,6 +114,10 @@
           <button type="button" class="admin-button admin-button-secondary" data-refresh="timecard"
             data-i18n="admin.refresh">更新</button>
         </div>
+
+        <p class="admin-timezone-note" data-i18n="admin.timezoneNote">
+          日時は日本標準時（JST）で表示しています。旧形式から再取り込みされた記録や重複記録は集計から除外しています。
+        </p>
 
         <form id="timecard-filters" class="admin-filter-bar">
           <label>
@@ -134,16 +136,6 @@
         </form>
 
         <div id="timecard-summary" class="admin-summary-grid" aria-busy="true"></div>
-
-        <div class="admin-card">
-          <div class="admin-card-heading">
-            <div>
-              <p class="admin-card-kicker" data-i18n="admin.activeNow">ACTIVE NOW</p>
-              <h3 data-i18n="admin.activeAttendance">現在の出勤状況</h3>
-            </div>
-          </div>
-          <div id="timecard-active-list" class="admin-compact-list"></div>
-        </div>
 
         <div class="admin-card">
           <div class="admin-card-heading">
@@ -177,9 +169,30 @@
               data-i18n="admin.next">次へ</button>
           </div>
         </div>
+
+        <div class="admin-card">
+          <div class="admin-card-heading">
+            <div>
+              <p class="admin-card-kicker" data-i18n="admin.activeNow">CURRENT STATUS</p>
+              <h3 data-i18n="admin.activeAttendance">現在の勤怠状況</h3>
+            </div>
+            <span id="timecard-live-status" class="admin-live-status" data-state="online"
+              aria-live="polite">
+              <span class="admin-state-dot" data-live-status-dot data-state="online"></span>
+              <span data-live-status-label>10秒ごとに自動更新</span>
+            </span>
+          </div>
+          <p class="admin-card-description" data-i18n="admin.activeAttendanceNote">
+            全メンバーの状態を表示します。勤務中・休憩中の場合は開始時刻と経過時間も確認できます。
+          </p>
+          <div id="timecard-active-list" class="admin-compact-list"></div>
+        </div>
       </section>
 
-      <section class="admin-panel" data-admin-panel="services" aria-labelledby="services-heading" hidden>
+      <section id="admin-panel-services" class="admin-panel" role="tabpanel" tabindex="0"
+        data-admin-panel="services" aria-labelledby="admin-tab-services services-heading" hidden>
+        <div id="ops-services"></div>
+        <details class="ops-existing-actions"><summary>保守操作 / Maintenance controls</summary>
         <div class="admin-section-heading">
           <div>
             <p class="section-kicker" data-i18n="admin.servicesKicker">MAINTENANCE</p>
@@ -192,9 +205,11 @@
           データベース、トンネル、デプロイ機構は操作対象に含まれません。
         </p>
         <div id="admin-services-grid" class="admin-services-grid" aria-busy="true"></div>
+        </details>
       </section>
 
-      <section class="admin-panel" data-admin-panel="audit" aria-labelledby="audit-heading" hidden>
+      <section id="admin-panel-audit" class="admin-panel" role="tabpanel" tabindex="0"
+        data-admin-panel="audit" aria-labelledby="admin-tab-audit audit-heading" hidden>
         <div class="admin-section-heading">
           <div>
             <p class="section-kicker" data-i18n="admin.auditKicker">AUDIT TRAIL</p>
@@ -225,6 +240,8 @@
         </div>
       </form>
     </dialog>
+
+    <dialog id="ops-ci-dialog" class="admin-dialog ops-log-dialog"><form method="dialog"><div class="ops-card-title"><h2>CI / Job logs</h2><button class="admin-button admin-button-secondary" value="close">閉じる / Close</button></div><pre id="ops-ci-log"></pre></form></dialog>
 
     <dialog id="attendance-edit-dialog" class="admin-dialog admin-dialog-wide">
       <form id="attendance-edit-form">

@@ -1,0 +1,11 @@
+{
+  "hostId": "ryzen",
+  "intervalSeconds": 10,
+  "backupRefreshSeconds": 300,
+  "discoverDisks": true,
+  "ingestUrl": "https://monitoring.example.invalid/internal/monitoring/v1/hosts/ryzen",
+  "secretFile": "/etc/mu-monitoring/collector-key",
+  "disks": [{"path": "/"}, {"path": "/srv/storage", "mountpoint": "/srv/storage", "expectedUuid": "REPLACE_WITH_VERIFIED_UUID"}],
+  "services": [{"id": "example-app", "name": "Example application", "kind": "docker", "target": "example-app", "logs": true}],
+  "backups": [{"id": "vrnavi", "name": "ぶいなび 主バックアップ", "role": "primary", "configFile": "/etc/vrnavi-backup/config.json", "resticBinary": "/usr/local/bin/restic", "disk": {"mountpoint": "/srv/storage", "expectedUuid": "REPLACE_WITH_VERIFIED_UUID"}}]
+}

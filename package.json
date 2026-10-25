@@ -6,14 +6,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:monitoring": "vite --config vite.monitoring.config.js",
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test tests/*.test.js",
+    "test:monitoring:browser": "node tests/admin-monitoring.browser.mjs",
     "resize-images": "node scripts/resize-images.js",
     "convert-webp": "node scripts/convert-to-webp.js"
   },
   "devDependencies": {
+    "playwright": "^1.62.1",
     "sharp": "^0.35.3",
     "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "lucide": "^1.61.0"
   }
 }

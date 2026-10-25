@@ -13,6 +13,9 @@ dist-ssr
 *.local
 .admin.env
 server/admin-runtime/
+.local/
+__pycache__/
+*.pyc
 
 # Editor directories and files
 .vscode/*

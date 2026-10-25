@@ -1,0 +1,32 @@
+# Overlay on the existing web-server Compose files. Never start the entire project.
+services:
+  apache:
+    volumes:
+      - /home/natuki/services/monitoring/config/apache-monitoring.conf:/usr/local/apache2/conf/extra/monitoring.conf:ro
+  admin-api:
+    image: mu-monitoring-api:readiness
+    environment:
+      APP_ENV: production
+      ADMIN_TEST_AUTH_EMAIL: ""
+      ADMIN_MONITOR_CONFIG: /etc/mu-monitoring/api.json
+    volumes:
+      - /home/natuki/services/monitoring/config/api.json:/etc/mu-monitoring/api.json:ro
+      - /home/natuki/services/monitoring/secrets:/run/monitoring-secrets:ro
+      - /home/natuki/services/monitoring/state:/var/lib/mu-monitoring
+
+  monitoring-ingest:
+    image: nginx@sha256:47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951
+    user: "1000:1000"
+    read_only: true
+    restart: unless-stopped
+    entrypoint: ["nginx", "-g", "daemon off;"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+    mem_limit: 96m
+    cpus: 0.5
+    ports: ["192.168.1.10:18443:8443"]
+    volumes:
+      - /home/natuki/services/monitoring/config/ingest.conf:/etc/nginx/nginx.conf:ro
+      - /home/natuki/services/monitoring/tls:/tls:ro
+    depends_on: [admin-api]

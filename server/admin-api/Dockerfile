@@ -9,6 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
+COPY monitoring_*.py .
 
 FROM base AS test
 
@@ -16,8 +17,9 @@ COPY requirements-test.txt .
 RUN pip install --no-cache-dir -r requirements-test.txt
 
 COPY test_app.py .
+COPY test_monitoring*.py .
 
-CMD ["python", "-m", "unittest", "-v", "test_app.py"]
+CMD ["python", "-m", "unittest", "discover", "-p", "test*.py", "-v"]
 
 FROM base AS production
 

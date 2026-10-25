@@ -1,0 +1,19 @@
+{
+  "database": "/var/lib/mu-monitoring/observations.sqlite",
+  "staleAfterSeconds": 45,
+  "hosts": [
+    {"id": "ryzen", "name": "Ryzen", "secretFile": "/run/secrets/ryzen-monitor-key"},
+    {"id": "intel", "name": "Intel", "secretFile": "/run/secrets/intel-monitor-key"}
+  ],
+  "github": {
+    "repositories": [],
+    "tokenFile": "/run/secrets/github-read-token",
+    "webhookSecretFile": "/run/secrets/github-webhook-key",
+    "pollSeconds": 60,
+    "includeRunners": false,
+    "runnerHosts": {
+      "ryzen": {"maxJobs": null, "runnerNames": []},
+      "intel": {"maxJobs": null, "runnerNames": []}
+    }
+  }
+}

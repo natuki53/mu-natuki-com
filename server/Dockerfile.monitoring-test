@@ -1,0 +1,8 @@
+FROM python:3.13-slim
+RUN apt-get update && apt-get install -y --no-install-recommends restic util-linux coreutils && rm -rf /var/lib/apt/lists/*
+WORKDIR /tests
+COPY admin-api/requirements.txt admin-api/requirements-test.txt requirements-monitoring.txt ./
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-test.txt -r requirements-monitoring.txt
+COPY . .
+ENV MONITOR_RESTIC_INTEGRATION=1 PYTHONDONTWRITEBYTECODE=1
+CMD ["python", "run-tests.py"]

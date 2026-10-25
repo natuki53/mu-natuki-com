@@ -9,6 +9,7 @@ import io
 import json
 import os
 import socket
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated
@@ -18,6 +19,9 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, Response
 from jwt import PyJWKClient
 from pydantic import BaseModel, Field
+from monitoring_store import MonitorStore
+from monitoring_github import GitHubMonitor
+from monitoring_routes import install_monitoring
 
 
 @dataclass(frozen=True)
@@ -32,6 +36,7 @@ class Settings:
     public_status_dir: str
     app_env: str = "production"
     test_auth_email: str | None = None
+    monitoring_config: str | None = None
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -52,6 +57,7 @@ class Settings:
             ),
             app_env=os.getenv("APP_ENV", "production"),
             test_auth_email=os.getenv("ADMIN_TEST_AUTH_EMAIL"),
+            monitoring_config=os.getenv("ADMIN_MONITOR_CONFIG"),
         )
 
 
@@ -214,6 +220,7 @@ class AttendanceCorrection(BaseModel):
 def create_app(
     settings: Settings | None = None,
     broker: BrokerClient | None = None,
+    monitor_store: MonitorStore | None = None,
 ) -> FastAPI:
     settings = settings or Settings.from_env()
     if len(settings.broker_secret) < 32:
@@ -225,12 +232,25 @@ def create_app(
     )
     authenticator = AccessAuthenticator(settings)
     csrf_tokens = CsrfTokens(settings.csrf_secret)
+    config = json.loads(Path(settings.monitoring_config).read_text()) if settings.monitoring_config else {}
+    monitor_store = monitor_store or MonitorStore(config)
+    github_monitor = GitHubMonitor(monitor_store)
+
+    @asynccontextmanager
+    async def lifespan(_app):
+        github_monitor.start()
+        yield
+        github_monitor.stop()
+
     app = FastAPI(
         title="mu-natuki Administration API",
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
+        lifespan=lifespan,
     )
+    app.state.monitor_store = monitor_store
+    app.state.github_monitor = github_monitor
 
     @app.middleware("http")
     async def security_headers(request: Request, call_next):
@@ -462,6 +482,7 @@ def create_app(
     ):
         return {"items": broker_call("audit.list", user, {"limit": limit})}
 
+    install_monitoring(app, current_user, monitor_store, github_monitor)
     return app
 
 

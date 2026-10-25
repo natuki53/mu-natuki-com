@@ -1,0 +1,11 @@
+{
+  "hosts": [
+    {"id": "ryzen", "name": "Ryzen", "sshAlias": "home-server-2", "runnerLabel": "ci-host-ryzen", "directRunnerNames": [], "machineRunners": {},
+      "operations": {"expectedRunning": ["example-app"], "logTargets": ["example-app"], "systemdServices": [], "backups": [
+        {"id": "vrnavi", "name": "Primary backup", "role": "primary", "configFile": "/home/backup/vrnavi-backup/private/config.json", "resticBinary": "/home/backup/vrnavi-backup/bin/restic"}
+      ]}},
+    {"id": "intel", "name": "Intel", "sshAlias": "home-server", "runnerLabel": "ci-host-intel", "directRunnerNames": [], "machineRunners": {}}
+  ],
+  "github": {"repositories": ["owner/repository"], "includeRunners": true},
+  "workflowConstraints": []
+}

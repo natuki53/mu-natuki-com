@@ -64,6 +64,9 @@ NetdataのAPIやダッシュボードをブラウザへ直接公開しません�
 
 ## 管理者向け管理画面
 
+管理画面を自宅サーバー用の運用画面へ拡張し、ホスト・サービス・ログ・バックアップ・GitHub CIを確認できます。
+ローカルのサンプル起動、情報の取得方法、検証、導入手順は[自宅サーバー管理画面](docs/home-monitoring.md)を参照してください。
+
 `/admin/`はCloudflare Accessで保護する管理者専用ページです。Timecard Botの月別集計、
 出勤中一覧、CSV出力、完了済み勤務の訂正と、固定したBot・Webアプリの
 開始・停止・再起動を提供します。
@@ -74,6 +77,6 @@ NetdataのAPIやダッシュボードをブラウザへ直接公開しません�
 
 対象はTimecard、VOICEVOX Bot、VOICEVOX Engine、YouTube Bot、NearEats、Yorimoに
 固定されています。DB、Cloudflare Tunnel、デプロイ受信機、Apache、ホストOS、
-任意コマンド、ログ閲覧は管理画面から操作できません。
+任意コマンドは管理画面から操作できません。ログの閲覧は専用の監視機能で登録した対象だけに限定されます。
 
 サーバーへの導入手順と秘密設定は[`server/README.md`](server/README.md)を参照してください。

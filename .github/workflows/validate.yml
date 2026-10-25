@@ -1,0 +1,28 @@
+name: Validate administration and monitoring
+
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Build Linux verification image
+        run: docker build -f server/Dockerfile.monitoring-test -t mu-monitoring-test server
+      - name: Verify API, collectors, broker and Timecard without network access
+        run: docker run --rm --network none mu-monitoring-test
+      - name: Verify credential setup without real credentials
+        run: docker run --rm --network none --mount "type=bind,source=$PWD,target=/source,readonly" mu-monitoring-test python -B /source/tests/test_github_token_setup.py -v

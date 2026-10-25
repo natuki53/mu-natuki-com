@@ -240,7 +240,7 @@ export const en = {
 
   'admin.backAria': 'Back to the home page',
   'admin.kicker': 'PRIVATE CONTROL ROOM',
-  'admin.heading': 'A quiet place to keep everything in order.',
+  'admin.heading': 'Administration',
   'admin.desc':
     'A private administration page for reviewing attendance and safely maintaining bots and web apps.',
   'admin.signedIn': 'Signed in',
@@ -255,13 +255,17 @@ export const en = {
   'admin.serviceSnapshot': 'Service status',
   'admin.timecardKicker': 'TIMECARD',
   'admin.timecardHeading': 'Review attendance',
+  'admin.timezoneNote':
+    'Dates and times are shown in Japan Standard Time (JST). Re-imported legacy and duplicate records are excluded.',
   'admin.month': 'Month',
   'admin.member': 'Member',
   'admin.allMembers': 'All members',
   'admin.apply': 'Apply',
   'admin.exportCsv': 'Export CSV',
-  'admin.activeNow': 'ACTIVE NOW',
-  'admin.activeAttendance': 'Current attendance',
+  'admin.activeNow': 'CURRENT STATUS',
+  'admin.activeAttendance': 'Current attendance status',
+  'admin.activeAttendanceNote':
+    'Shows every member. Active shifts and breaks include their start time and elapsed duration.',
   'admin.completedRecords': 'COMPLETED',
   'admin.attendanceRecords': 'Attendance records',
   'admin.clockIn': 'Clock in',
