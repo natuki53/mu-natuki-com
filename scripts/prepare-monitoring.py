@@ -23,20 +23,32 @@ def certificate_files(folder):
     from cryptography import x509
     from cryptography.hazmat.primitives import hashes, serialization
     from cryptography.hazmat.primitives.asymmetric import rsa
-    from cryptography.x509.oid import NameOID
+    from cryptography.x509.oid import NameOID, ExtendedKeyUsageOID
     now = dt.datetime.now(dt.timezone.utc)
     key = rsa.generate_private_key(public_exponent=65537, key_size=3072)
     name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'Home monitoring private CA')])
     ca = (x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(key.public_key())
           .serial_number(x509.random_serial_number()).not_valid_before(now-dt.timedelta(minutes=5))
           .not_valid_after(now+dt.timedelta(days=1825)).add_extension(x509.BasicConstraints(ca=True,path_length=0),critical=True)
+          .add_extension(x509.SubjectKeyIdentifier.from_public_key(key.public_key()),critical=False)
+          .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(key.public_key()),critical=False)
+          .add_extension(x509.KeyUsage(digital_signature=False,content_commitment=False,key_encipherment=False,
+              data_encipherment=False,key_agreement=False,key_cert_sign=True,crl_sign=True,
+              encipher_only=False,decipher_only=False),critical=True)
           .sign(key,hashes.SHA256()))
     server = rsa.generate_private_key(public_exponent=65537,key_size=3072)
     cert = (x509.CertificateBuilder().subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME,'192.168.1.10')]))
             .issuer_name(name).public_key(server.public_key()).serial_number(x509.random_serial_number())
             .not_valid_before(now-dt.timedelta(minutes=5)).not_valid_after(now+dt.timedelta(days=365))
             .add_extension(x509.SubjectAlternativeName([x509.IPAddress(ipaddress.ip_address('192.168.1.10'))]),critical=False)
-            .add_extension(x509.BasicConstraints(ca=False,path_length=None),critical=True).sign(key,hashes.SHA256()))
+            .add_extension(x509.BasicConstraints(ca=False,path_length=None),critical=True)
+            .add_extension(x509.SubjectKeyIdentifier.from_public_key(server.public_key()),critical=False)
+            .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(key.public_key()),critical=False)
+            .add_extension(x509.KeyUsage(digital_signature=True,content_commitment=False,key_encipherment=True,
+                data_encipherment=False,key_agreement=False,key_cert_sign=False,crl_sign=False,
+                encipher_only=False,decipher_only=False),critical=True)
+            .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]),critical=False)
+            .sign(key,hashes.SHA256()))
     pem=serialization.Encoding.PEM
     folder.mkdir(parents=True)
     (folder/'ca.crt').write_bytes(ca.public_bytes(pem))
