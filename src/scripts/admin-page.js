@@ -1,5 +1,8 @@
+import { createObservability } from './admin-observability.js';
+
 const API_ROOT = '/api/admin/v1';
 const REQUEST_TIMEOUT_MS = 15000;
+const ATTENDANCE_POLL_MS = 10_000;
 
 const dynamicCopy = {
   ja: {
@@ -9,16 +12,33 @@ const dynamicCopy = {
     online: '稼働中',
     degraded: '一部異常',
     offline: '停止中',
+    running: '稼働中',
+    stopped: '停止中',
+    restarting: '再起動中',
+    unhealthy: '異常',
     activeCount: '出勤中',
     servicesOnline: '稼働サービス',
     hostCpu: 'CPU',
     hostMemory: 'メモリ',
+    currentUsage: '現在の使用率',
     shifts: '勤務回数',
     workDays: '勤務日数',
+    totalWorkDays: '延べ勤務日数',
     workTotal: '勤務合計',
     breakTotal: '休憩合計',
     working: '勤務中',
     break: '休憩中',
+    offDuty: '未出勤',
+    noCurrentShift: '現在は勤務していません',
+    clockedInAt: (time) => `出勤 ${time}`,
+    breakStartedAt: (time) => `休憩開始 ${time}`,
+    workedDuration: (duration) => `勤務 ${duration}`,
+    cumulativeBreak: (duration) => `累計休憩 ${duration}`,
+    autoRefreshWaiting: '10秒ごとに自動更新',
+    autoRefreshUpdated: (time) => `自動更新 · ${time}`,
+    autoRefreshRetrying: '自動更新 · 再試行中',
+    excludedRecords: (count) => `旧形式・不整合な記録 ${count}件を除外`,
+    completedRecordsOnly: (count) => `退勤済み ${count}件の合計`,
     records: (count) => `${count}件`,
     edit: '修正',
     start: '開始',
@@ -41,16 +61,33 @@ const dynamicCopy = {
     online: 'Online',
     degraded: 'Degraded',
     offline: 'Stopped',
+    running: 'Running',
+    stopped: 'Stopped',
+    restarting: 'Restarting',
+    unhealthy: 'Unhealthy',
     activeCount: 'Clocked in',
     servicesOnline: 'Services online',
     hostCpu: 'CPU',
     hostMemory: 'Memory',
+    currentUsage: 'Current usage',
     shifts: 'Shifts',
     workDays: 'Work days',
+    totalWorkDays: 'Total work days',
     workTotal: 'Total work',
     breakTotal: 'Total breaks',
     working: 'Working',
     break: 'On break',
+    offDuty: 'Not clocked in',
+    noCurrentShift: 'No current shift',
+    clockedInAt: (time) => `Clocked in ${time}`,
+    breakStartedAt: (time) => `Break started ${time}`,
+    workedDuration: (duration) => `Worked ${duration}`,
+    cumulativeBreak: (duration) => `Total breaks ${duration}`,
+    autoRefreshWaiting: 'Auto-refresh every 10 seconds',
+    autoRefreshUpdated: (time) => `Auto-refreshed · ${time}`,
+    autoRefreshRetrying: 'Auto-refresh · retrying',
+    excludedRecords: (count) => `${count} legacy or inconsistent records excluded`,
+    completedRecordsOnly: (count) => `Total for ${count} completed shifts`,
     records: (count) => `${count} records`,
     edit: 'Edit',
     start: 'Start',
@@ -72,6 +109,11 @@ const state = {
   session: null,
   activeTab: 'overview',
   services: [],
+  members: [],
+  attendanceStatuses: [],
+  activeAttendanceItems: [],
+  activeAttendanceFetchedAt: 0,
+  timecardSummary: null,
   records: [],
   recordTotal: 0,
   recordPage: 1,
@@ -79,6 +121,10 @@ const state = {
   editingRecord: null,
   pendingServiceAction: null,
 };
+
+let attendancePollTimer = null;
+let activeAttendanceRequest = null;
+let attendanceAutoRefreshPromise = null;
 
 const language = () => (document.documentElement.lang === 'en' ? 'en' : 'ja');
 const copy = () => dynamicCopy[language()];
@@ -142,6 +188,16 @@ const formatDuration = (seconds) => {
   return language() === 'en' ? `${hours}h ${minutes}m` : `${hours}時間 ${minutes}分`;
 };
 
+const formatLiveDuration = (seconds) => {
+  const totalSeconds = Math.max(0, Math.floor(Number(seconds) || 0));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const remainingSeconds = totalSeconds % 60;
+  return language() === 'en'
+    ? `${hours}h ${minutes}m ${String(remainingSeconds).padStart(2, '0')}s`
+    : `${hours}時間 ${minutes}分 ${String(remainingSeconds).padStart(2, '0')}秒`;
+};
+
 const formatDateTime = (value, includeDate = true) => {
   if (!value) return '—';
   const parsed = new Date(value);
@@ -150,18 +206,47 @@ const formatDateTime = (value, includeDate = true) => {
     ...(includeDate ? { month: 'short', day: 'numeric' } : {}),
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'Asia/Tokyo',
   }).format(parsed);
 };
 
+const formatTimeWithSeconds = (value) =>
+  new Intl.DateTimeFormat(language() === 'en' ? 'en-US' : 'ja-JP', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Asia/Tokyo',
+  }).format(value);
+
 const stateLabel = (value) => copy()[value] || value;
 
-const summaryCard = (label, value, note = '') => `
-  <article class="admin-summary-card">
+const percentage = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.min(100, Math.max(0, parsed)) : null;
+};
+
+const summaryCard = (label, value, note = '', progress = null, tone = 'lavender') => {
+  const safeProgress = percentage(progress);
+  const chart =
+    safeProgress === null
+      ? ''
+      : `
+        <div class="admin-metric-chart" role="progressbar"
+          aria-label="${escapeHtml(label)}" aria-valuemin="0" aria-valuemax="100"
+          aria-valuenow="${Math.round(safeProgress)}">
+          <span style="--admin-metric-value: ${safeProgress}"></span>
+        </div>
+      `;
+  return `
+  <article class="admin-summary-card" data-tone="${escapeHtml(tone)}">
     <span>${escapeHtml(label)}</span>
     <strong>${escapeHtml(value)}</strong>
     ${note ? `<small>${escapeHtml(note)}</small>` : ''}
+    ${chart}
   </article>
 `;
+};
 
 const loadOverview = async () => {
   const root = document.getElementById('admin-overview-cards');
@@ -172,12 +257,33 @@ const loadOverview = async () => {
     state.services = data.services || [];
     const online = state.services.filter((service) => service.state === 'online').length;
     const host = data.publicStatus?.['server-status'];
+    const cpu = percentage(host?.cpuPct);
+    const memory = percentage(host?.memoryPct);
+    const serviceRatio = state.services.length ? (online / state.services.length) * 100 : null;
     if (root) {
       root.innerHTML = [
-        summaryCard(copy().servicesOnline, `${online} / ${state.services.length}`),
+        summaryCard(
+          copy().servicesOnline,
+          `${online} / ${state.services.length}`,
+          '',
+          serviceRatio,
+          'services',
+        ),
         summaryCard(copy().activeCount, String(data.activeAttendanceCount ?? 0)),
-        summaryCard(copy().hostCpu, host ? `${Math.round(host.cpuPct)}%` : '—'),
-        summaryCard(copy().hostMemory, host ? `${Math.round(host.memoryPct)}%` : '—'),
+        summaryCard(
+          copy().hostCpu,
+          cpu === null ? '—' : `${Math.round(cpu)}%`,
+          copy().currentUsage,
+          cpu,
+          'cpu',
+        ),
+        summaryCard(
+          copy().hostMemory,
+          memory === null ? '—' : `${Math.round(memory)}%`,
+          copy().currentUsage,
+          memory,
+          'memory',
+        ),
       ].join('');
     }
     if (list) {
@@ -216,48 +322,162 @@ const queryForFilters = () => {
 
 const loadMembers = async () => {
   const select = document.getElementById('timecard-member');
-  if (!select) return;
-  const current = select.value;
   const data = await request('/timecard/members');
+  state.members = data.items || [];
+  if (!select) return state.members;
+  const current = select.value;
   const allLabel = language() === 'en' ? 'All members' : '全員';
-  select.innerHTML = `<option value="">${allLabel}</option>${(data.items || [])
+  select.innerHTML = `<option value="">${allLabel}</option>${state.members
     .map(
       (member) =>
         `<option value="${escapeHtml(member.id)}">${escapeHtml(member.displayName)}</option>`,
     )
     .join('')}`;
   if ([...select.options].some((option) => option.value === current)) select.value = current;
+  return state.members;
 };
 
 const renderTimecardSummary = (summary) => {
   const root = document.getElementById('timecard-summary');
   if (!root) return;
+  state.timecardSummary = summary;
+  const excluded = Number(summary.excludedRecordCount || 0);
+  const completedNote = copy().completedRecordsOnly(
+    Number(summary.recordCount ?? summary.shiftCount ?? 0),
+  );
   root.innerHTML = [
-    summaryCard(copy().shifts, String(summary.shiftCount ?? 0)),
-    summaryCard(copy().workDays, String(summary.workDayCount ?? 0)),
-    summaryCard(copy().workTotal, formatDuration(summary.workSeconds)),
-    summaryCard(copy().breakTotal, formatDuration(summary.breakSeconds)),
+    summaryCard(
+      copy().shifts,
+      String(summary.shiftCount ?? 0),
+      excluded > 0 ? copy().excludedRecords(excluded) : '',
+    ),
+    summaryCard(
+      memberValue() ? copy().workDays : copy().totalWorkDays,
+      String(summary.workDayCount ?? 0),
+    ),
+    summaryCard(copy().workTotal, formatDuration(summary.workSeconds), completedNote),
+    summaryCard(copy().breakTotal, formatDuration(summary.breakSeconds), completedNote),
   ].join('');
   root.setAttribute('aria-busy', 'false');
 };
 
-const renderActiveAttendance = (items) => {
+const attendanceKey = (_guildId, memberId) => String(memberId);
+
+const mergeAttendanceStatuses = (activeItems) => {
+  const activeByMember = new Map(
+    activeItems.map((item) => [attendanceKey(item.guildId, item.memberId), item]),
+  );
+  const knownKeys = new Set();
+  const statuses = state.members.map((member) => {
+    const key = attendanceKey(member.guildId, member.id);
+    knownKeys.add(key);
+    return (
+      activeByMember.get(key) || {
+        guildId: member.guildId,
+        memberId: member.id,
+        displayName: member.displayName,
+        state: 'offDuty',
+      }
+    );
+  });
+  activeItems.forEach((item) => {
+    if (!knownKeys.has(attendanceKey(item.guildId, item.memberId))) statuses.push(item);
+  });
+  const stateOrder = { working: 0, break: 1, offDuty: 2 };
+  return statuses.sort(
+    (left, right) =>
+      (stateOrder[left.state] ?? 3) - (stateOrder[right.state] ?? 3) ||
+      left.displayName.localeCompare(right.displayName, language() === 'en' ? 'en' : 'ja'),
+  );
+};
+
+const attendanceDetail = (item) => {
+  if (item.state === 'offDuty') {
+    return {
+      state: copy().offDuty,
+      timing: copy().noCurrentShift,
+      tone: 'idle',
+    };
+  }
+  const isBreak = item.state === 'break';
+  const secondsSinceRefresh = state.activeAttendanceFetchedAt
+    ? Math.max(0, Math.floor((Date.now() - state.activeAttendanceFetchedAt) / 1000))
+    : 0;
+  const duration = isBreak
+    ? Number(item.currentBreakSeconds || 0) + secondsSinceRefresh
+    : Number(item.workSeconds || 0) + secondsSinceRefresh;
+  const times = [copy().clockedInAt(formatDateTime(item.startAt, false))];
+  if (isBreak) {
+    times.push(copy().breakStartedAt(formatDateTime(item.breakStartedAt, false)));
+    times.push(copy().workedDuration(formatDuration(item.workSeconds)));
+    times.push(
+      copy().cumulativeBreak(
+        formatDuration(Number(item.breakSeconds || 0) + secondsSinceRefresh),
+      ),
+    );
+  }
+  return {
+    state: `${copy()[item.state]} · ${formatLiveDuration(duration)}`,
+    timing: times.join(' / '),
+    tone: isBreak ? 'degraded' : 'online',
+  };
+};
+
+const renderAttendanceStatuses = () => {
   const root = document.getElementById('timecard-active-list');
   if (!root) return;
-  root.innerHTML = items.length
-    ? items
+  root.innerHTML = state.attendanceStatuses.length
+    ? state.attendanceStatuses
         .map(
-          (item) => `
+          (item) => {
+            const detail = attendanceDetail(item);
+            return `
             <div class="admin-compact-row admin-active-row">
-              <span class="admin-state-dot" data-state="${item.state === 'break' ? 'degraded' : 'online'}"></span>
+              <span class="admin-state-dot" data-state="${detail.tone}"></span>
               <strong>${escapeHtml(item.displayName)}</strong>
-              <span>${escapeHtml(copy()[item.state])} · ${escapeHtml(formatDuration(item.workSeconds))}</span>
-              <small>${escapeHtml(formatDateTime(item.startAt))}</small>
+              <span class="admin-attendance-state" data-state="${escapeHtml(item.state)}">
+                ${escapeHtml(detail.state)}
+              </span>
+              <small>${escapeHtml(detail.timing)}</small>
             </div>
-          `,
+          `;
+          },
         )
         .join('')
     : `<p class="admin-empty">${escapeHtml(copy().noData)}</p>`;
+};
+
+const renderActiveAttendance = (items) => {
+  state.activeAttendanceItems = items;
+  state.activeAttendanceFetchedAt = Date.now();
+  state.attendanceStatuses = mergeAttendanceStatuses(items);
+  renderAttendanceStatuses();
+};
+
+const setAttendanceLiveStatus = (status, updatedAt = null) => {
+  const root = document.getElementById('timecard-live-status');
+  const dot = root?.querySelector('[data-live-status-dot]');
+  const label = root?.querySelector('[data-live-status-label]');
+  const stateName = status === 'retrying' ? 'degraded' : 'online';
+  if (root) root.dataset.state = stateName;
+  if (dot) dot.dataset.state = stateName;
+  if (!label) return;
+  if (status === 'retrying') {
+    label.textContent = copy().autoRefreshRetrying;
+  } else if (updatedAt) {
+    label.textContent = copy().autoRefreshUpdated(formatTimeWithSeconds(updatedAt));
+  } else {
+    label.textContent = copy().autoRefreshWaiting;
+  }
+};
+
+const fetchActiveAttendance = () => {
+  if (!activeAttendanceRequest) {
+    activeAttendanceRequest = request('/timecard/active').finally(() => {
+      activeAttendanceRequest = null;
+    });
+  }
+  return activeAttendanceRequest;
 };
 
 const renderRecords = (data) => {
@@ -302,18 +522,72 @@ const loadTimecard = async () => {
   const summaryRoot = document.getElementById('timecard-summary');
   summaryRoot?.setAttribute('aria-busy', 'true');
   const query = queryForFilters();
-  const [summary, active, records] = await Promise.all([
+  const [, summary, active, records] = await Promise.all([
+    loadMembers(),
     request(`/timecard/summary?${query}`),
-    request('/timecard/active'),
+    fetchActiveAttendance(),
     request(
       `/timecard/records?${query}&page=${state.recordPage}&pageSize=${state.recordPageSize}`,
     ),
   ]);
   renderTimecardSummary(summary);
   renderActiveAttendance(active.items || []);
+  setAttendanceLiveStatus('ready', new Date());
   renderRecords(records);
   const exportLink = document.getElementById('timecard-export');
   if (exportLink) exportLink.href = `${API_ROOT}/timecard/export.csv?${query}`;
+};
+
+const activeAttendanceKey = (item) =>
+  `${String(item.guildId || '')}:${String(item.memberId || '')}`;
+
+const hasCompletedShiftSince = (previousItems, nextItems) => {
+  const nextByMember = new Map(
+    nextItems.map((item) => [activeAttendanceKey(item), item]),
+  );
+  return previousItems.some((item) => {
+    const next = nextByMember.get(activeAttendanceKey(item));
+    return !next || next.startAt !== item.startAt;
+  });
+};
+
+const stopAttendancePolling = () => {
+  if (attendancePollTimer !== null) {
+    window.clearTimeout(attendancePollTimer);
+    attendancePollTimer = null;
+  }
+};
+
+const scheduleAttendancePolling = () => {
+  stopAttendancePolling();
+  if (state.activeTab !== 'timecard' || document.visibilityState !== 'visible') return;
+  attendancePollTimer = window.setTimeout(refreshAttendanceAutomatically, ATTENDANCE_POLL_MS);
+};
+
+const refreshAttendanceAutomatically = () => {
+  attendancePollTimer = null;
+  if (state.activeTab !== 'timecard' || document.visibilityState !== 'visible') {
+    return Promise.resolve();
+  }
+  if (attendanceAutoRefreshPromise) return attendanceAutoRefreshPromise;
+  const previousItems = state.activeAttendanceItems;
+  attendanceAutoRefreshPromise = (async () => {
+    try {
+      const data = await fetchActiveAttendance();
+      const nextItems = data.items || [];
+      const completedShift = hasCompletedShiftSince(previousItems, nextItems);
+      renderActiveAttendance(nextItems);
+      setAttendanceLiveStatus('ready', new Date());
+      if (completedShift) await loadTimecard();
+    } catch (error) {
+      console.warn('Failed to refresh current attendance automatically', error);
+      setAttendanceLiveStatus('retrying');
+    }
+  })().finally(() => {
+    attendanceAutoRefreshPromise = null;
+    scheduleAttendancePolling();
+  });
+  return attendanceAutoRefreshPromise;
 };
 
 const componentMarkup = (component) => `
@@ -368,10 +642,19 @@ const renderServices = () => {
 
 const loadServices = async () => {
   const root = document.getElementById('admin-services-grid');
-  root?.setAttribute('aria-busy', 'true');
-  const data = await request('/services');
-  state.services = data.items || [];
-  renderServices();
+  const hasCachedServices = state.services.length > 0;
+  if (hasCachedServices) {
+    renderServices();
+  } else {
+    root?.setAttribute('aria-busy', 'true');
+  }
+  try {
+    const data = await request('/services');
+    state.services = data.items || [];
+    renderServices();
+  } finally {
+    root?.setAttribute('aria-busy', 'false');
+  }
 };
 
 const loadAudit = async () => {
@@ -402,29 +685,48 @@ const loadAudit = async () => {
   }
 };
 
+const observability = createObservability({ request, openTab: (tab) => setTab(tab) });
 const loaders = {
-  overview: loadOverview,
+  overview: () => observability.load('overview'),
+  hosts: () => observability.load('hosts'),
+  backups: () => observability.load('backups'),
+  logs: () => observability.load('logs'),
+  ci: () => observability.load('ci'),
   timecard: loadTimecard,
-  services: loadServices,
+  services: async () => {
+    await observability.load('services');
+    const actions=document.querySelector('.ops-existing-actions');
+    if(actions)actions.hidden=!observability.canManage();
+    if(observability.canManage())await loadServices();
+  },
   audit: loadAudit,
 };
 
-const setTab = async (tab) => {
+const setTab = async (tab, { scroll = false } = {}) => {
+  if (document.querySelector(`[data-admin-tab="${tab}"]`)?.disabled) return;
   state.activeTab = tab;
+  observability.tabChanged(tab);
+  const tabList = document.querySelector('.admin-tabs');
+  if (tabList) tabList.dataset.activeTab = tab;
   document.querySelectorAll('[data-admin-tab]').forEach((button) => {
     const active = button.dataset.adminTab === tab;
     button.classList.toggle('is-active', active);
     button.setAttribute('aria-selected', String(active));
+    button.setAttribute('aria-pressed', String(active));
+    button.tabIndex = active ? 0 : -1;
   });
   document.querySelectorAll('[data-admin-panel]').forEach((panel) => {
     const active = panel.dataset.adminPanel === tab;
     panel.classList.toggle('is-active', active);
     panel.hidden = !active;
   });
+  if (scroll) tabList?.scrollIntoView({ block: 'start' });
   try {
     await loaders[tab]?.();
   } catch (error) {
     showGlobalError(error.message || copy().unavailable);
+  } finally {
+    scheduleAttendancePolling();
   }
 };
 
@@ -501,7 +803,24 @@ export const initAdminPage = async () => {
   }
 
   document.querySelectorAll('[data-admin-tab]').forEach((button) => {
-    button.addEventListener('click', () => setTab(button.dataset.adminTab));
+    button.addEventListener('click', () =>
+      setTab(button.dataset.adminTab, { scroll: true }),
+    );
+  });
+  document.querySelector('.admin-tabs')?.addEventListener('keydown', (event) => {
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+    const tabs = [...document.querySelectorAll('[data-admin-tab]:not(:disabled)')];
+    const current = tabs.indexOf(document.activeElement);
+    if (current < 0) return;
+    event.preventDefault();
+    const next =
+      event.key === 'Home'
+        ? 0
+        : event.key === 'End'
+          ? tabs.length - 1
+          : (current + (['ArrowRight','ArrowDown'].includes(event.key) ? 1 : -1) + tabs.length) % tabs.length;
+    tabs[next].focus();
+    setTab(tabs[next].dataset.adminTab, { scroll: true });
   });
   document.querySelectorAll('[data-refresh]').forEach((button) => {
     button.addEventListener('click', async () => {
@@ -558,6 +877,12 @@ export const initAdminPage = async () => {
   });
   window.addEventListener('langchange', () => {
     renderServices();
+    if (state.timecardSummary) renderTimecardSummary(state.timecardSummary);
+    renderAttendanceStatuses();
+    setAttendanceLiveStatus(
+      'ready',
+      state.activeAttendanceFetchedAt ? new Date(state.activeAttendanceFetchedAt) : null,
+    );
     renderRecords({
       items: state.records,
       total: state.recordTotal,
@@ -566,12 +891,29 @@ export const initAdminPage = async () => {
     });
     setTab(state.activeTab);
   });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && state.activeTab === 'timecard') {
+      refreshAttendanceAutomatically();
+    } else {
+      stopAttendancePolling();
+    }
+  });
+  window.setInterval(() => {
+    if (
+      state.activeTab === 'timecard' &&
+      document.visibilityState === 'visible' &&
+      state.activeAttendanceItems.length
+    ) {
+      renderAttendanceStatuses();
+    }
+  }, 1000);
 
   try {
     state.session = await request('/session');
+    observability.init();
     const email = document.getElementById('admin-email');
     if (email) email.textContent = state.session.email;
-    await loadMembers();
+    // Attendance loads its members when opened; disconnected optional sections must not fail login.
     await setTab('overview');
   } catch (error) {
     console.error('Failed to initialize the administration page', error);
