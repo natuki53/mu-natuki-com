@@ -66,6 +66,16 @@ class StoreTests(unittest.TestCase):
         self.store.ingest(raw)
         issues=self.store.summary()['backups'][0]['issues']
         self.assertTrue(any('未接続' in x for x in issues));self.assertTrue(any('容量不足' in x for x in issues))
+    def test_copy_success_deadline_still_expires_after_deferred_polls(self):
+        for minutes,expired in [(5,False),(35,True)]:
+            with self.subTest(minutes=minutes):
+                self.now+=dt.timedelta(seconds=1)
+                raw=observation(self.now)
+                raw['backups'][0]['jobs']=[{'kind':'copy','phase':'idle','maxAgeHours':0.5,
+                    'lastSuccessAt':(self.now-dt.timedelta(minutes=minutes)).isoformat()}]
+                self.store.ingest(raw)
+                issues=self.store.summary()['backups'][0]['issues']
+                self.assertEqual(any('copy：成功期限超過' in issue for issue in issues),expired)
     def test_replay_and_late_data_do_not_replace_current(self):
         raw=observation(self.now);self.assertTrue(self.store.ingest(raw));self.assertFalse(self.store.ingest(raw))
         raw['measuredAt']=(self.now-dt.timedelta(seconds=1)).isoformat();self.assertFalse(self.store.ingest(raw))
