@@ -65,6 +65,27 @@ class CollectorTests(unittest.TestCase):
             self.assertEqual(result['jobs'][0]['scheduleMode'],'scheduled')
             self.assertEqual(result['jobs'][1]['scheduleMode'],'on-copy-change')
             self.assertNotIn('private-password',json.dumps(result))
+    def test_latest_replica_deferred_poll_keeps_success_without_refreshing_it(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'state').mkdir()
+            config=root/'config.json'
+            config.write_text(json.dumps({'storage_root':temp,'restic_password_file':'unused','minimum_free_bytes':1,'max_age_hours':{'full':30,'db':3}}))
+            (root/'state/success.json').write_text(json.dumps({'verified':True,'success_at':1000,'read_data':True}))
+            success_file=root/'state/observation-success.json'
+            for status,last_good,expected in [('deferred',2000,2000),('deferred',2000,2000),('failed',2000,2000),('deferred',None,1000)]:
+                with self.subTest(status=status,last_good=last_good):
+                    (root/'state/observation.json').write_text(json.dumps({'status':status,'observed_at':5000,'error':'Copy failed'}))
+                    if last_good:success_file.write_text(json.dumps({'status':'ok','observed_at':last_good}))
+                    elif success_file.exists():success_file.unlink()
+                    with patch.object(collector,'run',return_value=''),patch.object(collector,'repository_read_lock',return_value=contextlib.nullcontext()),patch.object(collector,'disk_info',return_value={'path':temp}):
+                        result=collector.collect_backup({'id':'b','role':'secondary','latestConfigFile':str(config)},False,{'snapshots':[],'status':'ok'})
+                    copy,check=result['jobs'][:2]
+                    self.assertEqual(copy['lastSuccessAt'],collector.iso_epoch(expected))
+                    self.assertEqual(copy['maxAgeHours'],0.5)
+                    self.assertEqual(copy['phase'],'failed' if status=='failed' else 'idle')
+                    if status=='failed':self.assertEqual(copy['lastFailureAt'],collector.iso_epoch(5000))
+                    self.assertEqual(check['lastSuccessAt'],collector.iso_epoch(1000))
+
     def test_archive_has_no_snapshot_freshness_deadline(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp)

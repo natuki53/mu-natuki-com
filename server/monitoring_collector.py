@@ -207,10 +207,15 @@ def collect_backup(target,with_repository=True,previous=None):
         except (OSError,ValueError):pass
         try:observation=read_json(root/'state/observation.json')
         except (OSError,ValueError):observation={}
+        try:last_observation=read_json(root/'state/observation-success.json')
+        except (OSError,ValueError):last_observation={}
         copy={'kind':'copy','phase':'unknown','scheduleMode':'unknown','maxAgeHours':0.5}
+        if receipt.get('verified'):
+            copy.update(phase='idle',lastSuccessAt=iso_epoch(receipt.get('success_at')))
+            if last_observation.get('status')=='ok' and last_observation.get('observed_at'):
+                copy['lastSuccessAt']=iso_epoch(last_observation['observed_at'])
         if observation.get('status')=='ok':copy.update(phase='idle',lastSuccessAt=iso_epoch(observation.get('observed_at')))
         elif observation.get('status')=='failed':copy.update(phase='failed',lastFailureAt=iso_epoch(observation.get('observed_at')),error=redact(observation.get('error','Copy failed'))[:500])
-        elif receipt.get('verified'):copy.update(phase='idle',lastSuccessAt=iso_epoch(receipt.get('success_at')))
         try:
             with repository_read_lock(root/'state/schedule.lock'):pass
         except BlockingIOError:copy['phase']='running'
