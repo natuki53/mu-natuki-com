@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360 Viewer</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        .psv-container {
+            width: 100%;
+            height: 100%;
+            padding-top: 0 !important;
+            /* Override ratio padding */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="viewer-container" class="psv-container"></div>
+
+    <!-- Load Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Setup config before viewer.js loads -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const imgPath = urlParams.get('img');
+        if (imgPath) {
+            document.getElementById('viewer-container').setAttribute('data-img', imgPath);
+        } else {
+            console.error('No image specified in query param `img`');
+            document.body.innerHTML = '<p style="color:white;text-align:center;padding-top:20px;">Image not specified.</p>';
+        }
+    </script>
+
+    <!-- Load Viewer Script -->
+    <script src="viewer.js"></script>
+</body>
+
+</html>

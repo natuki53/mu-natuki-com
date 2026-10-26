@@ -1,0 +1,34 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="92" y1="72" x2="420" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6"/>
+      <stop offset="0.55" stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#34D399"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="124" y1="120" x2="404" y2="404" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="white" stop-opacity="0.02"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="26" stdDeviation="18" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect x="84" y="84" width="344" height="344" rx="84" fill="url(#g1)" filter="url(#shadow)"/>
+  <rect x="100" y="100" width="312" height="312" rx="76" fill="url(#g2)" stroke="white" stroke-opacity="0.10"/>
+
+  <!-- Stack cards -->
+  <g opacity="0.96">
+    <path d="M170 186C170 170.536 182.536 158 198 158H340C355.464 158 368 170.536 368 186V214C368 229.464 355.464 242 340 242H198C182.536 242 170 229.464 170 214V186Z"
+          fill="#0B1020" fill-opacity="0.55" stroke="white" stroke-opacity="0.14"/>
+    <path d="M150 238C150 222.536 162.536 210 178 210H320C335.464 210 348 222.536 348 238V266C348 281.464 335.464 294 320 294H178C162.536 294 150 281.464 150 266V238Z"
+          fill="#0B1020" fill-opacity="0.62" stroke="white" stroke-opacity="0.16"/>
+    <path d="M144 292C144 276.536 156.536 264 172 264H314C329.464 264 342 276.536 342 292V330C342 345.464 329.464 358 314 358H172C156.536 358 144 345.464 144 330V292Z"
+          fill="#0B1020" fill-opacity="0.72" stroke="white" stroke-opacity="0.18"/>
+  </g>
+
+  <!-- Spark -->
+  <path d="M356 172L366 196L390 206L366 216L356 240L346 216L322 206L346 196L356 172Z"
+        fill="white" fill-opacity="0.92"/>
+</svg>
+

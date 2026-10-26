@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "status": "unavailable",
+  "cpuPct": null,
+  "memoryPct": null,
+  "diskPct": null,
+  "uptimeSeconds": null,
+  "measuredAt": null
+}
