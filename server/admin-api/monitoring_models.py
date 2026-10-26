@@ -59,6 +59,7 @@ class Service(StrictModel):
     error: str | None = Field(default=None, max_length=500)
     expectedState: Literal['running','stopped','unknown'] = 'running'
     logsEnabled: bool = False
+    logStatus: Literal['ok','empty','error','disabled','unknown'] = 'unknown'
 
 
 class LogEntry(StrictModel):

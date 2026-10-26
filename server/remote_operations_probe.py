@@ -8,10 +8,10 @@ import subprocess
 import time
 
 from monitoring_collector import collect_backup, collect_logs, collect_service, run
-from monitoring_common import utcnow
+from monitoring_common import utcnow, redact
 
 
-DOCKER_FIELDS = '{{json .Name}}\t{{json .State.Status}}\t{{json .RestartCount}}\t{{json .State.StartedAt}}\t{{if .State.Health}}{{json .State.Health.Status}}{{else}}null{{end}}'
+DOCKER_FIELDS = '{{json .Name}}\t{{json .State.Status}}\t{{json .RestartCount}}\t{{json .State.StartedAt}}\t{{if .State.Health}}{{json .State.Health.Status}}{{else}}null{{end}}\t{{json .State.Error}}'
 
 
 def service_id(kind, target):
@@ -33,15 +33,19 @@ def collect(config, refresh_backups=True, previous_backups=None):
             raise ValueError('Container inventory exceeds limit')
         states = run(['docker', 'inspect', '--format', DOCKER_FIELDS, *names]) if names else ''
         for line in states.splitlines():
-            name, state, restarts, started, health = [json.loads(v) for v in line.split('\t')]
+            fields = [json.loads(v) for v in line.split('\t')]
+            name, state, restarts, started, health = fields[:5]
+            error=fields[5] if len(fields)>5 else ''
             name = name.lstrip('/')
+            if name in config.get('transientContainers',[]) and state in ('exited','created'):
+                continue
             target = {'id': service_id('docker',name), 'name': name, 'kind': 'docker', 'target': name,
                       'logs': name in logs, 'logLines': 30, 'logMessageLimit': 2000}
             targets.append(target)
             result['services'].append({'id':target['id'],'name':name,'kind':'docker',
-                'state':{'running':'running','exited':'stopped','dead':'failed','created':'stopped','paused':'stopped','restarting':'restarting'}.get(state,'unknown'),
+                'state':'failed' if error else {'running':'running','exited':'stopped','dead':'failed','created':'stopped','paused':'stopped','restarting':'restarting'}.get(state,'unknown'),
                 'health':health or 'unknown','restarts':restarts,'startedAt':started,
-                'expectedState':'running' if name in expected else 'unknown','logsEnabled':target['logs']})
+                'expectedState':'running' if name in expected else 'unknown','logsEnabled':target['logs'],'error':redact(error)[:500] if error else None})
         # A removed expected container is a missing target, not a healthy empty list.
         for name in sorted(expected-set(names)):
             result['services'].append({'id':service_id('docker',name),'name':name,'kind':'docker',
@@ -59,9 +63,13 @@ def collect(config, refresh_backups=True, previous_backups=None):
         except Exception:
             result['services'].append({'id':target['id'],'name':target.get('name',target['target']),'kind':'systemd',
                 'state':'unknown','expectedState':item.get('expectedState','running'),'logsEnabled':False,'error':'Unit information unavailable'})
+    services_by_id={s['id']:s for s in result['services']}
     def read_logs(target):
         try:
-            items=collect_logs(target)
+            service=services_by_id.get(target['id'],{})
+            incident=service.get('state')=='failed' or service.get('health')=='unhealthy' or (
+                service.get('state')=='stopped' and service.get('expectedState')=='running')
+            items=collect_logs({**target,'includeEarlierLogs':incident or config.get('collectRetainedLogs',False)})
             return items, {'serviceId':target['id'],'status':'ok','rows':len(items),'atLimit':len(items)>=30}
         except Exception:
             return [], {'serviceId':target['id'],'status':'error','rows':0,'atLimit':False}
@@ -69,6 +77,9 @@ def collect(config, refresh_backups=True, previous_backups=None):
         for items, state in pool.map(read_logs,[t for t in targets if t.get('logs')]):
             result['logs'].extend(items)
             result['logSources'].append(state)
+    statuses={s['serviceId']:('error' if s['status']=='error' else 'ok' if s['rows'] else 'empty') for s in result['logSources']}
+    for service in result['services']:
+        service['logStatus']=statuses.get(service['id'],'disabled' if not service.get('logsEnabled') else 'unknown')
     result['logs'].sort(key=lambda entry:entry['at'])
     if len(result['logs']) > 1000:
         result['logs']=result['logs'][-1000:];result['logsTruncated']=True

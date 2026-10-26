@@ -2,6 +2,7 @@ import { renderAdminIcons } from './admin-icons.js';
 import { renderDiskInventory } from './admin-storage.js';
 import { renderCIContent } from './admin-ci.js';
 import { backupScheduleText, backupRetentionText } from './admin-backup.js';
+import { selectedLogService, logEmptyMessage } from './admin-log-context.js';
 
 const text = (ja, en) => document.documentElement.lang === 'en' ? en : ja;
 const esc = (v) => String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
@@ -36,6 +37,7 @@ const renderReplication = (backup) => !backup.replication ? '' : `<div class="op
 export function createObservability({ request, openTab }) {
   let data = null, active = 'overview', timer = null, pending = null, initialized = false, failed = false;
   let paused = false, cursor = null, nextCursor = null;
+  let logRequest = 0, focusedCI = null;
   const backupPages = new Map();
   const filters = { host: '', service: '', level: '', period: '60', q: '' };
   const serviceFilters = { host: '', state: '' };
@@ -57,7 +59,7 @@ export function createObservability({ request, openTab }) {
     root('overview').innerHTML = heading('HOME OPERATIONS', text('自宅サーバーの全体状況', 'Home server overview'), text('異常から詳細へ。保存と検証の状況を、ここで確認できます。', 'Follow issues to their source. Check services, backups and verification.')) +
       `<div class="ops-hero-status" data-state="${alerts.length ? 'warning' : live === data.hosts.length && live ? 'ok' : 'unknown'}"><div><span class="ops-eyebrow">${text('いまの状態', 'CURRENT STATUS')}</span><h3>${alerts.length ? text(`${alerts.length}件の確認が必要です`, `${alerts.length} items need attention`) : live ? text('受信中の監視項目に異常はありません', 'No issues in current observations') : text('監視データの受信を待っています', 'Waiting for observations')}</h3><p>${text('情報が届かない場合は「未確認」「更新停止」として表示します。', 'Missing and stale observations remain explicitly marked.')}</p></div><div class="ops-live-count"><strong>${live}<small> / ${data.hosts.length}</small></strong><span>${text('接続中のサーバー', 'hosts reporting')}</span></div></div>` +
       `<div class="ops-metrics-grid">${metric(text('監視サービス', 'Monitored services'), serviceConnected ? services.length : '—', !serviceConnected ? text('未接続', 'Not connected') : text('登録した対象の状態を収集', 'Explicitly registered targets'))}${metric(text('バックアップ保存先', 'Backup repositories'), backupConnected ? data.backups.length : '—', !backupConnected ? text('未接続', 'Not connected') : text('RyzenとIntelを個別に確認', 'Primary and secondary independently'))}${metric(text('実行中・待機中のCI', 'Active / queued CI runs'), data.ci.state === 'fresh' ? data.ci.runs.filter((r) => r.status !== 'completed').length : '—', label(data.ci.state))}</div>` +
-      `<div class="ops-card"><div class="ops-card-title"><h3>${text('対応が必要な項目', 'Needs attention')}</h3><span>${alerts.length}</span></div>${alerts.length ? `<div class="ops-alerts">${alerts.slice(0,30).map((a) => `<button type="button" class="ops-alert" data-ops-tab="${esc(a.tab)}" data-host="${esc(a.hostId || '')}" data-service="${esc(a.serviceId || '')}">${badge(a.severity)}<span>${esc(text(a.message,a.messageEn))}</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></button>`).join('')}</div>` : empty(text('現在の収集範囲では、対応が必要な項目はありません。', 'No actionable items in the current collection scope.'))}</div>` +
+      `<div class="ops-card"><div class="ops-card-title"><h3>${text('対応が必要な項目', 'Needs attention')}</h3><span>${alerts.length}</span></div>${alerts.length ? `<div class="ops-alerts">${alerts.slice(0,30).map((a) => `<button type="button" class="ops-alert" data-ops-tab="${esc(a.tab)}" data-host="${esc(a.hostId || '')}" data-service="${esc(a.serviceId || '')}" data-repository="${esc(a.repository || '')}" data-run="${esc(a.runId || '')}" data-attempt="${esc(a.runAttempt || 1)}" data-job="${esc(a.jobId || '')}">${badge(a.severity)}<span>${esc(text(a.message,a.messageEn))}</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></button>`).join('')}</div>` : empty(text('現在の収集範囲では、対応が必要な項目はありません。', 'No actionable items in the current collection scope.'))}</div>` +
       `<div class="ops-two-columns">${data.hosts.map((h) => `<button class="ops-card ops-host-shortcut" type="button" data-ops-tab="hosts"><div class="ops-card-title"><h3>${esc(h.name)}</h3>${badge(h.freshness)}</div><div class="ops-metrics-grid">${metric('CPU', pct(h.cpuPct))}${metric(text('メモリ', 'Memory'), pct(h.memoryPct))}</div><p class="ops-meta">${text('最終観測', 'Observed')} ${date(h.measuredAt)} JST</p></button>`).join('')}</div>`;
   }
 
@@ -95,26 +97,34 @@ export function createObservability({ request, openTab }) {
   function renderCI() {
     const ci = data.ci;
     const open = new Set([...root('ci').querySelectorAll('details[open]')].map((el) => el.dataset.ciKey));
+    if(focusedCI)open.add(focusedCI);
     root('ci').innerHTML = heading('GITHUB ACTIONS', text('CIの進行状況', 'Continuous integration'), data.mode==='local-live' ? text('GitHubを約60秒ごとに確認。画面は5秒ごとに更新します。ログ全文はGitHubで確認できます。', 'GitHub is checked about every 60 seconds; this page refreshes every 5 seconds. Full logs are available on GitHub.') : text('イベントと定期照合で更新。ログ本文は取得可能な範囲を表示します。', 'Updated by events and reconciliation. Log availability depends on GitHub.')) +
       `<div class="ops-ci-status">${badge(ci.state)}<span>${text('最終照合', 'Last reconciliation')} ${date(ci.lastSuccessAt)} JST${data.mode==='local-live'?'':` · ${text('最終イベント', 'Last event')} ${date(ci.lastEventAt)}`}</span></div><div class="ops-ci-status">${badge(failed?'stale':ci.runnerInventoryState)}<span>${text('runner最終確認', 'Runners checked')} ${date(ci.runnersMeasuredAt)} JST</span></div>${ci.error?`<p class="ops-inline-warning">${esc(ci.error)}</p>`:''}` +
       renderCIContent(ci, {text, esc, badge, date, empty, safeGithubUrl, open, disconnected: failed});
   }
 
   function renderLogFilters() {
-    root('logs').innerHTML = heading('LOG EXPLORER', text('サービスのログ', 'Service logs'), data.mode==='local-live'?text('ローカル起動後に集めたログです。約30秒ごとに直近5分・各30行まで取得し、既知の資格情報を伏せます。', 'Logs collected since local startup. About every 30 seconds, up to 30 recent lines per source; known credentials are redacted.'):text('保存期間7日・最大50,000行。機密値は収集時と保存時に除去します。', 'Retained for 7 days, up to 50,000 lines. Known secrets are redacted.')) +
-      `<div id="ops-log-collection" class="ops-note"></div>` +
+    root('logs').innerHTML = heading('LOG EXPLORER', text('サービスのログ', 'Service logs'), data.mode==='local-live'?text('ローカル起動後に集めたログです。約30秒ごとに各30行まで取得。収集対象の保持期間内のログを確認し、既知の資格情報を伏せます。', 'Logs collected since local startup. Every 30 seconds, up to 30 retained lines per source. Known credentials are redacted.'):text('保存期間7日・最大50,000行。機密値は収集時と保存時に除去します。', 'Retained for 7 days, up to 50,000 lines. Known secrets are redacted.')) +
+      `<div id="ops-log-context" class="ops-note"></div><div id="ops-log-collection" class="ops-note"></div>` +
       `<form class="ops-log-filters" id="ops-log-filters"><label>${text('サーバー', 'Host')}<select name="host"><option value="">${text('すべて', 'All')}</option>${data.hosts.map((h)=>`<option value="${esc(h.hostId)}" ${h.hostId===filters.host?'selected':''}>${esc(h.name)}</option>`).join('')}</select></label><label>${text('サービス', 'Service')}<select name="service"><option value="">${text('すべて', 'All')}</option>${[...new Set(data.hosts.filter((h)=>!filters.host||h.hostId===filters.host).flatMap((h)=>h.services.map((s)=>s.id)))].map((s)=>`<option ${s===filters.service?'selected':''}>${esc(s)}</option>`).join('')}</select></label><label>${text('重要度', 'Level')}<select name="level">${['','error','warning','info','debug'].map((v)=>`<option value="${v}" ${v===filters.level?'selected':''}>${v||text('すべて', 'All')}</option>`).join('')}</select></label><label>${text('期間', 'Period')}<select name="period">${[['15',text('15分', '15 min')],['60',text('1時間', '1 hour')],['1440',text('24時間', '24 hours')],['10080',text('7日', '7 days')]].map(([v,l])=>`<option value="${v}" ${v===filters.period?'selected':''}>${l}</option>`).join('')}</select></label><label class="ops-search">${text('本文検索', 'Search')}<input name="q" maxlength="200" value="${esc(filters.q)}" placeholder="${text('ログの文字列', 'Text in logs')}" /></label><button type="submit" class="admin-button">${text('適用', 'Apply')}</button></form><div class="ops-log-toolbar"><button type="button" class="admin-button admin-button-secondary" id="ops-log-pause">${paused?text('自動更新を再開', 'Resume'):text('自動更新を停止', 'Pause')}</button><button type="button" class="admin-button admin-button-secondary" id="ops-log-latest">${text('最新に戻る', 'Latest')}</button><span id="ops-log-status" role="status"></span></div><div class="ops-log-output" id="ops-log-output" tabindex="0" aria-label="${text('ログ一覧', 'Log entries')}"></div><button type="button" class="admin-button admin-button-secondary" id="ops-log-older">${text('以前のログ', 'Older logs')}</button>`;
   }
 
   async function loadLogs() {
+    const requestId=++logRequest;
+    const context=byId('ops-log-context');
+    const {host,service}=selectedLogService(data,filters);
+    if(context){context.hidden=!filters.service;context.innerHTML=filters.service?`<strong>${esc(host?.name||filters.host)} / ${esc(service?.name||filters.service)}</strong><p>${text('監視結果', 'Observed state')}: ${badge(service?.state||'unknown')} · ${text('最終確認', 'Observed')} ${date(host?.servicesMeasuredAt||host?.measuredAt)} JST</p>${service?.error?`<p>${esc(service.error)}</p>`:''}<p>${service?.logsEnabled?text('対象サービスの保存済みログを表示します。', 'Showing saved logs for this service.'):text('ログ収集は未設定、または対象を検出できません。', 'Log collection is disabled, or the target was not detected.')}</p>`:'';}
     renderAdminIcons(root('logs'));
     const params=new URLSearchParams({limit:'200',since:new Date(Date.now()-Number(filters.period)*60000).toISOString()});
     for(const key of ['host','service','level','q'])if(filters[key])params.set(key,filters[key]);
     if(cursor)params.set('before',cursor);
-    const result=await request(`/monitoring/logs?${params}`);
+    let result;
+    try{result=await request(`/monitoring/logs?${params}`);}
+    catch{if(requestId===logRequest&&active==='logs'){byId('ops-log-output').innerHTML=empty(text('ログの取得に失敗しました。「更新」で再取得できます。', 'Log retrieval failed. Use Refresh to retry.'));byId('ops-log-status').textContent=text('取得失敗', 'Retrieval failed');}return;}
+    if(requestId!==logRequest||active!=='logs')return;
     nextCursor=result.nextCursor;
     if(!byId('ops-log-output'))return;
-    byId('ops-log-output').innerHTML=result.items.length ? result.items.map((l)=>`<div class="ops-log-line" data-level="${esc(l.level)}"><time>${date(l.at)}</time><span>${esc(l.host)} / ${esc(l.service)}</span><b>${esc(l.level)}</b><pre>${esc(l.message)}</pre></div>`).join('') : empty(text('条件に一致するログはありません。', 'No logs match these filters.'));
+    byId('ops-log-output').innerHTML=result.items.length ? result.items.map((l)=>`<div class="ops-log-line" data-level="${esc(l.level)}"><time>${date(l.at)}</time><span>${esc(l.host)} / ${esc(l.service)}</span><b>${esc(l.level)}</b><pre>${esc(l.message)}</pre></div>`).join('') : empty(filters.level||filters.q?text('検索条件に一致するログはありません。重要度や検索文字列を変更してください。', 'No logs match the level or search text. Adjust the filters.'):logEmptyMessage(data,filters,text));
     byId('ops-log-status').textContent=`${result.items.length} ${text('行', 'lines')} · ${paused?text('一時停止中', 'Paused'):cursor?text('過去ログを表示中', 'Historical page'):text('2秒ごとに更新', 'Updates every 2 seconds')}`;
     const collection=byId('ops-log-collection');
     if(collection){collection.hidden=!data.collectionStatus;collection.innerHTML=(data.collectionStatus||[]).map((s)=>`<p>${esc(s.name)} · ${text('最終収集', 'Collected')} ${date(s.measuredAt)} JST · ${(s.logSources||[]).length} ${text('対象', 'sources')}${s.error||s.logSources?.some((l)=>l.status==='error')?` · ${text('一部のログを取得できません', 'Some log sources unavailable')}`:''}${s.logsTruncated||s.logSources?.some((l)=>l.atLimit)?` · ${text('取得上限あり', 'Collection limit reached')}`:''}</p>`).join('');}
@@ -156,13 +166,26 @@ export function createObservability({ request, openTab }) {
     return pending;
   }
   function schedule(){clearTimeout(timer);if(initialized&&!document.hidden&&tabs.includes(active))timer=setTimeout(()=>refresh(),active==='logs'?2000:5000);}
-  function tabChanged(tab){active=tab;clearTimeout(timer);if(tab==='logs')root('logs').innerHTML='';schedule();}
+  function tabChanged(tab){active=tab;logRequest++;clearTimeout(timer);if(tab==='logs')root('logs').innerHTML='';schedule();}
+  async function openJobLog(repo,jobId){
+    const dialog=byId('ops-ci-dialog');const output=byId('ops-ci-log');
+    output.textContent=text('取得中…', 'Loading…');dialog.showModal();
+    try{const result=await request(`/monitoring/ci/logs?${new URLSearchParams({repository:repo,jobId})}`);output.textContent=result.text+(result.truncated?text('\n…表示上限に達しました。全文はGitHubで確認してください。','\n…Display limit reached. Open GitHub for full logs.'):'');}
+    catch{output.textContent=text('ログはまだ取得できません。GitHubのジョブ画面でも確認できます。','Logs are unavailable. Open the job on GitHub.');}
+  }
   function init(){
     initialized=true;
     document.addEventListener('visibilitychange',()=>{clearTimeout(timer);if(!document.hidden&&tabs.includes(active))refresh();});
     document.addEventListener('click',async(event)=>{
       const nav=event.target.closest('[data-ops-tab]');
-      if(nav){filters.host=nav.dataset.host||'';filters.service=nav.dataset.service||'';cursor=null;paused=false;openTab(nav.dataset.opsTab);}
+      if(nav){
+        Object.assign(filters,{host:nav.dataset.host||'',service:nav.dataset.service||'',level:'',q:'',period:nav.dataset.service?'10080':'60'});
+        cursor=null;nextCursor=null;paused=false;
+        focusedCI=nav.dataset.run?`${nav.dataset.repository}:${nav.dataset.run}:${nav.dataset.attempt||1}`:null;
+        await openTab(nav.dataset.opsTab,{scroll:true});
+        if(focusedCI){const card=[...root('ci').querySelectorAll('[data-ci-key]')].find((el)=>el.dataset.ciKey===focusedCI);if(card){card.open=true;card.scrollIntoView({block:'start'});}focusedCI=null;}
+        if(nav.dataset.job)await openJobLog(nav.dataset.repository,nav.dataset.job);
+      }
       if(event.target.closest('[data-ops-refresh]'))refresh();
       const paging=event.target.closest('[data-backup-page]');
       if(paging){backupPages.set(paging.dataset.backupPage,Number(paging.dataset.page));renders.backups();}
@@ -171,9 +194,7 @@ export function createObservability({ request, openTab }) {
       if(event.target.closest('#ops-log-older')&&nextCursor){cursor=nextCursor;await loadLogs();}
       const logButton=event.target.closest('[data-ci-log]');
       if(logButton){
-        const dialog=byId('ops-ci-dialog');byId('ops-ci-log').textContent=text('取得中…', 'Loading…');dialog.showModal();
-        try{const result=await request(`/monitoring/ci/logs?${new URLSearchParams({repository:logButton.dataset.repo,jobId:logButton.dataset.ciLog})}`);byId('ops-ci-log').textContent=result.text+(result.truncated?text('\n…表示上限に達しました。全文はGitHubで確認してください。','\n…Display limit reached. Open GitHub for full logs.'):'');}
-        catch{byId('ops-ci-log').textContent=text('ログはまだ取得できません。GitHubのジョブ画面でも確認できます。','Logs are unavailable. Open the job on GitHub.');}
+        await openJobLog(logButton.dataset.repo,logButton.dataset.ciLog);
       }
     });
     document.addEventListener('submit',async(event)=>{if(event.target.id==='ops-log-filters'){event.preventDefault();Object.assign(filters,Object.fromEntries(new FormData(event.target)));cursor=null;await loadLogs();}});

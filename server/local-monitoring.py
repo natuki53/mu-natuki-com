@@ -17,6 +17,7 @@ from fastapi import HTTPException,Request
 from app import BrokerFailure,Settings,create_app
 from monitoring_store import MonitorStore
 from monitoring_models import utcnow
+from monitoring_github import GitHubUnavailable
 
 
 class DemoBroker:
@@ -80,7 +81,7 @@ def demo_observation(host,scenario='normal'):
     if primary and scenario=='low-space':
         disk['freeBytes']=backup['disk']['freeBytes']=8*1024**3
         disk['usedBytes']=backup['disk']['usedBytes']=disk['totalBytes']-disk['freeBytes']
-    service={'id':'sample-web','name':'Sample Web' if primary else 'Management API','kind':'docker','state':'running','health':'healthy','restarts':0,'startedAt':at(30)}
+    service={'id':'sample-web','name':'Sample Web' if primary else 'Management API','kind':'docker','state':'running','health':'healthy','restarts':0,'startedAt':at(30),'logsEnabled':True}
     if primary and scenario=='service-failure':service.update(state='failed',health='unhealthy',restarts=5)
     return {'version':1,'hostId':host,'measuredAt':at(),'cpuPct':22.4 if primary else 8.7,'memoryPct':46.2 if primary else 32.8,
         'uptimeSeconds':108000,'temperatureC':42 if primary else 39,'disks':[disk],'services':[service],'backups':[backup],
@@ -89,16 +90,24 @@ def demo_observation(host,scenario='normal'):
             'message':'Sample log · request completed · token=demo-secret-must-be-redacted'}]}
 
 
-def make_demo(scenario='normal'):
+def make_demo(scenario='normal', ui_port=4178):
+    if not 1024 <= ui_port <= 65535:raise ValueError('Invalid local preview port')
     store=MonitorStore({'mode':'demo','hosts':[{'id':'ryzen','name':'Ryzen'},{'id':'intel','name':'Intel'}],
         'github':{'repositories':['example/home-dashboard'],'runnerHosts':{
             'ryzen':{'maxJobs':2,'runnerNames':['sample-ryzen-linux','sample-ryzen-windows']},
             'intel':{'maxJobs':1,'runnerNames':['sample-intel-linux']}}}})
     settings=Settings(team_domain='https://example.cloudflareaccess.com',policy_audience='local-preview',
-        allowed_email='local-preview@example.invalid',admin_origin='http://127.0.0.1:4178',csrf_secret='c'*32,broker_secret='b'*32,
+        allowed_email='local-preview@example.invalid',admin_origin=f'http://127.0.0.1:{ui_port}',csrf_secret='c'*32,broker_secret='b'*32,
         broker_socket='/unused',public_status_dir='/unused',app_env='test',test_auth_email='local-preview@example.invalid')
     app=create_app(settings,DemoBroker(),store)
     current={'scenario':scenario,'tick':0}
+    class DemoLogs:
+        repositories={'example/home-dashboard'}
+        def job_logs(self,repo,job_id):
+            if repo not in self.repositories or job_id!=81:raise GitHubUnavailable('Unknown synthetic job')
+            if current['scenario']!='ci-server-failure':raise GitHubUnavailable('Synthetic logs unavailable')
+            return {'text':'SAMPLE DATA / synthetic job 81\n##[error]No space left on device\nRunner: sample-ryzen-linux','truncated':False}
+    app.state.github_monitor.client=DemoLogs()
     def seed():
         current['tick']+=1
         for host in ('ryzen','intel'):
@@ -107,7 +116,7 @@ def make_demo(scenario='normal'):
             if host=='ryzen' and current['scenario']=='collector-offline':
                 data['measuredAt']=(utcnow()-dt.timedelta(minutes=5)).isoformat();data.pop('logs')
                 with store.lock,store.db:store.db.execute('UPDATE hosts SET measured=?,data=? WHERE id=?',(data['measuredAt'],json.dumps(data),'ryzen'))
-        now=utcnow().isoformat();failed=current['scenario']=='ci-failure'
+        now=utcnow().isoformat();failed=current['scenario'] in ('ci-failure','ci-server-failure')
         idle=current['scenario'] in ('ci-idle','ci-offline')
         finished=failed or idle
         # New synthetic run IDs make transitions visible without contacting GitHub.
@@ -116,7 +125,8 @@ def make_demo(scenario='normal'):
             'conclusion':'failure' if failed else 'success' if idle else None,'head_branch':'feat/home-monitoring','head_sha':'c'*40,'run_attempt':1,
             'run_started_at':(utcnow()-dt.timedelta(minutes=3)).isoformat(),'updated_at':now})
         store.record_ci('example/home-dashboard','job',{'id':81,'run_id':42,'name':'Web and API checks','status':'completed' if finished else 'in_progress',
-            'conclusion':'failure' if failed else 'success' if idle else None,'runner_name':'sample-ryzen-linux','steps':[
+            'conclusion':'failure' if failed else 'success' if idle else None,'runner_name':'sample-ryzen-linux',
+            'failureCause':{'category':'infrastructure','code':'disk-full','source':'job-log','message':'実行環境のディスク容量が不足しました','messageEn':'The execution environment ran out of disk space'} if current['scenario']=='ci-server-failure' else {'category':'unconfirmed'},'steps':[
                 {'name':'Checkout','status':'completed','conclusion':'success'},
                 {'name':'Test dashboard','status':'completed' if finished else 'in_progress','conclusion':'failure' if failed else 'success' if idle else None}]})
         store.meta('ci-status',{'lastSuccessAt':now,'error':None})
@@ -128,10 +138,10 @@ def make_demo(scenario='normal'):
     seed()
     @app.post('/api/admin/v1/local-scenario')
     async def set_scenario(request:Request):
-        if request.headers.get('origin') not in ('http://127.0.0.1:4178','http://localhost:4178'):
+        if request.headers.get('origin') not in (f'http://127.0.0.1:{ui_port}',f'http://localhost:{ui_port}'):
             raise HTTPException(403,'Local preview origin required')
         value=(await request.json()).get('scenario')
-        if value not in ['normal','backup-failure','disk-missing','low-space','collector-offline','service-failure','ci-failure','ci-idle','ci-offline']:
+        if value not in ['normal','backup-failure','disk-missing','low-space','collector-offline','service-failure','ci-failure','ci-server-failure','ci-idle','ci-offline']:
             raise HTTPException(400,'Unknown preview scenario')
         current['scenario']=value;seed()
         return {'scenario':value}
@@ -145,5 +155,6 @@ def make_demo(scenario='normal'):
 if __name__=='__main__':
     import uvicorn
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--port',type=int,default=18765)
+    parser.add_argument('--ui-port',type=int,default=4178)
     args=parser.parse_args()
-    uvicorn.run(make_demo(),host='127.0.0.1',port=args.port,log_level='warning')
+    uvicorn.run(make_demo(ui_port=args.ui_port),host='127.0.0.1',port=args.port,log_level='warning')

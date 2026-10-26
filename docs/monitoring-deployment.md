@@ -64,7 +64,7 @@ PowerShellで次を実行し、`GitHub token` のマスク入力へ貼り付け�
 - 既存 `.admin.env`、管理APIとブローカーの秘密値は変更せず維持する。Compose overlayで `APP_ENV=production`、`ADMIN_TEST_AUTH_EMAIL` 空欄を固定する。
 - `/admin/*` と `/api/admin/*` のAccess保護を維持する。Webhookは専用パスだけ。管理API全体へのBypassは設けない。
 - 生成したTLS証明書の期限は `readiness.json` に記録する。期限30日前までにCA・サーバー証明書を再発行し、両CollectorのCAとIntelの証明書を交換する。CA秘密鍵は生成後に保存しない。
-- `wpstg-db` / `wpstg-wp` は現環境で見つからず警告になる。期待稼働リストから消して警告を隠すことはしていない。廃止対象なら、その判断に基づいて監視設定だけを修正する。
+- 期待稼働リストは現行の構成に合わせる。対象の廃止・移行完了を確認した場合に古い登録を除去し、稼働中の後継サービスを登録する。未確認のサービス停止を単に一覧から隠さない。
 
 ## 承認後の導入順序
 

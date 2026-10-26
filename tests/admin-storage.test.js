@@ -14,3 +14,11 @@ test('missing disk collection is not shown as zero devices', () => {
   assert.match(html,/取得できません/);
   assert(!html.includes('0 台'));
 });
+
+test('SSDs are first on the left without mutating the received disk inventory', () => {
+  const physicalDisks=['hdd','optical','ssd','nvme','usb'].map((kind)=>({kind,device:kind,model:kind,sizeBytes:1000,volumes:[]}));
+  const before=physicalDisks.map((d)=>d.kind);
+  const html=renderDiskInventory({diskInventoryStatus:'ok',physicalDisks},helpers);
+  assert.deepEqual([...html.matchAll(/data-disk-kind="([^"]+)"/g)].map((m)=>m[1]),['ssd','nvme','hdd','usb','optical']);
+  assert.deepEqual(physicalDisks.map((d)=>d.kind),before);
+});

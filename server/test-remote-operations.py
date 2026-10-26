@@ -73,5 +73,37 @@ class OperationsTests(unittest.TestCase):
         self.assertEqual(result['logSources'][0]['status'],'error')
         self.assertEqual(result['logs'],[])
 
+    def test_only_incident_targets_read_older_bounded_logs(self):
+        with patch.object(probe,'run',side_effect=self.docker_read),patch.object(probe,'collect_logs',return_value=[]) as logs:
+            probe.collect({'expectedRunning':['app','old-test'],'logTargets':['app','old-test']})
+        targets={c.args[0]['target']:c.args[0] for c in logs.call_args_list}
+        self.assertFalse(targets['app']['includeEarlierLogs'])
+        self.assertTrue(targets['old-test']['includeEarlierLogs'])
+        self.assertEqual(targets['old-test']['logLines'],30)
+        with patch.object(collector.subprocess,'run',return_value=subprocess.CompletedProcess([],0,'','')) as run:
+            collector.collect_logs(targets['old-test'])
+        self.assertIn('168h',run.call_args.args[0])
+        self.assertEqual(run.call_args.args[0][4],'30')
+
+    def test_quiet_services_can_backfill_retained_logs_and_expose_collection_status(self):
+        with patch.object(probe,'run',side_effect=self.docker_read),patch.object(probe,'collect_logs',return_value=[]) as logs:
+            result=probe.collect({'logTargets':['app'],'collectRetainedLogs':True})
+        self.assertTrue(logs.call_args.args[0]['includeEarlierLogs'])
+        self.assertEqual(result['services'][0]['logStatus'],'empty')
+        self.assertEqual(result['services'][1]['logStatus'],'disabled')
+
+    def test_finished_transient_containers_are_omitted_but_running_ones_remain(self):
+        with patch.object(probe,'run',side_effect=self.docker_read):
+            result=probe.collect({'transientContainers':['app','old-test']})
+        self.assertEqual([s['name'] for s in result['services']],['app'])
+
+    def test_container_startup_error_is_visible_even_without_application_logs(self):
+        def read(args,**kwargs):
+            value=self.docker_read(args,**kwargs)
+            if args[1]=='inspect':value='\n'.join(line+'\t'+json.dumps('network namespace missing') for line in value.splitlines())
+            return value
+        with patch.object(probe,'run',side_effect=read):result=probe.collect({})
+        self.assertTrue(all(s['state']=='failed' and s['error']=='network namespace missing' for s in result['services']))
+
 
 if __name__=='__main__':unittest.main()
