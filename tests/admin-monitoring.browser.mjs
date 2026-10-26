@@ -20,11 +20,33 @@ try {
   assert.equal(await page.locator('.admin-tabs svg.lucide').count(), 8, 'Navigation uses standard SVG icons');
   for (const [scenario, message] of [
     ['backup-failure', '直近の実行が失敗'], ['disk-missing', 'ディスクの確認'], ['low-space', '容量不足'],
-    ['collector-offline', '更新されていません'], ['service-failure', '異常があります'], ['ci-failure', '失敗しました'],
+    ['collector-offline', '更新されていません'], ['service-failure', '異常があります'], ['ci-server-failure', 'ディスク容量が不足'],
   ]) {
     await page.selectOption('#ops-scenario', scenario);
     await page.waitForFunction((value) => document.querySelector('#ops-overview')?.textContent.includes(value), message);
   }
+  await page.selectOption('#ops-scenario', 'ci-failure');
+  await page.waitForFunction(() => document.querySelector('#ops-overview')?.textContent.includes('異常はありません'));
+  await page.locator('#admin-tab-ci').click();
+  await page.locator('.ops-ci-history').first().waitFor();
+  assert.match(await page.locator('.ops-ci-history').first().innerText(), /失敗/);
+  await page.locator('#admin-tab-overview').click();
+  await page.selectOption('#ops-scenario', 'ci-server-failure');
+  await page.locator('.ops-alert[data-job="81"]').click();
+  await page.locator('#ops-ci-dialog[open]').waitFor();
+  await page.waitForFunction(() => document.querySelector('#ops-ci-log')?.textContent.includes('No space left on device'));
+  await page.locator('#ops-ci-dialog button').click();
+  await page.locator('#admin-tab-logs').click();
+  await page.locator('#ops-log-filters input[name="q"]').fill('does-not-match');
+  await page.selectOption('#ops-log-filters select[name="level"]', 'debug');
+  await page.locator('#ops-log-filters button').click();
+  await page.locator('#admin-tab-overview').click();
+  await page.selectOption('#ops-scenario', 'service-failure');
+  await page.locator('.ops-alert[data-service="sample-web"]').click();
+  await page.locator('.ops-log-line').first().waitFor();
+  assert.equal(await page.locator('#ops-log-filters input[name="q"]').inputValue(), '');
+  assert.equal(await page.locator('#ops-log-filters select[name="period"]').inputValue(), '10080');
+  await page.locator('#admin-tab-overview').click();
   await page.selectOption('#ops-scenario', 'normal');
   await page.waitForFunction(() => document.querySelector('#ops-overview')?.textContent.includes('異常はありません'));
   await page.screenshot({ path: `${output}/overview.png` });
@@ -85,6 +107,7 @@ try {
   await page.locator('#admin-tab-hosts').click();
   await page.locator('#ops-hosts h2').waitFor();
   assert.equal(await page.locator('[data-disk-kind="ssd"]').count(), 2);
+  assert.equal(await page.locator('.ops-host-card').first().locator('[data-disk-kind]').first().getAttribute('data-disk-kind'), 'ssd');
   assert.equal(await page.locator('[data-disk-kind="hdd"]').count(), 1);
   assert.equal(await page.locator('[data-disk-kind="usb"]').count(), 1);
   assert.match(await page.locator('[data-disk-kind="usb"]').innerText(), /未マウント/);

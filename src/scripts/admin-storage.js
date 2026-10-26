@@ -1,5 +1,6 @@
 export function renderDiskInventory(host, { text, esc, formatBytes }) {
-  const disks = host.physicalDisks || [];
+  const priority = { ssd: 0, nvme: 0, hdd: 1, usb: 2, optical: 3, unknown: 4 };
+  const disks = [...(host.physicalDisks || [])].sort((a, b) => (priority[a.kind] ?? 4) - (priority[b.kind] ?? 4));
   const status = host.diskInventoryStatus || 'unknown';
   if (status !== 'ok') {
     return `<p class="ops-inline-warning">${status === 'error'

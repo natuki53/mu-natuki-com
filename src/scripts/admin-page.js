@@ -685,7 +685,7 @@ const loadAudit = async () => {
   }
 };
 
-const observability = createObservability({ request, openTab: (tab) => setTab(tab) });
+const observability = createObservability({ request, openTab: (tab, options) => setTab(tab, options) });
 const loaders = {
   overview: () => observability.load('overview'),
   hosts: () => observability.load('hosts'),

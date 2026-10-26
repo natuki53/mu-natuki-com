@@ -17,6 +17,17 @@ def config():
 
 
 class LocalReadTests(unittest.TestCase):
+    def test_job_logs_are_scoped_read_only_redacted_and_include_failure_evidence(self):
+        execute=Mock(return_value=subprocess.CompletedProcess([],0,'##[error]No space left on device\ntoken=DO_NOT_SHOW',''))
+        client=GhReadClient(config()['github'],execute=execute)
+        result=client.job_logs('example/repo',81)
+        self.assertEqual(result['failureCause']['category'],'infrastructure')
+        self.assertNotIn('DO_NOT_SHOW',result['text'])
+        self.assertEqual(execute.call_args.args[0][-3:],['--method','GET','/repos/example/repo/actions/jobs/81/logs'])
+        for repo,job in [('other/repo',81),('example/repo',-1)]:
+            with self.assertRaises(ValueError):client.job_logs(repo,job)
+        self.assertEqual(execute.call_count,1)
+
     def test_gh_only_allows_scoped_get_and_keeps_credentials_inside_gh(self):
         execute = Mock(return_value=subprocess.CompletedProcess([], 0, '{"runners":[],"total_count":0}', ''))
         client = GhReadClient(config()['github'], execute=execute)
@@ -125,7 +136,9 @@ class LocalReadTests(unittest.TestCase):
 
     def test_local_view_rejects_all_writes_cross_origin_and_rebinding_hosts(self):
         class Reader:
-            def __init__(self, store): self.stop = threading.Event()
+            def __init__(self, store):
+                self.stop = threading.Event()
+                self.client=GhReadClient(store.config['github'],execute=Mock(return_value=subprocess.CompletedProcess([],0,'Fixture job log','')))
             def start(self): pass
         app = make_live(config(), reader_factory=Reader)
         try:
@@ -139,6 +152,10 @@ class LocalReadTests(unittest.TestCase):
                 self.assertEqual(client.get('/api/admin/v1/monitoring', headers={'Origin': 'https://external.invalid'}).status_code, 403)
                 self.assertEqual(client.get('/api/admin/v1/monitoring', headers={'Host': 'external.invalid'}).status_code, 403)
                 self.assertEqual(client.get('/api/admin/v1/timecard/active').status_code, 403)
+                logs=client.get('/api/admin/v1/monitoring/ci/logs?repository=example/repo&jobId=81')
+                self.assertEqual(logs.status_code,200)
+                self.assertEqual(logs.json()['text'],'Fixture job log')
+                self.assertEqual(client.get('/api/admin/v1/monitoring/ci/logs?repository=other/repo&jobId=81').status_code,404)
         finally: app.state.monitor_store.close()
 
 

@@ -96,7 +96,7 @@ def collect_logs(config):
     if not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.@:-]{0,180}',config['target']):raise ValueError('Invalid log target')
     limit=max(1,min(100,int(config.get('logLines',100))))
     if config['kind']=='docker':
-        result=subprocess.run(['docker','logs','--timestamps','--tail',str(limit),'--since','5m',config['target']],capture_output=True,text=True,timeout=5)
+        result=subprocess.run(['docker','logs','--timestamps','--tail',str(limit),'--since','168h' if config.get('includeEarlierLogs') else '5m',config['target']],capture_output=True,text=True,timeout=5)
         if result.returncode:raise RuntimeError('Log collection failed')
         lines=[]
         for line in (result.stdout+'\n'+result.stderr).splitlines():
@@ -104,7 +104,7 @@ def collect_logs(config):
             if timestamp(at):lines.append((at,message,None))
     else:
         args=['journalctl']+(['--user'] if config.get('user') else [])
-        text=run(args+['--unit',config['target'],'--since','5 minutes ago','--lines',str(limit),'--output=json','--no-pager'],timeout=5)
+        text=run(args+['--unit',config['target'],'--since','7 days ago' if config.get('includeEarlierLogs') else '5 minutes ago','--lines',str(limit),'--output=json','--no-pager'],timeout=5)
         lines=[]
         for line in text.splitlines():
             data=json.loads(line)

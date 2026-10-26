@@ -10,6 +10,7 @@ from pathlib import Path
 
 from monitoring_models import Observation, redact, timestamp, utcnow
 from monitoring_ci import server_capacity
+from monitoring_failures import FAILED_CONCLUSIONS, infrastructure_jobs
 
 
 class MonitorStore:
@@ -200,8 +201,14 @@ class MonitorStore:
             workflow=(run.get('repository'),run.get('workflow_id') or run.get('name'),run.get('head_branch'))
             if workflow in seen_workflows:continue
             seen_workflows.add(workflow)
-            if run.get('conclusion') in ['failure','timed_out','action_required']:
-                alerts.append({**self.alert('error',None,'ci',run.get('name','CI')+' が失敗しました',run.get('name','CI')+' failed'),'runId':run['id']})
+            if run.get('conclusion') in FAILED_CONCLUSIONS:
+                for job in infrastructure_jobs(ci,run):
+                    cause=job['failureCause']
+                    host=next((h for h,m in self.config.get('github',{}).get('runnerHosts',{}).items()
+                               if job.get('runner_name') in m.get('runnerNames',[])),None)
+                    alerts.append({**self.alert('error',host,'ci',job.get('name','CI')+'：'+cause['message'],
+                        job.get('name','CI')+': '+cause['messageEn']), 'runId':run['id'],
+                        'repository':run['repository'],'jobId':job['id'],'runAttempt':run.get('run_attempt') or 1})
         if ci['state'] in ['stale','error']:
             alerts.append(self.alert('warning',None,'ci','CI情報の取得が停止しています','CI updates are unavailable'))
         alerts.sort(key=lambda a:0 if a['severity']=='error' else 1)
@@ -223,6 +230,9 @@ class MonitorStore:
                 if same_attempt and old.get('status')=='completed' and item.get('status')!='completed': return
                 old_time=timestamp(old.get('updated_at')); new_time=timestamp(item.get('updated_at'))
                 if same_attempt and old_time and new_time and new_time<old_time:return
+                if same_attempt and old.get('conclusion')==item.get('conclusion') and old.get('failureCause') and (
+                        'failureCause' not in item or item['failureCause'].get('source')=='unavailable'):
+                    item['failureCause']=old['failureCause']
             self.db.execute('INSERT OR REPLACE INTO ci VALUES (?,?,?,?)',(repo,kind,item['id'],json.dumps(item)))
             self.db.execute("DELETE FROM ci WHERE repo=? AND kind=? AND json_extract(data,'$.status')='completed' AND id NOT IN (SELECT id FROM ci WHERE repo=? AND kind=? ORDER BY id DESC LIMIT 200)",(repo,kind,repo,kind))
 

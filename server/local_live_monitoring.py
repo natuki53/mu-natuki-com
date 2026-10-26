@@ -21,7 +21,8 @@ from starlette.responses import JSONResponse
 from disk_inventory import parse_inventory
 from monitoring_github import GitHubClient, GitHubMonitor, GitHubUnavailable
 from monitoring_store import MonitorStore
-from monitoring_models import utcnow
+from monitoring_models import utcnow, redact
+from monitoring_failures import failure_evidence
 
 
 def run_local(args, **kwargs):
@@ -80,7 +81,19 @@ class GhReadClient(GitHubClient):
                 raise GitHubUnavailable('GitHub CLI is unavailable') from None
 
     def job_logs(self, repo, job_id):
-        raise GitHubUnavailable('Local live preview reads job steps; open GitHub for full logs')
+        if repo not in self.repositories or type(job_id) is not int or job_id<1:
+            raise ValueError('Job is outside the allowed repositories')
+        with self.lock:
+            if self.clock()<self.retry_at:raise GitHubUnavailable('GitHub collection is waiting before retry')
+            try:
+                response=self.execute(['gh','api','--hostname','github.com','--method','GET',
+                    f'/repos/{repo}/actions/jobs/{job_id}/logs'],timeout=25)
+            except (OSError,subprocess.SubprocessError):
+                raise GitHubUnavailable('Job logs could not be read') from None
+            if response.returncode:raise GitHubUnavailable('Job logs are not available yet')
+            excerpt=response.stdout[-1_000_000:]
+            return {'text':redact(excerpt[-8000:]),'truncated':len(response.stdout)>8000,
+                    'failureCause':failure_evidence(excerpt)}
 
 
 class ReadOnlyBroker:
@@ -234,6 +247,8 @@ def make_live(config, reader_factory=LocalReader):
     app = create_app(settings, ReadOnlyBroker(), store)
     reader = reader_factory(store)
     app.state.local_reader = reader
+    # The HTTP log endpoint must use the same scoped reader as local polling.
+    app.state.github_monitor.client = reader.client
     original = app.router.lifespan_context
 
     @asynccontextmanager

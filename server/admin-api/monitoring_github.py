@@ -10,6 +10,7 @@ import urllib.request
 from pathlib import Path
 
 from monitoring_models import redact, utcnow
+from monitoring_failures import FAILED_CONCLUSIONS, failure_evidence
 
 
 class GitHubUnavailable(Exception):
@@ -96,7 +97,9 @@ class GitHubClient:
             except OSError:raise GitHubUnavailable('Job logs could not be read') from None
             with response:
                 body=response.read(1_000_001)
-            return {'text':redact(body[:1_000_000].decode('utf-8','replace')),'truncated':len(body)>8000}
+            decoded=body[:1_000_000].decode('utf-8','replace')
+            return {'text':redact(decoded),'truncated':len(body)>8000,
+                    'failureCause':failure_evidence(decoded)}
 
 
 class GitHubMonitor:
@@ -106,6 +109,29 @@ class GitHubMonitor:
         self.client=client or GitHubClient(self.config)
         self.stop_event=threading.Event()
         self.thread=None
+        self.failure_cache={}
+        self.failure_budget=3
+
+    def enrich_failure(self, repo, job):
+        if job.get('status')!='completed' or job.get('conclusion') not in FAILED_CONCLUSIONS:
+            return job
+        key=(repo,job['id'],job.get('run_attempt') or 1)
+        now=time.monotonic()
+        cached=self.failure_cache.get(key)
+        if cached and now-cached[0]<cached[2]:
+            return {**job,'failureCause':cached[1]}
+        if self.failure_budget<=0:return job
+        self.failure_budget-=1
+        try:
+            result=self.client.job_logs(repo,job['id'])
+            cause=result.get('failureCause') or failure_evidence(result.get('text',''))
+            ttl=3600
+        except (GitHubUnavailable,OSError,AttributeError):
+            cause={'category':'unconfirmed','source':'unavailable'}
+            ttl=300
+        self.failure_cache[key]=(now,cause,ttl)
+        if len(self.failure_cache)>200:self.failure_cache.pop(next(iter(self.failure_cache)))
+        return {**job,'failureCause':cause}
 
     def runs(self, repo, previous):
         prefix=f'/repos/{repo}/actions/runs'
@@ -124,6 +150,7 @@ class GitHubMonitor:
         return list(merged.values())
 
     def reconcile(self):
+        self.failure_budget=3
         try:
             previous=self.store.ci_summary()
             pending_runs={(j.get('repository'),j.get('run_id')) for j in previous['jobs'] if j.get('status')!='completed'}
@@ -134,12 +161,12 @@ class GitHubMonitor:
                 for run in runs:
                     self.store.record_ci(repo,'run',normalize('run',run))
                     # Refresh active runs and the latest completed run; other retained jobs come from events.
-                    if run.get('status')!='completed' or run is runs[0] or (repo,run['id']) in pending_runs:
+                    if run.get('status')!='completed' or run is runs[0] or (repo,run['id']) in pending_runs or run.get('conclusion') in FAILED_CONCLUSIONS:
                         response=self.client.get(f'/repos/{repo}/actions/runs/{run["id"]}/jobs?per_page=100')
                         if response.get('total_count',0)>len(response.get('jobs',[])):
                             raise GitHubUnavailable('Job inventory exceeds collection limit')
                         for job in response.get('jobs',[]):
-                            self.store.record_ci(repo,'job',normalize('job',job))
+                            self.store.record_ci(repo,'job',self.enrich_failure(repo,normalize('job',job)))
             status=self.store.meta('ci-status')
             self.store.meta('ci-status',{**status,'lastSuccessAt':self.store.clock().isoformat(),'error':None})
         except Exception as error:
