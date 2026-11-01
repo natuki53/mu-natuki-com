@@ -1,0 +1,13 @@
+{
+  "timecardRemote": {
+    "host": "192.168.1.20",
+    "user": "natuki",
+    "identityFile": "/home/natuki/services/admin-runtime/id_ed25519_timecard_ryzen",
+    "knownHostsFile": "/home/natuki/services/admin-runtime/known_hosts_timecard",
+    "enabledFile": "/home/natuki/services/admin-runtime/timecard-ryzen.enabled",
+    "maintenanceFile": "/home/natuki/services/admin-runtime/timecard-maintenance",
+    "heartbeatMirror": "/home/natuki/services/runtime-status/timecard/status.json",
+    "deployRequestFile": "/home/natuki/services/discord-bots/timecard-discord-bot/deploy/ryzen-deploy.request",
+    "deployResultFile": "/home/natuki/services/admin-runtime/timecard-deploy-result.json"
+  }
+}

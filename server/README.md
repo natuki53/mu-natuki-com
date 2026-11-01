@@ -115,7 +115,7 @@ docker compose stop bot-status-collector
 
 管理APIへDockerソケットはマウントしません。ホスト上のUnixソケット型ブローカーが
 固定Bot IDに対する`start`、`restart`、`stop`だけを受け付ける構成とし、任意コマンド、
-SSH、ファイル操作、ホスト再起動・停止は許可しません。変更操作には同一オリジン検証、
+任意のSSH操作、ファイル操作、ホスト再起動・停止は許可しません。変更操作には同一オリジン検証、
 CSRF対策、リクエストID、Bot単位の排他制御、90日保持の監査ログを必須とします。
 
 ## 公開Webアプリの外形監視
@@ -216,3 +216,32 @@ Timecardの完了済み勤務を訂正すると、元の値と訂正後の値を
 
 サービス操作ログは90日保持します。勤怠訂正履歴は勤務データと同期間保持します。
 公開JSONへ管理情報、Discord ID、氏名、コンテナ名、監査ログは追加しません。
+
+## Timecard Botを別ホストで実行する場合
+
+`timecard_remote.py`は、公開サイトと他サービスをIntel機へ残し、Timecardの管理機能だけを
+Ryzen機へ転送します。既存の`admin_broker.py`をそのまま利用するため、既に配備済みの
+勤怠検証や集計処理を置き換えません。
+
+Ryzen側ではTimecardだけを`targets`に登録したブローカーをUnixソケットで実行します。
+`mu-timecard-broker.service`を参照してください。専用SSH鍵は接続元IPを制限し、
+`restrict,command="... timecard_remote.py worker ..."`を指定します。任意のSSHコマンド、
+Timecard以外のサービス操作、任意のパス指定を受け付けません。ホスト鍵は既に確認した鍵を
+専用known_hostsへ固定し、秘密鍵・ブローカーの共有秘密・DBはGitへ登録しません。
+
+Intel側のブローカー設定に`timecard-remote-config.example.json`の`timecardRemote`を加え、
+systemdの起動コマンドを`timecard_remote.py bridge --config ... --socket ...`へ変更します。
+実行ユーザーには公開監視用ミラーとデプロイ要求ディレクトリへの書き込みを許可します。
+管理API・Cloudflare Access・CSRF対策・ブラウザの接続URLは引き継ぎます。
+
+- `enabledFile`の作成前は従来のローカル処理を使います。
+- `maintenanceFile`が存在する間は勤怠の参照・訂正とTimecardの操作を一時停止します。
+- 切り替え後は勤怠APIとTimecardの操作だけを転送し、他サービスはIntel側で処理します。
+- ハートビートを10秒ごとにミラーし、Ryzen側の時刻を保持します。通信断時に古い値を新しく見せません。
+- 監査ログは両ホストの履歴をIDで重複排除して表示します。
+- 既存WebhookのTimecard用スクリプトは要求ファイルを作り、ブリッジがRyzen側の固定デプロイ処理へ転送します。
+
+切り替えは旧Botを停止してから最終SQLiteバックアップを取得し、コピーの整合性・行のハッシュを
+比較した後に新Botを起動します。旧コンテナの再起動ポリシーを`no`にして、旧Composeへ
+退役用profileを付け、二重起動を防ぎます。データを戻す場合は新Botを停止し、Ryzen側の最新DBを
+戻してからIntel側を起動してください。移行前コピーのまま旧Botだけを起動すると、移行後の記録を失います。
