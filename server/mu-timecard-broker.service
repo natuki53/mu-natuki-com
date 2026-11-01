@@ -1,0 +1,24 @@
+[Unit]
+Description=Timecard administration broker on Ryzen
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=natuki
+Group=natuki
+SupplementaryGroups=docker
+WorkingDirectory=/home/natuki/services/timecard-admin-runtime
+EnvironmentFile=/home/natuki/services/timecard-admin-runtime/broker.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/python3 /home/natuki/services/timecard-admin-runtime/admin_broker.py --config /home/natuki/services/timecard-admin-runtime/broker.json --socket /home/natuki/services/timecard-admin-runtime/control.sock
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/natuki/services/timecard-admin-runtime /home/natuki/services/discord-bots/timecard-discord-bot/db /home/natuki/services/discord-bots/timecard-discord-bot/deploy
+
+[Install]
+WantedBy=multi-user.target
